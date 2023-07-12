@@ -54,6 +54,12 @@ typedef enum castling {
     CASTLING_BOTH = CASTLING_KING | CASTLING_QUEEN
 } castling;
 
+typedef struct zobrist_stack
+{
+    uint16_t count;
+    zobrist_key items[ZOBRIST_STACK_SIZE];
+} zobrist_stack;
+
 typedef struct piece_group
 {
     position positions[PIECE_GROUP_MAX_SIZE];
@@ -69,11 +75,14 @@ typedef struct board
     bitboard piece_masks[PLAYERS_COUNT][PIECE_TYPES_COUNT - 1];
     bitboard color_mask[PLAYERS_COUNT];
     bitboard all_piece_mask;
+    bitboard orthogonal_sliders_mask[PLAYERS_COUNT];
+    bitboard diagonal_sliders_mask[PLAYERS_COUNT];
     uint8_t half_move_count;
     castling castling_rights[PLAYERS_COUNT];
-    int8_t last_en_passant_file;
+    uint8_t last_en_passant_file;
+    color current_color;
+    color opponent_color;
     zobrist_key zobrist_key;
-    // TODO
 } board;
 
 #endif // BOARD_TYPES_H
