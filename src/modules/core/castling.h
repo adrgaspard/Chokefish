@@ -1,12 +1,7 @@
 #ifndef CASTLING_H
 #define CASTLING_H
 
-typedef enum castling {
-    CASTLING_NONE = 0b00,
-    CASTLING_KING = 0b01,
-    CASTLING_QUEEN = 0b10,
-    CASTLING_BOTH = CASTLING_KING | CASTLING_QUEEN
-} castling;
+#include "types.h"
 
 static inline bool is_castling_valid(castling castling);
 

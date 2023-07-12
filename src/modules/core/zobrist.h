@@ -1,12 +1,9 @@
 #ifndef ZOBRIST_H
 #define ZOBRIST_H
 
-#include <stdint.h>
-#include "board.h"
+#include "types.h"
 
-typedef uint64_t zobrist_key;
-
-void initialize_zobrist();
+void initialize_zobrist_component();
 
 zobrist_key compute_zobrist_key(board *board);
 

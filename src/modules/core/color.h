@@ -1,16 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <stdbool.h>
-
-#define PLAYERS_COUNT 2
-
-typedef enum color
-{
-    COLOR_WHITE = 0,
-    COLOR_BLACK = 1,
-    COLOR_NONE = 2
-} color;
+#include "types.h"
 
 static inline bool is_color_valid(color color)
 {

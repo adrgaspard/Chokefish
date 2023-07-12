@@ -1,27 +1,12 @@
 #ifndef PIECE_H
 #define PIECE_H
 
-#include <stdint.h>
-#include "color.h"
+#include "types.h"
 
-#define PIECE_TYPES_COUNT 6
 #define _PIECE_MASK 0x0F
 #define _PIECE_TYPE_MASK 0x07
 #define _PIECE_COLOR_MASK 0x08
 #define _PIECE_COLOR_BIT_INDEX 3
-
-typedef enum piece_type
-{
-    PIECE_PAWN = 0,
-    PIECE_KNIGHT = 1,
-    PIECE_BISHOP = 2,
-    PIECE_ROOK = 3,
-    PIECE_QUEEN = 4,
-    PIECE_KING = 5,
-    PIECE_NONE = 6
-} piece_type;
-
-typedef uint8_t piece;
 
 static inline bool is_piece_type_valid(piece_type type);
 static inline bool is_piece_valid(piece piece);

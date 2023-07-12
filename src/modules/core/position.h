@@ -1,15 +1,7 @@
 #ifndef POSITION_H
 #define POSITION_H
 
-#include <stdbool.h>
-#include <stdint.h>
-
-#define RANKS_COUNT 8
-#define FILES_COUNT 8
-#define POSITIONS_COUNT RANKS_COUNT * FILES_COUNT
-#define NO_POSITION 255
-
-typedef uint8_t position;
+#include "types.h"
 
 static inline bool is_position_valid(position position);
 

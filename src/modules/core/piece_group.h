@@ -1,16 +1,7 @@
 #ifndef PIECE_GROUP_H
 #define PIECE_GROUP_H
 
-#include "position.h"
-
-#define PIECE_GROUP_MAX_SIZE 10
-
-typedef struct piece_group
-{
-    position positions[PIECE_GROUP_MAX_SIZE];
-    uint8_t map[POSITIONS_COUNT];
-    uint8_t count;
-} piece_group;
+#include "types.h"
 
 static inline bool is_piece_group_valid(piece_group *group);
 static inline piece_group create_piece_group();

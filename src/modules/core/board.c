@@ -1,6 +1,6 @@
 #include "board.h"
 
-void initialize_board_precomputed_data()
+void initialize_board_component()
 {
     position position;
     uint8_t rank, file;

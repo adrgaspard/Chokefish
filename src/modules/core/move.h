@@ -1,8 +1,7 @@
 #ifndef MOVE_H
 #define MOVE_H
 
-#include <stdbool.h>
-#include "position.h"
+#include "types.h"
 
 #define _POSITION_MASK 0x003F
 #define _FLAGS_MASK 0x000F
@@ -12,26 +11,6 @@
 #define _PROMOTION_FLAGS_MASK 0x8
 #define _CASTLING_FLAGS_PATTERN 0xA
 #define _CASTLING_FLAGS_PATTERN_RESULT 0x2
-
-typedef enum move_flags
-{
-    MOVE_QUIET = 0x0,
-    MOVE_DOUBLE_PAWN_PUSH = 0x1,
-    MOVE_KING_CASTLE = 0x2,
-    MOVE_QUEEN_CASTLE = 0x3,
-    MOVE_CAPTURE = 0x4,
-    MOVE_EN_PASSANT_CAPTURE = 0x5,
-    MOVE_KNIGHT_PROMOTION = 0x8,
-    MOVE_BISHOP_PROMOTION = 0x9,
-    MOVE_ROOK_PROMOTION = 0xA,
-    MOVE_QUEEN_PROMOTION = 0xB,
-    MOVE_KNIGHT_PROMOTION_CAPTURE = 0xC,
-    MOVE_BISHOP_PROMOTION_CAPTURE = 0xD,
-    MOVE_ROOK_PROMOTION_CAPTURE = 0xE,
-    MOVE_QUEEN_PROMOTION_CAPTURE = 0xF
-} move_flags;
-
-typedef uint16_t move;
 
 static inline bool is_movement_flags_valid(move_flags flags);
 static inline bool is_movement_valid(move move);

@@ -1,10 +1,7 @@
 #ifndef BITBOARD_H
 #define BITBOARD_H
 
-#include <stdint.h>
-#include "position.h"
-
-typedef uint64_t bitboard;
+#include "types.h"
 
 static inline bitboard set_position_to_zero(bitboard bitboard, position position);
 static inline bitboard set_position_to_one(bitboard bitboard, position position);
