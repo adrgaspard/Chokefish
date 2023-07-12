@@ -63,7 +63,16 @@ typedef struct piece_group
 
 typedef struct board
 {
-    zobrist_key key;
+    piece position[POSITIONS_COUNT];
+    piece_group piece_groups[PLAYERS_COUNT][PIECE_TYPES_COUNT - 1];
+    position king_position[PLAYERS_COUNT];
+    bitboard piece_masks[PLAYERS_COUNT][PIECE_TYPES_COUNT - 1];
+    bitboard color_mask[PLAYERS_COUNT];
+    bitboard all_piece_mask;
+    uint8_t half_move_count;
+    castling castling_rights[PLAYERS_COUNT];
+    int8_t last_en_passant_file;
+    zobrist_key zobrist_key;
     // TODO
 } board;
 
