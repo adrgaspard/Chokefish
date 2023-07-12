@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void initialize_zobrist_component();
+void initialize_zobrist();
 
 zobrist_key compute_zobrist_key(board *board);
 

@@ -1,7 +1,7 @@
 #include "shared_random.h"
 #include "zobrist.h"
 
-void initialize_zobrist_component()
+void initialize_zobrist()
 {
     // TODO
 }
