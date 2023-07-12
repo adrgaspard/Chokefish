@@ -8,6 +8,8 @@ typedef enum castling {
     CASTLING_BOTH = CASTLING_KING | CASTLING_QUEEN
 } castling;
 
+static inline bool is_castling_valid(castling castling);
+
 static inline bool is_castling_valid(castling castling)
 {
     return castling >= CASTLING_NONE && castling <= CASTLING_BOTH;

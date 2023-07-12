@@ -14,4 +14,3 @@ void initialize_board_precomputed_data()
         g_file_mask[file] = 0x0101010101010101ULL << file;
     }
 }
-
