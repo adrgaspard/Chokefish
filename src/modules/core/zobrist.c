@@ -23,7 +23,7 @@ void initialize_zobrist()
     {
         for (castling_black = CASTLING_NONE; castling_black <= CASTLING_BOTH; castling_black++)
         {
-            g_castling_hashes[castling_white][castling_black] = (zobrist_key)get_rand_u64();
+            g_castling_hashes[castling_white * CASTLING_STATES_COUNT + castling_black] = (zobrist_key)get_rand_u64();
         }
     }
     for (file = 0; file < FILES_COUNT; file++)
@@ -48,11 +48,11 @@ zobrist_key compute_zobrist_key(board *board)
             key ^= get_piece_hash(piece, position);
         }
     }
-    key ^= get_en_passant_file_hash(board->last_en_passant_file);
-    if (board->current_color == COLOR_BLACK)
+    key ^= get_en_passant_file_hash(board->current_game_state.last_en_passant_file);
+    if (board->color_to_move == COLOR_BLACK)
     {
         key ^= g_opponent_turn_hash;
     }
-    key ^= get_castling_hash(board->castling_rights[COLOR_WHITE], board->castling_rights[COLOR_BLACK]);
+    key ^= get_castling_hash(board->current_game_state.castling_data);
     return key;
 }

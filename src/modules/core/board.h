@@ -1,18 +1,48 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include "bitboard.h"
+#include "game_state.h"
+#include "move.h"
+#include "piece_group.h"
+#include "position.h"
 #include "precomputed_board_data.h"
-#include "types.h"
+#include "zobrist.h"
+
+#define _WHITE_EN_PASSANT_CAPTURE_GAP -RANKS_COUNT
+#define _BLACK_EN_PASSANT_CAPTURE_GAP RANKS_COUNT
+#define _CASTLING_KING_SIDE_ROOK_START(dest_pos) dest_pos + 1
+#define _CASTLING_QUEEN_SIDE_ROOK_START(dest_pos) dest_pos - 2
+#define _CASTLING_KING_SIDE_ROOK_DEST(dest_pos) dest_pos - 1
+#define _CASTLING_QUEEN_SIDE_ROOK_DEST(dest_pos) dest_pos + 1
+
 
 static inline bool is_valid_board(board *board);
 static inline board create_board();
-static inline void do_move(board *board, move move);
+static inline void move_piece(board *board, color color, piece piece, piece_type piece_type, position start_pos, position dest_pos);
+static inline void do_move(board *board, move move, bool is_search);
 
 static inline bool is_valid_board(board *board)
 {
     (void)board;
     // TODO
     return true;
+}
+
+static inline void move_piece(board *board, color color, piece piece, piece_type piece_type, position start_pos, position dest_pos)
+{
+    toggle_positions(&(board->color_mask[color]), start_pos, dest_pos);
+    if (piece_type == PIECE_KING)
+    {
+        board->king_position[color] = dest_pos;
+    }
+    else 
+    {
+        toggle_positions(&(board->piece_masks[color][piece_type]), start_pos, dest_pos);
+        move_position_in_group(&(board->piece_groups[color][piece_type]), start_pos, dest_pos);
+    }
+    board->position[start_pos] = create_empty_piece();
+    board->position[dest_pos] = piece;
 }
 
 static inline board create_board()
@@ -22,11 +52,161 @@ static inline board create_board()
     return board;
 }
 
-static inline void do_move(board *board, move move)
+static inline void do_move(board *board, move move, bool is_search)
 {
-    (void)board;
-    (void)move;
-    // TODO
+    // Variables declarations
+    color current_color, opponent_color;
+    position start_pos, dest_pos, capture_pos, castling_rook_start_pos, castling_rook_dest_pos;
+    move_flags flags;
+    bool en_passant, king_side_castling;
+    piece moved_piece, captured_piece, castling_rook;
+    piece_type moved_piece_type, captured_piece_type, promoted_piece_type;
+    castling_data old_castling_data, new_castling_data;
+    uint8_t old_en_passant_file, new_en_passant_file, move_counter;
+    zobrist_key new_key;
+    game_state new_game_state;
+
+    // Variables initializations
+    current_color = board->color_to_move;
+    opponent_color = get_opponent(current_color);
+    start_pos = get_start_pos(move);
+    dest_pos = get_dest_pos(move);
+    flags = get_flags(move);
+    en_passant = is_en_passant(flags);
+    moved_piece = board->position[start_pos];
+    moved_piece_type = get_type(moved_piece_type);
+    captured_piece = en_passant ? create_piece(opponent_color, PIECE_PAWN) : board->position[dest_pos];
+    captured_piece_type = get_type(captured_piece);
+    old_castling_data = board->current_game_state.castling_data;
+    new_castling_data = old_castling_data;
+    old_en_passant_file = board->current_game_state.last_en_passant_file;
+    new_en_passant_file = NO_FILE;
+    new_key = board->current_game_state.zobrist_key;
+
+    // Handle normal cases : update bitboards and piece groups
+    move_piece(board, current_color, moved_piece, moved_piece_type, start_pos, dest_pos);
+
+    // Handle capture cases
+    if (captured_piece_type != PIECE_NONE)
+    {
+        capture_pos = dest_pos;
+        if (en_passant)
+        {
+            capture_pos = dest_pos + (current_color == COLOR_WHITE ? _WHITE_EN_PASSANT_CAPTURE_GAP : _BLACK_EN_PASSANT_CAPTURE_GAP);
+            board->position[capture_pos] = create_empty_piece();
+        }
+        if (captured_piece_type != PIECE_PAWN)
+        {
+            board->special_piece_count--;
+        }
+        // Remove captured piece from bitboards and piece groups
+        remove_position_from_group(&(board->piece_groups[opponent_color][captured_piece_type]), capture_pos);
+        toggle_position(&(board->piece_masks[opponent_color][captured_piece_type]), capture_pos);
+        toggle_position(&(board->color_mask[opponent_color]), capture_pos);
+        new_key ^= get_piece_hash(captured_piece, capture_pos);
+    }
+
+    // Handle king move cases
+    if (moved_piece_type == PIECE_KING)
+    {
+        new_castling_data = get_castling_data_without_both_sides(new_castling_data, current_color);
+
+        // Handle castling cases
+        if (is_castling(flags))
+        {
+            castling_rook = create_piece(current_color, PIECE_ROOK);
+            king_side_castling = flags == MOVE_KING_CASTLE;
+            castling_rook_start_pos = king_side_castling ? _CASTLING_KING_SIDE_ROOK_START(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_START(dest_pos);
+            castling_rook_dest_pos = king_side_castling ? _CASTLING_KING_SIDE_ROOK_DEST(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_DEST(dest_pos);
+            // Update rook position in bitboards and piece groups
+            toggle_positions(&(board->piece_masks[current_color][PIECE_ROOK]), castling_rook_start_pos, castling_rook_dest_pos);
+            toggle_positions(&(board->color_mask[current_color]), castling_rook_start_pos, castling_rook_dest_pos);
+            move_position_in_group(&(board->piece_groups[current_color][PIECE_ROOK]), castling_rook_start_pos, castling_rook_dest_pos);
+            board->position[castling_rook_start_pos] = create_empty_piece();
+            board->position[castling_rook_dest_pos] = castling_rook;
+            new_key ^= get_piece_hash(castling_rook, castling_rook_start_pos);
+            new_key ^= get_piece_hash(castling_rook, castling_rook_dest_pos);
+        }
+    }
+
+    // Handle promotion
+    if (is_promotion(flags))
+    {
+        board->special_piece_count++;
+        promoted_piece_type = get_promotion_piece_type(flags);
+
+        // Replace pawn by promoted piece in bitboards and piece groups
+        toggle_position(&(board->piece_masks[current_color][PIECE_PAWN]), dest_pos);
+        toggle_position(&(board->piece_masks[current_color][promoted_piece_type]), dest_pos);
+        remove_position_from_group(&(board->piece_groups[current_color][PIECE_PAWN]), dest_pos);
+        add_position_to_group(&(board->piece_groups[current_color][promoted_piece_type]), dest_pos);
+        board->position[dest_pos] = create_piece(current_color, promoted_piece_type);
+    }
+
+    // Handle double pawn push
+    if (flags == MOVE_DOUBLE_PAWN_PUSH)
+    {
+        new_en_passant_file = get_file(start_pos);
+        new_key ^= get_en_passant_file_hash(new_en_passant_file);
+    }
+
+    // Update castling data
+    if (old_castling_data != 0)
+    {
+        // Update castling data if the piece goes on a initial rook position
+        if (start_pos == POS_A1 || dest_pos == POS_A1)
+        {
+            new_castling_data = get_castling_data_without_queen_side(old_castling_data, COLOR_WHITE);
+        }
+        else if (start_pos == POS_A8 || dest_pos == POS_A8)
+        {
+            new_castling_data = get_castling_data_without_queen_side(old_castling_data, COLOR_BLACK);
+        }
+        else if (start_pos == POS_H1 || dest_pos == POS_H1)
+        {
+            new_castling_data = get_castling_data_without_king_side(old_castling_data, COLOR_WHITE);
+        }
+        else if (start_pos == POS_H8 || dest_pos == POS_H8)
+        {
+            new_castling_data = get_castling_data_without_king_side(old_castling_data, COLOR_BLACK);
+        }
+    }
+
+    // Update zobrist key
+    new_key ^= g_opponent_turn_hash;
+    new_key ^= get_piece_hash(moved_piece, start_pos);
+    new_key ^= get_piece_hash(board->position[dest_pos], dest_pos);
+    new_key ^= get_en_passant_file_hash(old_en_passant_file);
+    if (new_castling_data != old_castling_data)
+    {
+        new_key ^= get_castling_hash(old_castling_data);
+        new_key ^= get_castling_hash(new_castling_data);
+    }
+
+    // Change current player
+    board->color_to_move = opponent_color;
+    move_counter = board->current_game_state.half_move_count + 1;
+
+    // Update extra bitboards
+    board->all_piece_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
+    // TODO : update slider bitboards
+
+    if (!is_search && (moved_piece_type == PIECE_PAWN || captured_piece_type != PIECE_NONE))
+    {
+        // TODO : Clear stack of zobrist_key (for triple repetition)
+        move_counter = 0;
+    }
+
+    new_game_state = create_game_state(new_castling_data, new_en_passant_file, move_counter, captured_piece, new_key);
+    // TODO : push game state in game state stack
+    board->current_game_state = new_game_state;
+    // TODO : Uncache check value
+
+    if (!is_search)
+    {
+        // TODO : push zobrist key in stack for three repetition
+        // TODO : add movement to move stack
+    }
 }
 
 #endif // BOARD_H

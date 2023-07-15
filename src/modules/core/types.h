@@ -5,7 +5,8 @@
 #include <stdint.h>
 #include "consts.h"
 
-typedef uint8_t position;
+typedef uint8_t castling_data;
+typedef int8_t position;
 typedef uint8_t piece;
 typedef uint16_t move;
 typedef uint64_t zobrist_key;
@@ -67,6 +68,15 @@ typedef struct piece_group
     uint8_t count;
 } piece_group;
 
+typedef struct game_state
+{
+    castling_data castling_data;
+    uint8_t last_en_passant_file;
+    uint8_t half_move_count;
+    piece captured_piece;
+    zobrist_key zobrist_key;
+} game_state;
+
 typedef struct board
 {
     piece position[POSITIONS_COUNT];
@@ -77,12 +87,9 @@ typedef struct board
     bitboard all_piece_mask;
     bitboard orthogonal_sliders_mask[PLAYERS_COUNT];
     bitboard diagonal_sliders_mask[PLAYERS_COUNT];
-    uint8_t half_move_count;
-    castling castling_rights[PLAYERS_COUNT];
-    uint8_t last_en_passant_file;
-    color current_color;
-    color opponent_color;
-    zobrist_key zobrist_key;
+    game_state current_game_state;
+    color color_to_move;
+    uint8_t special_piece_count;
 } board;
 
 #endif // BOARD_TYPES_H

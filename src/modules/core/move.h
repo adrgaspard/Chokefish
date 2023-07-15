@@ -9,6 +9,7 @@
 #define _FLAGS_BIT_INDEX 12
 #define _CAPTURE_FLAGS_MASK 0x4
 #define _PROMOTION_FLAGS_MASK 0x8
+#define _SPECIALS_FLAGS_MASK 0x3
 #define _CASTLING_FLAGS_PATTERN 0xA
 #define _CASTLING_FLAGS_PATTERN_RESULT 0x2
 
@@ -22,6 +23,7 @@ static inline bool is_capture(move_flags flags);
 static inline bool is_en_passant(move_flags flags);
 static inline bool is_promotion(move_flags flags);
 static inline bool is_castling(move_flags flags);
+static inline piece_type get_promotion_piece_type(move_flags flags);
 
 static inline bool is_movement_flags_valid(move_flags flags)
 {
@@ -71,6 +73,11 @@ static inline bool is_promotion(move_flags flags)
 static inline bool is_castling(move_flags flags)
 {
     return (flags & _CASTLING_FLAGS_PATTERN) == _CASTLING_FLAGS_PATTERN_RESULT;
+}
+
+static inline piece_type get_promotion_piece_type(move_flags flags)
+{
+    return is_promotion(flags) ? (PIECE_KNIGHT + (piece_type)(flags & _SPECIALS_FLAGS_MASK)) : PIECE_NONE;
 }
 
 #endif // MOVE_H

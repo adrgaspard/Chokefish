@@ -45,11 +45,11 @@ static inline void remove_position_from_group(piece_group *group, position posit
     group->count--;
 }
 
-static inline void move_position_in_group(piece_group *group, position position)
+static inline void move_position_in_group(piece_group *group, position start_pos, position dest_pos)
 {
-    uint8_t piece_index = group->map[position];
-    group->positions[piece_index] = position;
-    group->map[position] = piece_index;
+    uint8_t piece_index = group->map[start_pos];
+    group->positions[piece_index] = dest_pos;
+    group->map[dest_pos] = piece_index;
 }
 
 #endif // PIECE_GROUP_H

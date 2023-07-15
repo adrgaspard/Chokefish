@@ -4,7 +4,7 @@
 #include "types.h"
 
 zobrist_key g_piece_hashes[PIECE_INDEXES_COUNT][POSITIONS_COUNT];
-zobrist_key g_castling_hashes[CASTLING_STATES_COUNT][CASTLING_STATES_COUNT];
+zobrist_key g_castling_hashes[CASTLING_STATES_COUNT * CASTLING_STATES_COUNT];
 zobrist_key g_en_passant_file_hashes[FILES_COUNT + 1];
 zobrist_key g_opponent_turn_hash;
 
@@ -17,9 +17,9 @@ static inline zobrist_key get_piece_hash(piece piece, position position)
     return g_piece_hashes[piece][position];
 }
 
-static inline zobrist_key get_castling_hash(castling white_castling, castling black_castling)
+static inline zobrist_key get_castling_hash(castling_data data)
 {
-    return g_castling_hashes[white_castling][black_castling];
+    return g_castling_hashes[data];
 }
 
 static inline zobrist_key get_en_passant_file_hash(uint8_t en_passant_file)
