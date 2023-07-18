@@ -3,10 +3,10 @@
 
 #include "types.h"
 
-static inline void set_position_to_zero(bitboard bitboard, position position);
-static inline void set_position_to_one(bitboard bitboard, position position);
-static inline void toggle_position(bitboard bitboard, position position);
-static inline void toggle_positions(bitboard bitboard, position first, position second);
+static inline void set_position_to_zero(bitboard *bitboard, position position);
+static inline void set_position_to_one(bitboard *bitboard, position position);
+static inline void toggle_position(bitboard *bitboard, position position);
+static inline void toggle_positions(bitboard *bitboard, position first, position second);
 static inline bool contains_position(bitboard bitboard, position position);
 
 static inline void set_position_to_zero(bitboard *bitboard, position position)

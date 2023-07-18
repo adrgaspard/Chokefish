@@ -16,6 +16,7 @@
 static inline bool is_movement_flags_valid(move_flags flags);
 static inline bool is_movement_valid(move move);
 static inline move create_movement(position start_pos, position dest_pos, move_flags flags);
+static inline move create_empty_movement();
 static inline position get_start_pos(move move);
 static inline position get_dest_pos(move move);
 static inline move_flags get_flags(move move);
@@ -32,12 +33,18 @@ static inline bool is_movement_flags_valid(move_flags flags)
 
 static inline bool is_movement_valid(move move)
 {
-    return is_position_valid(get_start_pos(move)) && is_position_valid(get_dest_pos(move)) && is_movement_flags_valid(get_flags(move));
+    return (is_position_valid(get_start_pos(move)) && is_position_valid(get_dest_pos(move)) && is_movement_flags_valid(get_flags(move)))
+        || move == create_empty_movement();
 }
 
 static inline move create_movement(position start_pos, position dest_pos, move_flags flags)
 {
     return (move)((((uint8_t)flags & _FLAGS_MASK) << _FLAGS_BIT_INDEX) | ((start_pos & _POSITION_MASK) << _START_POS_BIT_INDEX) | (dest_pos & _POSITION_MASK));
+}
+
+static inline move create_empty_movement()
+{
+    return create_movement(NO_POSITION, NO_POSITION, MOVE_QUIET);
 }
 
 static inline position get_start_pos(move move)

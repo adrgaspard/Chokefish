@@ -1,6 +1,12 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
+// Partially mutable consts
+
+#define PASSIVE_HALF_MOVE_COUNT_MAX 100 // Must be lower or equal to the zobrist_stack size declaration in types.h
+
+// Immutable consts
+
 #define RANKS_COUNT 8
 #define FILES_COUNT 8
 #define POS_A1 0
@@ -15,6 +21,5 @@
 #define PIECE_INDEXES_COUNT 16
 #define PIECE_TYPES_COUNT 6
 #define PIECE_GROUP_MAX_SIZE 10
-#define ZOBRIST_STACK_SIZE 1000
 
 #endif // CONSTS_H

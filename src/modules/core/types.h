@@ -1,9 +1,9 @@
-#ifndef BOARD_TYPES_H
-#define BOARD_TYPES_H
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <stdbool.h>
-#include <stdint.h>
 #include "consts.h"
+#include "static_stack.h"
 
 typedef uint8_t castling_data;
 typedef int8_t position;
@@ -55,12 +55,6 @@ typedef enum castling {
     CASTLING_BOTH = CASTLING_KING | CASTLING_QUEEN
 } castling;
 
-typedef struct zobrist_stack
-{
-    uint16_t count;
-    zobrist_key items[ZOBRIST_STACK_SIZE];
-} zobrist_stack;
-
 typedef struct piece_group
 {
     position positions[PIECE_GROUP_MAX_SIZE];
@@ -77,6 +71,11 @@ typedef struct game_state
     zobrist_key zobrist_key;
 } game_state;
 
+DECLARE_STATIC_STACK_TYPE(game_state, 10000)
+DECLARE_STATIC_STACK_TYPE(zobrist_key, 100)
+typedef static_stack__game_state__10000 game_state_stack;
+typedef static_stack__zobrist_key__100 zobrist_stack;
+
 typedef struct board
 {
     piece position[POSITIONS_COUNT];
@@ -90,6 +89,8 @@ typedef struct board
     game_state current_game_state;
     color color_to_move;
     uint8_t special_piece_count;
+    game_state_stack *game_state_history;
+    zobrist_stack *position_repetition_history;
 } board;
 
-#endif // BOARD_TYPES_H
+#endif // TYPES_H
