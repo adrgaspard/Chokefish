@@ -71,10 +71,9 @@ typedef struct game_state
     zobrist_key zobrist_key;
 } game_state;
 
-DECLARE_STATIC_STACK_TYPE(game_state, 10000)
-DECLARE_STATIC_STACK_TYPE(zobrist_key, 100)
-typedef static_stack__game_state__10000 game_state_stack;
-typedef static_stack__zobrist_key__100 zobrist_stack;
+DECLARE_STATIC_STACK_TYPE(game_state, 10000, game_state_stack)
+DECLARE_STATIC_STACK_TYPE(move, 10000, move_stack)
+DECLARE_STATIC_STACK_TYPE(zobrist_key, 100, zobrist_stack)
 
 typedef struct board
 {
@@ -90,7 +89,10 @@ typedef struct board
     color color_to_move;
     uint8_t special_piece_count;
     game_state_stack *game_state_history;
+    move_stack *move_history;
     zobrist_stack *position_repetition_history;
+    bool check_state;
+    bool is_check_state_cached;
 } board;
 
 #endif // TYPES_H
