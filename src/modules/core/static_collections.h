@@ -1,10 +1,10 @@
-#ifndef STATIC_STACK_H
-#define STATIC_STACK_H
+#ifndef STATIC_COLLECTIONS_H
+#define STATIC_COLLECTIONS_H
 
 #include <assert.h>
 #include <stdint.h>
 
-#define DECLARE_STATIC_STACK_TYPE(type, size, name)                                                                                   \
+#define DECLARE_STATIC_STACK_TYPE(type, size, name)                 \
 typedef struct name                                                 \
 {                                                                   \
     type items[size];                                               \
@@ -12,13 +12,13 @@ typedef struct name                                                 \
     uint32_t capacity;                                              \
 } name;                                                             \
                                                                     \
-static inline struct name _create_##name();                         \
+static inline struct name create_##name();                          \
 static inline void push_on_##name(name *stack_ptr, type element);   \
 static inline type pop_from_##name(name *stack_ptr);                \
 static inline type peek_from_##name(name *stack_ptr);               \
 static inline void clear_##name(name *stack_ptr);                   \
                                                                     \
-static inline struct name _create_##name()                          \
+static inline struct name create_##name()                           \
 {                                                                   \
     name stack;                                                     \
     stack.count = 0;                                                \
@@ -50,4 +50,34 @@ static inline void clear_##name(name *stack_ptr)                    \
     stack_ptr->count = 0;                                           \
 }
 
-#endif // STATIC_STACK_H
+#define DECLARE_STATIC_ARRAY_TYPE(type, size, name)                 \
+typedef struct name                                                 \
+{                                                                   \
+    type items[size];                                               \
+    uint32_t count;                                                 \
+    uint32_t capacity;                                              \
+} name;                                                             \
+                                                                    \
+static inline struct name create_##name();                          \
+static inline void clear_##name(name *array_ptr);                   \
+                                                                    \
+static inline struct name create_##name()                           \
+{                                                                   \
+    name array;                                                     \
+    array.count = 0;                                                \
+    array.capacity = size;                                          \
+    return array;                                                   \
+}                                                                   \
+                                                                    \
+static inline void append_on_##name(name *array_ptr, type element)  \
+{                                                                   \
+    assert(array_ptr->count < array_ptr->capacity);                 \
+    array_ptr->items[array_ptr->count++] = element;                 \
+}                                                                   \
+                                                                    \
+static inline void clear_##name(name *array_ptr)                    \
+{                                                                   \
+    array_ptr->count = 0;                                           \
+}
+
+#endif // STATIC_COLLECTIONS_H

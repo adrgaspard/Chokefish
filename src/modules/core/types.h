@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include "consts.h"
-#include "static_stack.h"
+#include "static_collections.h"
 
 typedef uint8_t castling_data;
 typedef int8_t position;
@@ -55,6 +55,12 @@ typedef enum castling {
     CASTLING_BOTH = CASTLING_KING | CASTLING_QUEEN
 } castling;
 
+typedef struct vector2
+{
+    int32_t x;
+    int32_t y;
+} vector2;
+
 typedef struct piece_group
 {
     position positions[PIECE_GROUP_MAX_SIZE];
@@ -65,7 +71,7 @@ typedef struct piece_group
 typedef struct game_state
 {
     castling_data castling_data;
-    uint8_t last_en_passant_file;
+    int8_t last_en_passant_file;
     uint8_t half_move_count;
     piece captured_piece;
     zobrist_key zobrist_key;

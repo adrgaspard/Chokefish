@@ -22,7 +22,7 @@ static inline zobrist_key get_castling_hash(castling_data data)
     return g_castling_hashes[data];
 }
 
-static inline zobrist_key get_en_passant_file_hash(uint8_t en_passant_file)
+static inline zobrist_key get_en_passant_file_hash(int8_t en_passant_file)
 {
     return en_passant_file == NO_FILE ? g_en_passant_file_hashes[FILES_COUNT] : g_en_passant_file_hashes[en_passant_file - 1];
 }
