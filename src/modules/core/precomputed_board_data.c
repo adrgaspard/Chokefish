@@ -1,5 +1,4 @@
 #include "bitboard.h"
-#include "dynamic_collections.h"
 #include "position.h"
 #include "precomputed_board_data.h"
 #include "static_collections.h"
@@ -10,7 +9,6 @@
 #define _KNIGHT_VECTORS_COUNT 8
 
 DECLARE_STATIC_ARRAY_TYPE(position, POSITIONS_COUNT, position_array64)
-DECLARE_DYNAMIC_ARRAY_TYPE(bitboard, bitboard_dynamic_array)
 
 typedef struct index_validation_result
 {
@@ -44,9 +42,6 @@ static vector2 s_knight_vectors[] = {
 static void initialize_positions_ranks_files_masks();
 static void initialize_attacks_moves_masks();
 static index_validation_result compute_index_if_valid(int32_t x, int32_t y);
-static bitboard_dynamic_array compute_blockers_bitboards(bitboard move_mask);
-static bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_diag);
-static bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard, bool ortho_instead_of_diag);
 
 void initialize_precomputed_board_data()
 {
@@ -139,7 +134,7 @@ static index_validation_result compute_index_if_valid(int32_t x, int32_t y)
     return result;
 }
 
-static bitboard_dynamic_array compute_blockers_bitboards(bitboard move_mask)
+bitboard_dynamic_array compute_blockers_bitboards(bitboard move_mask)
 {
     position_array64 indices;
     position pos;
@@ -166,7 +161,7 @@ static bitboard_dynamic_array compute_blockers_bitboards(bitboard move_mask)
     return combinations;
 }
 
-static bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_diag)
+bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_diag)
 {
     bitboard mask;
     vector2 *vectors;
@@ -200,7 +195,7 @@ static bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_dia
     return mask;
 }
 
-static bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard, bool ortho_instead_of_diag)
+bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard, bool ortho_instead_of_diag)
 {
     bitboard mask;
     vector2 *vectors;

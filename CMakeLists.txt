@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
 set(PROJECT_NAME Chokefish)
+set(GENERATOR_NAME Generator)
 project(${PROJECT_NAME})
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(MODULES_TO_INCLUDE
     core
+    generation
     # serialization
     # ai
     # uci
@@ -24,7 +26,8 @@ foreach(MODULE ${MODULES_TO_INCLUDE})
     add_subdirectory(src/modules/${MODULE})
 endforeach()
 
-add_executable(${PROJECT_NAME} src/host/main.c)
+add_executable(${PROJECT_NAME} src/host/engine.c)
+add_executable(${GENERATOR_NAME} src/host/generator.c)
 foreach(MODULE ${MODULES_TO_INCLUDE})
     target_link_libraries(${PROJECT_NAME} ${MODULE})
 endforeach()
