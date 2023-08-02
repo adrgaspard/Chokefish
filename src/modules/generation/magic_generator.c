@@ -1,8 +1,12 @@
 #include "../core/shared_random.h"
 #include "magic_generator.h"
 
+#define _MIN_PROBABILITY_ONE 0.25
+#define _MAX_PROBABILITY_ONE 0.95
+
 static position_generation_data compute_position_generation_data(position start_pos, bool ortho_instead_of_diag);
 static bool is_magic_valid(position_generation_data *lookup, bitboard_dynamic_array test, bitboard magic, uint8_t bit_size);
+static bitboard get_random_magic();
 
 magic_generation_data create_magic_generation_data()
 {
@@ -31,7 +35,7 @@ magic_result compute_magic(magic_generation_data *data, position start_pos, bool
     test = create_bitboard_dynamic_array(entries_count);
     for (i = 0; i < iterations_count; i++)
     {
-        current_magic = (bitboard)get_rand_u64();
+        current_magic = get_random_magic();
         for (current_size = (uint8_t)(min_size_found - 1); current_size > 0; current_size--)
         {
             clear_bitboard_dynamic_array(&test);
@@ -95,6 +99,24 @@ static bool is_magic_valid(position_generation_data *lookup, bitboard_dynamic_ar
             return false;
         }
     }
-    //printf("New magic detected with %u bits and with %u blockers combinations\n", bit_size, lookup->blockers_combinations.count);
     return true;
+}
+
+static bitboard get_random_magic()
+{
+    position pos;
+    bitboard magic;
+    double min, max, probability;
+    magic = 0;
+    min = _MIN_PROBABILITY_ONE;
+    max = _MAX_PROBABILITY_ONE;
+    probability = min + (max - min) * (rand() / (double)RAND_MAX);
+    for (pos = 0; pos < POSITIONS_COUNT; pos++)
+    {
+        if ((rand() / (double)RAND_MAX) < probability)
+        {
+            magic |= 1ULL << pos;
+        }
+    }
+    return magic;
 }

@@ -6,8 +6,8 @@
 
 #define DEFAULT_MAX_BIT_SIZE 13
 #define ITERATIONS_COUNT_PER_SEARCH 1000
-#define PRINT_SEARCH_INFORMATIONS_INTERVAL 50000
-#define SAVE_SEARCH_RESULTS_INTERVAL 50000
+#define PRINT_SEARCH_INFORMATIONS_INTERVAL 2000
+#define SAVE_SEARCH_RESULTS_INTERVAL 20000
 #define FILE_PATH_BASE "generated_magics_"
 #define FILE_PATH_MAX_LENGTH 40
 #define FILE_PATH_IDENTIFIER_MAX_LENGTH 20
@@ -68,6 +68,7 @@ static void save_search_results(char *path, magic_result *orthogonal_best_magics
         {
             fprintf(buffer, "%lu %u\n", orthogonal_best_magics[pos].value, orthogonal_best_magics[pos].bit_size);
         }
+        fprintf(buffer, "\n");
         for (pos = 0; pos < POSITIONS_COUNT; pos++)
         {
             fprintf(buffer, "%lu %u\n", diagonal_best_magics[pos].value, diagonal_best_magics[pos].bit_size);

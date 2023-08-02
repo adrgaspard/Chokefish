@@ -216,7 +216,7 @@ bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard
             if (pos_result.valid)
             {
                 set_position_to_one(&mask, pos_result.index);
-                if (contains_position(blockers_bitboard, start_pos))
+                if (contains_position(blockers_bitboard, pos_result.index))
                 {
                     break;
                 }
