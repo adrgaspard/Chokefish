@@ -61,16 +61,16 @@ bool is_new_magic_result_better(magic_result old_result, magic_result new_result
 static position_generation_data compute_position_generation_data(position start_pos, bool ortho_instead_of_diag)
 {
     position_generation_data data;
-    bitboard moves_mask;
+    bitboard moves_mask, legal_moves_mask;
     bitboard_dynamic_array blocker_bitboards, legal_moves_bitboards;
     uint32_t bitboard_index;
     moves_mask = compute_moves_mask(start_pos, ortho_instead_of_diag);
-    printf("Move mask provided: %lu\n", moves_mask);
     blocker_bitboards = compute_blockers_bitboards(moves_mask);
     legal_moves_bitboards = create_bitboard_dynamic_array(blocker_bitboards.capacity);
     for (bitboard_index = 0; bitboard_index < blocker_bitboards.count; bitboard_index++)
     {
-        append_on_bitboard_dynamic_array(&legal_moves_bitboards, compute_legal_moves_mask(start_pos, blocker_bitboards.items[bitboard_index], ortho_instead_of_diag));
+        legal_moves_mask = compute_legal_moves_mask(start_pos, blocker_bitboards.items[bitboard_index], ortho_instead_of_diag);
+        append_on_bitboard_dynamic_array(&legal_moves_bitboards, legal_moves_mask);
     }
     data.blockers_combinations = blocker_bitboards;
     data.bitboard_combinations = legal_moves_bitboards;
@@ -81,7 +81,6 @@ static bool is_magic_valid(position_generation_data *lookup, bitboard_dynamic_ar
 {
     uint32_t bitboard_index, key;
     bitboard blockers, moves;
-
     for (bitboard_index = 0; bitboard_index < lookup->blockers_combinations.count; bitboard_index++)
     {
         blockers = lookup->blockers_combinations.items[bitboard_index];
