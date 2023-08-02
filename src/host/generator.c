@@ -1,17 +1,20 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "../modules/core/logging.h"
 #include "../modules/core/shared_random.h"
 #include "../modules/generation/magic_generator.h"
 
 #define DEFAULT_MAX_BIT_SIZE 13
 #define ITERATIONS_COUNT_PER_SEARCH 1000
-#define PRINT_SEARCH_INFORMATIONS_INTERVAL 2000
-#define SAVE_SEARCH_RESULTS_INTERVAL 20000
+#define PRINT_SEARCH_INFORMATIONS_INTERVAL 20000
+#define SAVE_SEARCH_RESULTS_INTERVAL 100000
 #define FILE_PATH_BASE "generated_magics_"
 #define FILE_PATH_MAX_LENGTH 40
 #define FILE_PATH_IDENTIFIER_MAX_LENGTH 20
+#define PREVIOUS_FILE_PATH "../generated_magics_prev"
 
+static void load_search_results(char *path, magic_result *orthogonal_best_magics, magic_result *diagonal_best_magics);
 static void save_search_results(char *path, magic_result *orthogonal_best_magics, magic_result *diagonal_best_magics);
 static void print_search_informations(bool ortho_instead_of_diag, magic_result *best_magics);
 static void run_search(magic_generation_data *data, magic_result *orthogonal_best_magics, magic_result *diagonal_best_magics, uint32_t search_id);
@@ -24,7 +27,7 @@ int main()
     magic_result orthogonal_best_magics[POSITIONS_COUNT], diagonal_best_magics[POSITIONS_COUNT];
     position pos;
     uint32_t current_search_id;
-    initialize_shared_random(42);
+    initialize_shared_random((uint32_t)time(NULL));
     data = create_magic_generation_data();
     current_search_id = 0;
     for (pos = 0; pos < POSITIONS_COUNT; pos++)
@@ -36,11 +39,13 @@ int main()
         diagonal_best_magics[pos].value = 0;
         diagonal_best_magics[pos].bit_size = 0;
     }
+    load_search_results(PREVIOUS_FILE_PATH, orthogonal_best_magics, diagonal_best_magics);
     while (true)
     {
         if (current_search_id % PRINT_SEARCH_INFORMATIONS_INTERVAL == 0)
         {
             printf("\n------------------------------------------------------\n\n");
+            printf(FG_YELLOW "Current time: %ld\n\n", time(NULL));
             print_search_informations(true, orthogonal_best_magics);
             printf("\n");
             print_search_informations(false, diagonal_best_magics);
@@ -57,12 +62,50 @@ int main()
     return 0;
 }
 
+static void load_search_results(char *path, magic_result *orthogonal_best_magics, magic_result *diagonal_best_magics)
+{
+    position pos;
+    FILE *buffer;
+    if (path == NULL)
+    {
+        return;
+    }
+    buffer = fopen(path, "r");
+    if (buffer != NULL)
+    {
+        for (pos = 0; pos < POSITIONS_COUNT; pos++)
+        {
+            if (fscanf(buffer, "%lu %hhu", &(orthogonal_best_magics[pos].value), &(orthogonal_best_magics[pos].bit_size)) == EOF)
+            {
+                perror("File reading error");
+                exit(1);
+            }
+            orthogonal_best_magics[pos].valid = orthogonal_best_magics[pos].value > 0 && orthogonal_best_magics[pos].bit_size > 0;
+        }
+        fprintf(buffer, "\n");
+        for (pos = 0; pos < POSITIONS_COUNT; pos++)
+        {
+            if (fscanf(buffer, "%lu %hhu", &(diagonal_best_magics[pos].value), &(diagonal_best_magics[pos].bit_size)) == EOF)
+            {
+                perror("File reading error");
+                exit(1);
+            }
+            diagonal_best_magics[pos].valid = diagonal_best_magics[pos].value > 0 && diagonal_best_magics[pos].bit_size > 0;
+        }
+        fclose(buffer);
+    }
+}
+
 static void save_search_results(char *path, magic_result *orthogonal_best_magics, magic_result *diagonal_best_magics)
 {
     position pos;
     FILE *buffer;
+    if (path == NULL)
+    {
+        return;
+    }
     buffer = fopen(path, "w");
-    if (buffer)
+    if (buffer != NULL)
     {
         for (pos = 0; pos < POSITIONS_COUNT; pos++)
         {
@@ -73,8 +116,8 @@ static void save_search_results(char *path, magic_result *orthogonal_best_magics
         {
             fprintf(buffer, "%lu %u\n", diagonal_best_magics[pos].value, diagonal_best_magics[pos].bit_size);
         }
+        fclose(buffer);
     }
-    fclose(buffer);
 }
 
 static void print_search_informations(bool ortho_instead_of_diag, magic_result *best_magics)
@@ -119,7 +162,7 @@ static void run_search(magic_generation_data *data, magic_result *orthogonal_bes
     position pos, iterator, worst_pos, current_index, current_pos;
     bool searching_worst_pos;
     bool orthogonal_search;
-    searching_worst_pos = get_rand_u64() % 10 < 8;
+    searching_worst_pos = get_rand_u64() % 10 < 6;
     if (searching_worst_pos)
     {
         orthogonal_search = search_id % 2 == 0;
