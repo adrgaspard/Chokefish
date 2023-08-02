@@ -15,7 +15,7 @@ bitboard g_pawn_attacks[PLAYERS_COUNT][POSITIONS_COUNT];
 bitboard g_king_moves[POSITIONS_COUNT];
 
 void initialize_precomputed_board_data();
-bitboard_dynamic_array compute_blockers_bitboards(bitboard move_mask);
+bitboard_dynamic_array compute_blockers_bitboards(bitboard moves_mask);
 bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_diag);
 bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard, bool ortho_instead_of_diag);
 

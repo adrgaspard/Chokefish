@@ -134,7 +134,7 @@ static index_validation_result compute_index_if_valid(int32_t x, int32_t y)
     return result;
 }
 
-bitboard_dynamic_array compute_blockers_bitboards(bitboard move_mask)
+bitboard_dynamic_array compute_blockers_bitboards(bitboard moves_mask)
 {
     position_array64 indices;
     position pos;
@@ -143,7 +143,7 @@ bitboard_dynamic_array compute_blockers_bitboards(bitboard move_mask)
     indices = create_position_array64();
     for (pos = 0; pos < POSITIONS_COUNT; pos++)
     {
-        if (((move_mask >> pos) & 1) == 1)
+        if (((moves_mask >> pos) & 1) == 1)
         {
             append_on_position_array64(&indices, pos);
         }
