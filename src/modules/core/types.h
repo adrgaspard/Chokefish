@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "consts.h"
+#include "dynamic_collections.h"
 #include "static_collections.h"
 
 typedef uint8_t castling_data;
@@ -55,11 +56,20 @@ typedef enum castling {
     CASTLING_BOTH = CASTLING_KING | CASTLING_QUEEN
 } castling;
 
+DECLARE_DYNAMIC_ARRAY_TYPE(bitboard, bitboard_dynamic_array)
+
 typedef struct vector2
 {
     int32_t x;
     int32_t y;
 } vector2;
+
+typedef struct magic_data
+{
+    bitboard value;
+    uint8_t shift_quantity;
+    bitboard *legal_moves;
+} magic_data;
 
 typedef struct piece_group
 {

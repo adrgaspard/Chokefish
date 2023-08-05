@@ -1,6 +1,7 @@
 #include "bitboard.h"
 #include "position.h"
 #include "precomputed_board_data.h"
+#include "precomputed_magics.h"
 #include "static_collections.h"
 
 #define _WHITE_PAWN_OFFSET(y) y + 1
@@ -16,37 +17,145 @@ typedef struct index_validation_result
     position index;
 } index_validation_result;
 
-static vector2 s_orthogonal_vectors[] = { 
-        { -1, 0 }, 
-        { 0, 1 }, 
-        { 1, 0 }, 
-        { 0, -1 } 
-    };
-static vector2 s_diagonal_vectors[] = { 
-        { -1, -1 }, 
-        { -1, 1 }, 
-        { 1, 1 }, 
-        { 1, -1 } 
-    };
-static vector2 s_knight_vectors[] = { 
-        { -2, -1 }, 
-        { -2, 1 }, 
-        { -1, 2 }, 
-        { 1, 2 }, 
-        { 2, 1 }, 
-        { 2, -1 }, 
-        { 1, -2 }, 
-        { -1, -2 } 
-    };
+static vector2 s_orthogonal_vectors[] =
+{ 
+    { -1, 0 }, 
+    { 0, 1 }, 
+    { 1, 0 }, 
+    { 0, -1 } 
+};
 
+static vector2 s_diagonal_vectors[] =
+{ 
+    { -1, -1 }, 
+    { -1, 1 }, 
+    { 1, 1 }, 
+    { 1, -1 } 
+};
+
+static vector2 s_knight_vectors[] =
+{ 
+    { -2, -1 }, 
+    { -2, 1 }, 
+    { -1, 2 }, 
+    { 1, 2 }, 
+    { 2, 1 }, 
+    { 2, -1 }, 
+    { 1, -2 }, 
+    { -1, -2 } 
+};
+
+DECLARE_MAGIC_VALUES()
+
+static void initialize_directional_moves_masks_and_magics();
 static void initialize_positions_ranks_files_masks();
 static void initialize_attacks_moves_masks();
+static void initialize_magic_data(position position, bool ortho_instead_of_diag);
 static index_validation_result compute_index_if_valid(int32_t x, int32_t y);
+static position_array64 compute_blockers_indices(bitboard moves_mask, uint32_t *indices_count);
+static void compute_blockers_combinations(bitboard *combinations, uint32_t combinations_capacity, position_array64 indices, uint32_t indices_count);
 
 void initialize_precomputed_board_data()
 {
+    initialize_directional_moves_masks_and_magics();
     initialize_positions_ranks_files_masks();
     initialize_attacks_moves_masks();
+}
+
+bitboard_dynamic_array compute_blockers_bitboards(bitboard moves_mask)
+{
+    position_array64 indices;
+    bitboard_dynamic_array combinations;
+    uint32_t indices_count;
+    indices = compute_blockers_indices(moves_mask, &indices_count);
+    combinations = create_bitboard_dynamic_array(1U << indices_count);
+    compute_blockers_combinations(combinations.items, combinations.capacity, indices, indices_count);
+    return combinations;
+}
+
+bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_diag)
+{
+    bitboard mask;
+    vector2 *vectors;
+    vector2 start_pos_vector, current_pos_vector, next_pos_vector;
+    int8_t vector_index, distance;
+    index_validation_result pos_result;
+    mask = 0;
+    vectors = ortho_instead_of_diag ? s_orthogonal_vectors : s_diagonal_vectors;
+    start_pos_vector = to_position_vector(start_pos);
+    for (vector_index = 0; vector_index < _ORTHO_AND_DIAG_VECTORS_COUNT; vector_index++)
+    {
+        for (distance = 1; distance < RANKS_COUNT; distance++)
+        {
+            current_pos_vector = start_pos_vector;
+            next_pos_vector = start_pos_vector;
+            current_pos_vector.x += vectors[vector_index].x * distance;
+            current_pos_vector.y += vectors[vector_index].y * distance;
+            next_pos_vector.x += vectors[vector_index].x * (distance + 1);
+            next_pos_vector.y += vectors[vector_index].y * (distance + 1);
+            pos_result = compute_index_if_valid(next_pos_vector.x, next_pos_vector.y);
+            if (pos_result.valid)
+            {
+                set_position_to_one(&mask, compute_index_if_valid(current_pos_vector.x, current_pos_vector.y).index);
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    return mask;
+}
+
+bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard, bool ortho_instead_of_diag)
+{
+    bitboard mask;
+    vector2 *vectors;
+    vector2 start_pos_vector, current_pos_vector;
+    int8_t vector_index, distance;
+    index_validation_result pos_result;
+    mask = 0;
+    vectors = ortho_instead_of_diag ? s_orthogonal_vectors : s_diagonal_vectors;
+    start_pos_vector = to_position_vector(start_pos);
+    for (vector_index = 0; vector_index < _ORTHO_AND_DIAG_VECTORS_COUNT; vector_index++)
+    {
+        for (distance = 1; distance < RANKS_COUNT; distance++)
+        {
+            current_pos_vector = start_pos_vector;
+            current_pos_vector.x += vectors[vector_index].x * distance;
+            current_pos_vector.y += vectors[vector_index].y * distance;
+            pos_result = compute_index_if_valid(current_pos_vector.x, current_pos_vector.y);
+            if (pos_result.valid)
+            {
+                set_position_to_one(&mask, pos_result.index);
+                if (contains_position(blockers_bitboard, pos_result.index))
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    return mask;
+}
+
+static void initialize_directional_moves_masks_and_magics()
+{
+    position pos;
+    for (pos = 0; pos < POSITIONS_COUNT; pos++)
+    {
+        g_orthogonal_moves_mask[pos] = compute_moves_mask(pos, true);
+        g_diagonal_moves_mask[pos] = compute_moves_mask(pos, false);
+    }
+    ASSIGN_MAGIC_VALUES()
+    for (pos = 0; pos < POSITIONS_COUNT; pos++)
+    {
+        initialize_magic_data(pos, true);
+        initialize_magic_data(pos, false);
+    }
 }
 
 static void initialize_positions_ranks_files_masks()
@@ -126,6 +235,24 @@ static void initialize_attacks_moves_masks()
     }
 }
 
+static void initialize_magic_data(position position, bool ortho_instead_of_diag)
+{
+    magic_data *magic;
+    bitboard moves_mask, legal_moves_mask, key;
+    bitboard_dynamic_array blockers_combinations;
+    uint32_t combination_index;
+    magic = ortho_instead_of_diag ? &(g_orthogonal_magic_data[position]) : &(g_diagonal_magic_data[position]);
+    moves_mask = ortho_instead_of_diag ? g_orthogonal_moves_mask[position] : g_diagonal_moves_mask[position];
+    blockers_combinations = compute_blockers_bitboards(moves_mask);
+    for (combination_index = 0; combination_index < blockers_combinations.capacity; combination_index++)
+    {
+        key = (blockers_combinations.items[combination_index] * magic->value) >> magic->shift_quantity;
+        legal_moves_mask = compute_legal_moves_mask(position, blockers_combinations.items[combination_index], ortho_instead_of_diag);
+        magic->legal_moves[key] = legal_moves_mask;
+    }
+    finalize_bitboard_dynamic_array(&blockers_combinations);
+}
+
 static index_validation_result compute_index_if_valid(int32_t x, int32_t y)
 {
     index_validation_result result;
@@ -134,100 +261,38 @@ static index_validation_result compute_index_if_valid(int32_t x, int32_t y)
     return result;
 }
 
-bitboard_dynamic_array compute_blockers_bitboards(bitboard moves_mask)
+static position_array64 compute_blockers_indices(bitboard moves_mask, uint32_t *indices_count)
 {
     position_array64 indices;
     position pos;
-    bitboard_dynamic_array combinations;
-    uint32_t combination_index, bit, bit_index, indices_count;
+    uint32_t count;
     indices = create_position_array64();
-    indices_count = 0;
+    count = 0;
     for (pos = 0; pos < POSITIONS_COUNT; pos++)
     {
         if (((moves_mask >> pos) & 1) == 1)
         {
-            indices.items[indices_count] = pos;
-            indices_count++;
+            indices.items[count] = pos;
+            count++;
         }
     }
-    combinations = create_bitboard_dynamic_array(1U << indices_count);
-    for (combination_index = 0; combination_index < combinations.capacity; combination_index++)
+    if (indices_count != NULL)
     {
-        combinations.items[combination_index] = 0;
+        *indices_count = count;
+    }
+    return indices;
+}
+
+static void compute_blockers_combinations(bitboard *combinations, uint32_t combinations_capacity, position_array64 indices, uint32_t indices_count)
+{
+    uint32_t combination_index, bit, bit_index;
+    for (combination_index = 0; combination_index < combinations_capacity; combination_index++)
+    {
+        combinations[combination_index] = 0;
         for (bit_index = 0; bit_index < indices_count; bit_index++)
         {
             bit = (combination_index >> bit_index) & 1;
-            combinations.items[combination_index] |= ((bitboard)bit) << indices.items[bit_index];
+            combinations[combination_index] |= ((bitboard)bit) << indices.items[bit_index];
         }
     }
-    return combinations;
-}
-
-bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_diag)
-{
-    bitboard mask;
-    vector2 *vectors;
-    vector2 start_pos_vector, current_pos_vector, next_pos_vector;
-    int8_t vector_index, distance;
-    index_validation_result pos_result;
-    mask = 0;
-    vectors = ortho_instead_of_diag ? s_orthogonal_vectors : s_diagonal_vectors;
-    start_pos_vector = to_position_vector(start_pos);
-    for (vector_index = 0; vector_index < _ORTHO_AND_DIAG_VECTORS_COUNT; vector_index++)
-    {
-        for (distance = 1; distance < RANKS_COUNT; distance++)
-        {
-            current_pos_vector = start_pos_vector;
-            next_pos_vector = start_pos_vector;
-            current_pos_vector.x += vectors[vector_index].x * distance;
-            current_pos_vector.y += vectors[vector_index].y * distance;
-            next_pos_vector.x += vectors[vector_index].x * (distance + 1);
-            next_pos_vector.y += vectors[vector_index].y * (distance + 1);
-            pos_result = compute_index_if_valid(next_pos_vector.x, next_pos_vector.y);
-            if (pos_result.valid)
-            {
-                set_position_to_one(&mask, compute_index_if_valid(current_pos_vector.x, current_pos_vector.y).index);
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
-    return mask;
-}
-
-bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard, bool ortho_instead_of_diag)
-{
-    bitboard mask;
-    vector2 *vectors;
-    vector2 start_pos_vector, current_pos_vector;
-    int8_t vector_index, distance;
-    index_validation_result pos_result;
-    mask = 0;
-    vectors = ortho_instead_of_diag ? s_orthogonal_vectors : s_diagonal_vectors;
-    start_pos_vector = to_position_vector(start_pos);
-    for (vector_index = 0; vector_index < _ORTHO_AND_DIAG_VECTORS_COUNT; vector_index++)
-    {
-        for (distance = 1; distance < RANKS_COUNT; distance++)
-        {
-            current_pos_vector = start_pos_vector;
-            current_pos_vector.x += vectors[vector_index].x * distance;
-            current_pos_vector.y += vectors[vector_index].y * distance;
-            pos_result = compute_index_if_valid(current_pos_vector.x, current_pos_vector.y);
-            if (pos_result.valid)
-            {
-                set_position_to_one(&mask, pos_result.index);
-                if (contains_position(blockers_bitboard, pos_result.index))
-                {
-                    break;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
-    return mask;
 }
