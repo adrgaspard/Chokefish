@@ -16,8 +16,6 @@
 #define _CASTLING_KING_SIDE_ROOK_DEST(dest_pos) dest_pos - 1
 #define _CASTLING_QUEEN_SIDE_ROOK_DEST(dest_pos) dest_pos + 1
 
-
-static inline bool is_valid_board(board *board);
 static inline board create_board(game_state_stack *game_state_stack, move_stack *move_stack, zobrist_stack *zobrist_stack);
 static inline bool is_check(board *board);
 static inline bool compute_check_state(board *board);
@@ -25,13 +23,6 @@ static inline void update_sliders(board *board);
 static inline void move_piece(board *board, color color, piece piece, piece_type piece_type, position start_pos, position dest_pos);
 static inline void do_move(board *board, move move, bool is_search);
 static inline void undo_move(board *board, move move, bool is_search);
-
-static inline bool is_valid_board(board *board)
-{
-    (void)board;
-    // TODO
-    return true;
-}
 
 static inline board create_board(game_state_stack *game_state_stack, move_stack *move_stack, zobrist_stack *zobrist_stack)
 {
@@ -85,8 +76,35 @@ static inline bool is_check(board *board)
 
 static inline bool compute_check_state(board *board)
 {
-    (void)board;
-    // TODO
+    color current_color, opponent_color;
+    position king_position;
+    bitboard blockers;
+    current_color = board->color_to_move;
+    opponent_color =get_opponent(current_color);
+    king_position = board->king_position[current_color];
+    blockers = board->all_piece_mask;
+    if (board->orthogonal_sliders_mask[opponent_color] != 0)
+    {
+        if ((get_orthogonal_moves_bitboard(king_position, blockers) & board->orthogonal_sliders_mask[opponent_color]) != 0)
+        {
+            return true;
+        }
+    }
+    if (board->diagonal_sliders_mask[opponent_color] != 0)
+    {
+        if ((get_diagonal_moves_bitboard(king_position, blockers) & board->diagonal_sliders_mask[opponent_color]) != 0)
+        {
+            return true;
+        }
+    }
+    if ((board->piece_masks[opponent_color][PIECE_KNIGHT] & g_knight_attacks[king_position]) != 0)
+    {
+        return true;
+    }
+    if ((board->piece_masks[opponent_color][PIECE_PAWN] & g_pawn_attacks[current_color][king_position]) != 0)
+    {
+        return true;
+    }
     return false;
 }
 
