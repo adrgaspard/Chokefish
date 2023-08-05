@@ -139,20 +139,22 @@ bitboard_dynamic_array compute_blockers_bitboards(bitboard moves_mask)
     position_array64 indices;
     position pos;
     bitboard_dynamic_array combinations;
-    uint32_t combination_index, bit, bit_index;
+    uint32_t combination_index, bit, bit_index, indices_count;
     indices = create_position_array64();
+    indices_count = 0;
     for (pos = 0; pos < POSITIONS_COUNT; pos++)
     {
         if (((moves_mask >> pos) & 1) == 1)
         {
-            append_on_position_array64(&indices, pos);
+            indices.items[indices_count] = pos;
+            indices_count++;
         }
     }
-    combinations = create_bitboard_dynamic_array(1u << indices.count);
+    combinations = create_bitboard_dynamic_array(1U << indices_count);
     for (combination_index = 0; combination_index < combinations.capacity; combination_index++)
     {
-        append_on_bitboard_dynamic_array(&combinations, 0);
-        for (bit_index = 0; bit_index < indices.count; bit_index++)
+        combinations.items[combination_index] = 0;
+        for (bit_index = 0; bit_index < indices_count; bit_index++)
         {
             bit = (combination_index >> bit_index) & 1;
             combinations.items[combination_index] |= ((bitboard)bit) << indices.items[bit_index];

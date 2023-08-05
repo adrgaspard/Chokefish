@@ -1,5 +1,5 @@
-#ifndef CONSTS_H
-#define CONSTS_H
+#ifndef CORE_CONSTS_H
+#define CORE_CONSTS_H
 
 // Partially mutable consts
 
@@ -22,4 +22,4 @@
 #define PIECE_TYPES_COUNT 6
 #define PIECE_GROUP_MAX_SIZE 10
 
-#endif // CONSTS_H
+#endif // CORE_CONSTS_H

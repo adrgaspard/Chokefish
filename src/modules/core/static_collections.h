@@ -54,30 +54,16 @@ static inline void clear_##name(name *stack_ptr)                    \
 typedef struct name                                                 \
 {                                                                   \
     type items[size];                                               \
-    uint32_t count;                                                 \
     uint32_t capacity;                                              \
 } name;                                                             \
                                                                     \
 static inline struct name create_##name();                          \
-static inline void clear_##name(name *array_ptr);                   \
                                                                     \
 static inline struct name create_##name()                           \
 {                                                                   \
     name array;                                                     \
-    array.count = 0;                                                \
     array.capacity = size;                                          \
     return array;                                                   \
-}                                                                   \
-                                                                    \
-static inline void append_on_##name(name *array_ptr, type element)  \
-{                                                                   \
-    assert(array_ptr->count < array_ptr->capacity);                 \
-    array_ptr->items[array_ptr->count++] = element;                 \
-}                                                                   \
-                                                                    \
-static inline void clear_##name(name *array_ptr)                    \
-{                                                                   \
-    array_ptr->count = 0;                                           \
 }
 
 #endif // STATIC_COLLECTIONS_H
