@@ -2,6 +2,7 @@
 #define MOVE_H
 
 #include "types.h"
+#include "position.h"
 
 #define _POSITION_MASK 0x003F
 #define _FLAGS_MASK 0x000F

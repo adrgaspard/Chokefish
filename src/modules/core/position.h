@@ -17,6 +17,11 @@ static inline int8_t get_file(position position)
     return position == NO_POSITION ? NO_FILE : position % RANKS_COUNT;
 }
 
+static inline int8_t get_rank(position position)
+{
+    return position == NO_POSITION ? NO_RANK : position / RANKS_COUNT;
+}
+
 static inline vector2 to_position_vector(position position)
 {
     vector2 vector;

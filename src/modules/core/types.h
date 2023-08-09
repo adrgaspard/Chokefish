@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef CORE_TYPES_H
+#define CORE_TYPES_H
 
 #include <stdbool.h>
 #include "consts.h"
@@ -56,6 +56,17 @@ typedef enum castling {
     CASTLING_BOTH = CASTLING_KING | CASTLING_QUEEN
 } castling;
 
+typedef enum promotion_type
+{
+    PROMOTION_NONE = 0,
+    PROMOTION_QUEEN = 1,
+    PROMOTION_ROOK = 2,
+    PROMOTION_BISHOP = 4,
+    PROMOTION_KIGHT = 8,
+    PROMOTION_QUEEN_AND_KNIGHT = PROMOTION_QUEEN | PROMOTION_KIGHT,
+    PROMOTION_ALL = PROMOTION_QUEEN | PROMOTION_ROOK | PROMOTION_BISHOP | PROMOTION_KIGHT
+} promotion_type;
+
 DECLARE_DYNAMIC_ARRAY_TYPE(bitboard, bitboard_dynamic_array)
 
 typedef struct vector2
@@ -111,4 +122,4 @@ typedef struct board
     bool is_check_state_cached;
 } board;
 
-#endif // TYPES_H
+#endif // CORE_TYPES_H
