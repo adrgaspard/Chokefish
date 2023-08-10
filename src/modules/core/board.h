@@ -23,6 +23,8 @@ static inline void update_sliders(board *board);
 static inline void move_piece(board *board, color color, piece piece, piece_type piece_type, position start_pos, position dest_pos);
 static inline void do_move(board *board, move move, bool is_search);
 static inline void undo_move(board *board, move move, bool is_search);
+static inline void do_null_move(board *board);
+static inline void undo_null_move(board *board);
 
 static inline board create_board(game_state_stack *game_state_stack, move_stack *move_stack, zobrist_stack *zobrist_stack)
 {
@@ -142,7 +144,8 @@ static inline void do_move(board *board, move move, bool is_search)
     piece moved_piece, captured_piece, castling_rook;
     piece_type moved_piece_type, captured_piece_type, promoted_piece_type;
     castling_data old_castling_data, new_castling_data;
-    uint8_t old_en_passant_file, new_en_passant_file, move_counter;
+    int8_t old_en_passant_file, new_en_passant_file;
+    uint8_t move_counter;
     zobrist_key new_key;
     game_state new_game_state;
 
@@ -173,7 +176,7 @@ static inline void do_move(board *board, move move, bool is_search)
         capture_pos = dest_pos;
         if (en_passant)
         {
-            capture_pos = dest_pos + (current_color == COLOR_WHITE ? _WHITE_EN_PASSANT_CAPTURE_GAP : _BLACK_EN_PASSANT_CAPTURE_GAP);
+            capture_pos = (position)(dest_pos + (current_color == COLOR_WHITE ? _WHITE_EN_PASSANT_CAPTURE_GAP : _BLACK_EN_PASSANT_CAPTURE_GAP));
             board->position[capture_pos] = create_empty_piece();
         }
         if (captured_piece_type != PIECE_PAWN)
@@ -196,8 +199,8 @@ static inline void do_move(board *board, move move, bool is_search)
         {
             castling_rook = create_piece(current_color, PIECE_ROOK);
             king_side_castling = flags == MOVE_KING_CASTLE;
-            castling_rook_start_pos = king_side_castling ? _CASTLING_KING_SIDE_ROOK_START(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_START(dest_pos);
-            castling_rook_dest_pos = king_side_castling ? _CASTLING_KING_SIDE_ROOK_DEST(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_DEST(dest_pos);
+            castling_rook_start_pos = (position)(king_side_castling ? _CASTLING_KING_SIDE_ROOK_START(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_START(dest_pos));
+            castling_rook_dest_pos = (position)(king_side_castling ? _CASTLING_KING_SIDE_ROOK_DEST(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_DEST(dest_pos));
             // Update rook position in bitboards and piece groups
             toggle_positions(&(board->piece_masks[current_color][PIECE_ROOK]), castling_rook_start_pos, castling_rook_dest_pos);
             toggle_positions(&(board->color_mask[current_color]), castling_rook_start_pos, castling_rook_dest_pos);
@@ -264,7 +267,7 @@ static inline void do_move(board *board, move move, bool is_search)
 
     // Change current player
     board->color_to_move = opponent_color;
-    move_counter = board->current_game_state.half_move_count + 1;
+    move_counter = (uint8_t)(board->current_game_state.half_move_count + 1U);
 
     // Update extra bitboards
     board->all_piece_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
@@ -314,6 +317,7 @@ static inline void undo_move(board *board, move move, bool is_search)
     if (promotion)
     {
         promoted_piece = board->position[dest_pos];
+        promoted_piece_type = get_type(promoted_piece);
         board->special_piece_count--;
         // Replace promoted piece by pawn in bitboards and piece groups
         remove_position_from_group(&(board->piece_groups[current_color][promoted_piece_type]), dest_pos);
@@ -333,7 +337,7 @@ static inline void undo_move(board *board, move move, bool is_search)
         captured_piece_type = get_type(captured_piece);
         if (is_en_passant(flags))
         {
-            capture_pos = dest_pos + (current_color == COLOR_WHITE ? _WHITE_EN_PASSANT_CAPTURE_GAP : _BLACK_EN_PASSANT_CAPTURE_GAP);
+            capture_pos = (position)(dest_pos + (current_color == COLOR_WHITE ? _WHITE_EN_PASSANT_CAPTURE_GAP : _BLACK_EN_PASSANT_CAPTURE_GAP));
         }
         if (captured_piece_type != PIECE_PAWN)
         {
@@ -351,8 +355,8 @@ static inline void undo_move(board *board, move move, bool is_search)
     {
         castling_rook = create_piece(current_color, PIECE_ROOK);
         king_side_castling = flags == MOVE_KING_CASTLE;
-        castling_rook_start_pos = king_side_castling ? _CASTLING_KING_SIDE_ROOK_START(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_START(dest_pos);
-        castling_rook_dest_pos = king_side_castling ? _CASTLING_KING_SIDE_ROOK_DEST(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_DEST(dest_pos);
+        castling_rook_start_pos = (position)(king_side_castling ? _CASTLING_KING_SIDE_ROOK_START(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_START(dest_pos));
+        castling_rook_dest_pos = (position)(king_side_castling ? _CASTLING_KING_SIDE_ROOK_DEST(dest_pos) : _CASTLING_QUEEN_SIDE_ROOK_DEST(dest_pos));
         // Update rook position in bitboards and piece groups
         toggle_positions(&(board->piece_masks[current_color][PIECE_ROOK]), castling_rook_dest_pos, castling_rook_start_pos);
         toggle_positions(&(board->color_mask[current_color]), castling_rook_dest_pos, castling_rook_start_pos);
@@ -377,6 +381,34 @@ static inline void undo_move(board *board, move move, bool is_search)
     pop_from_game_state_stack(board->game_state_history);
     board->current_game_state = peek_from_game_state_stack(board->game_state_history);
     board->is_check_state_cached = false;
+}
+
+// Do not call it when in check
+static inline void do_null_move(board *board)
+{
+    zobrist_key new_key;
+    game_state current_game_state, new_game_state;
+    current_game_state = board->current_game_state;
+    board->color_to_move = get_opponent(board->color_to_move);
+    new_key = current_game_state.zobrist_key;
+    new_key ^= g_opponent_turn_hash;
+    new_key ^= get_en_passant_file_hash(current_game_state.last_en_passant_file);
+    new_game_state = create_game_state(current_game_state.castling_data, NO_FILE, (uint8_t)(current_game_state.half_move_count + 1U), create_empty_piece(), new_key);
+    board->current_game_state = new_game_state;
+    push_on_game_state_stack(board->game_state_history, new_game_state);
+    update_sliders(board);
+    board->is_check_state_cached = true;
+    board->check_state = false;
+}
+
+static inline void undo_null_move(board *board)
+{
+    board->color_to_move = get_opponent(board->color_to_move);
+    pop_from_game_state_stack(board->game_state_history);
+    board->current_game_state = peek_from_game_state_stack(board->game_state_history);
+    update_sliders(board);
+    board->is_check_state_cached = true;
+    board->check_state = false;
 }
 
 #endif // BOARD_H

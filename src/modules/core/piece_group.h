@@ -7,7 +7,7 @@ static inline bool is_piece_group_valid(piece_group *group);
 static inline piece_group create_piece_group();
 static inline void add_position_to_group(piece_group *group, position position);
 static inline void remove_position_from_group(piece_group *group, position position);
-static inline void move_position_in_group(piece_group *group, position position);
+static inline void move_position_in_group(piece_group *group, position start_pos, position dest_pos);
 
 static inline bool is_piece_group_valid(piece_group *group)
 {

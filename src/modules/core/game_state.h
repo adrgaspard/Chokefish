@@ -5,8 +5,8 @@
 #include "piece.h"
 #include "types.h"
 
-static inline bool is_game_state_valid(game_state *game_state);
-static inline game_state create_game_state(castling_data castling_data, uint8_t last_en_passant_file, uint8_t half_move_count, piece captured_piece, zobrist_key key);
+static inline bool is_game_state_valid(game_state game_state);
+static inline game_state create_game_state(castling_data castling_data, int8_t last_en_passant_file, uint8_t half_move_count, piece captured_piece, zobrist_key key);
 
 static inline bool is_game_state_valid(game_state game_state)
 {
@@ -14,7 +14,7 @@ static inline bool is_game_state_valid(game_state game_state)
         && ((game_state.last_en_passant_file < FILES_COUNT && game_state.last_en_passant_file >= 0) || game_state.last_en_passant_file == NO_FILE);
 }
 
-static inline game_state create_game_state(castling_data castling_data, uint8_t last_en_passant_file, uint8_t half_move_count, piece captured_piece, zobrist_key key)
+static inline game_state create_game_state(castling_data castling_data, int8_t last_en_passant_file, uint8_t half_move_count, piece captured_piece, zobrist_key key)
 {
     game_state state;
     state.castling_data = castling_data;
