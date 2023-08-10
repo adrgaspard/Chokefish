@@ -8,7 +8,7 @@ static char s_rank_names[] = RANK_NAMES;
 
 void position_to_string(position position, char *result)
 {
-    assert(result && strlen(result) >= POSITION_STR_LEN);
+    assert(result);
     if (position == NO_POSITION)
     {
         strcpy(result, NO_POSITION_STR);

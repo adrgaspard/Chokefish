@@ -12,7 +12,7 @@ static inline char promotion_type_to_char(promotion_type promotion_type);
 void move_data_to_string(move_data move_data, char *result)
 {
     char promotion_char;
-    assert(result && strlen(result) >= MOVE_DATA_STR_LEN);
+    assert(result);
     position_to_string(move_data.start_pos, result);
     position_to_string(move_data.dest_pos, result + POSITION_STR_LEN - 1);
     promotion_char = promotion_type_to_char(move_data.promotion_type);
@@ -31,7 +31,7 @@ move_data move_data_from_string(char *string)
     size_t string_len;
     promotion_type promotion_type;
     string_len = strlen(string);
-    assert(string && string_len >= MOVE_DATA_STR_PROMOTION_FIRST_INDEX);
+    assert(string);
     promotion_type = PROMOTION_NONE;
     strncpy(first_pos_str, string, POSITION_STR_LEN - 1);
     first_pos_str[POSITION_STR_LEN - 1] = '\0';
@@ -60,7 +60,7 @@ move_data move_data_from_string(char *string)
     return create_move_data(first_pos, second_pos, promotion_type);
 }
 
-move move_data_to_existing_move(move_data move_data, move *existing_moves, uint8_t existing_moves_count)
+move move_data_to_existing_moves(move_data move_data, move *existing_moves, uint8_t existing_moves_count)
 {
     uint8_t move_index;
     move current_move;
@@ -118,6 +118,39 @@ move move_data_to_existing_move(move_data move_data, move *existing_moves, uint8
         }
     }
     return create_empty_movement();
+}
+
+move_data move_data_from_move(move move)
+{
+    move_flags flags;
+    promotion_type promotion_type;
+    if (is_movement_valid(move))
+    {
+        promotion_type = PROMOTION_NONE;
+        flags = get_flags(move);
+        if(is_promotion(flags))
+        {
+            switch (get_promotion_piece_type(flags))
+            {
+                case PIECE_QUEEN:
+                    promotion_type = PROMOTION_QUEEN;
+                    break;
+                case PIECE_ROOK:
+                    promotion_type = PROMOTION_ROOK;
+                    break;
+                case PIECE_BISHOP:
+                    promotion_type = PROMOTION_BISHOP;
+                    break;
+                case PIECE_KNIGHT:
+                    promotion_type = PROMOTION_KIGHT;
+                    break;
+                default:
+                    break;
+            }
+        }
+        return create_move_data(get_start_pos(move), get_dest_pos(move), promotion_type);
+    }
+    return create_empty_move_data();
 }
 
 static inline promotion_type promotion_type_from_char(char promotion_char)
