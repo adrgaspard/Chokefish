@@ -24,6 +24,7 @@ board_data board_data_from_fen_string(char *fen_string)
     piece_type piece_type;
     piece piece;
     castling castling[PLAYERS_COUNT];
+    position pos;
     assert(fen_string);
     board_data.silent_move_count = 0;
     board_data.last_en_passant_file = NO_FILE;
@@ -33,6 +34,10 @@ board_data board_data_from_fen_string(char *fen_string)
     first_part_len = strlen(fen_ptr);
     current_file = 0;
     current_rank = RANKS_COUNT - 1;
+    for (pos = 0; pos < POSITIONS_COUNT; pos++)
+    {
+        board_data.position[pos] = create_empty_piece();
+    }
     for (char_index = 0; char_index < first_part_len; char_index++)
     {
         current_char = fen_ptr[char_index];

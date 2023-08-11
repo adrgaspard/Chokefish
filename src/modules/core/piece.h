@@ -39,7 +39,7 @@ static inline piece create_empty_piece()
 
 static inline color get_color(piece piece)
 {
-    return (color)(piece & _PIECE_COLOR_MASK);
+    return (color)((piece & _PIECE_COLOR_MASK) >> _PIECE_COLOR_BIT_INDEX);
 }
 
 static inline piece_type get_type(piece piece)
