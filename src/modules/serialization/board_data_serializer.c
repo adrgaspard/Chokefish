@@ -168,7 +168,7 @@ void board_to_fen_string(board *board, char *result)
                         piece_char = QUEEN_LOWER_CHAR;
                         break;
                     default:
-                        piece_char = ' ';
+                        piece_char = 'X';
                         break;
                 }
                 result[write_index++] = (char)(piece_color == COLOR_WHITE ? toupper(piece_char) : piece_char);

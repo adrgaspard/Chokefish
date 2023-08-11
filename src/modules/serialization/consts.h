@@ -3,7 +3,6 @@
 
 // Immutable consts
 
-
 #define START_FEN_STR "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define NO_POSITION_STR "-0"
 #define POSITION_STR_LEN 3
