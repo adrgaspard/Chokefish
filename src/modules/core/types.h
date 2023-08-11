@@ -93,7 +93,7 @@ typedef struct game_state
 {
     castling_data castling_data;
     int8_t last_en_passant_file;
-    uint8_t half_move_count;
+    uint8_t silent_move_count;
     piece captured_piece;
     zobrist_key zobrist_key;
 } game_state;
@@ -115,6 +115,7 @@ typedef struct board
     game_state current_game_state;
     color color_to_move;
     uint8_t special_piece_count;
+    uint32_t ply_count;
     game_state_stack *game_state_history;
     move_stack *move_history;
     zobrist_stack *position_repetition_history;

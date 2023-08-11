@@ -36,12 +36,13 @@ static inline board create_board(game_state_stack *game_state_stack, move_stack 
     board.all_piece_mask = 0ULL;
     game_state.captured_piece = create_empty_piece();
     game_state.castling_data = create_castling_data(CASTLING_NONE, CASTLING_NONE);
-    game_state.half_move_count = 0;
+    game_state.silent_move_count = 0;
     game_state.last_en_passant_file = NO_FILE;
     game_state.zobrist_key = 0ULL;
     board.current_game_state = game_state;
     board.color_to_move = COLOR_NONE;
     board.special_piece_count = 0;
+    board.ply_count = 0;
     board.game_state_history = game_state_stack;
     board.move_history = move_stack;
     board.position_repetition_history = zobrist_stack;
@@ -267,7 +268,7 @@ static inline void do_move(board *board, move move, bool is_search)
 
     // Change current player
     board->color_to_move = opponent_color;
-    move_counter = (uint8_t)(board->current_game_state.half_move_count + 1U);
+    move_counter = (uint8_t)(board->current_game_state.silent_move_count + 1U);
 
     // Update extra bitboards
     board->all_piece_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
@@ -288,6 +289,7 @@ static inline void do_move(board *board, move move, bool is_search)
         push_on_zobrist_stack(board->position_repetition_history, new_key);
         push_on_move_stack(board->move_history, move);
     }
+    board->ply_count++;
 }
 
 static inline void undo_move(board *board, move move, bool is_search)
@@ -381,6 +383,7 @@ static inline void undo_move(board *board, move move, bool is_search)
     pop_from_game_state_stack(board->game_state_history);
     board->current_game_state = peek_from_game_state_stack(board->game_state_history);
     board->is_check_state_cached = false;
+    board->ply_count--;
 }
 
 // Do not call it when in check
@@ -393,12 +396,13 @@ static inline void do_null_move(board *board)
     new_key = current_game_state.zobrist_key;
     new_key ^= g_opponent_turn_hash;
     new_key ^= get_en_passant_file_hash(current_game_state.last_en_passant_file);
-    new_game_state = create_game_state(current_game_state.castling_data, NO_FILE, (uint8_t)(current_game_state.half_move_count + 1U), create_empty_piece(), new_key);
+    new_game_state = create_game_state(current_game_state.castling_data, NO_FILE, (uint8_t)(current_game_state.silent_move_count + 1U), create_empty_piece(), new_key);
     board->current_game_state = new_game_state;
     push_on_game_state_stack(board->game_state_history, new_game_state);
     update_sliders(board);
     board->is_check_state_cached = true;
     board->check_state = false;
+    board->ply_count++;
 }
 
 static inline void undo_null_move(board *board)
@@ -409,6 +413,7 @@ static inline void undo_null_move(board *board)
     update_sliders(board);
     board->is_check_state_cached = true;
     board->check_state = false;
+    board->ply_count--;
 }
 
 #endif // BOARD_H
