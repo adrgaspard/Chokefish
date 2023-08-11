@@ -3,10 +3,15 @@
 #include "../core/board.h"
 #include "board_data_serializer.h"
 #include "consts.h"
+#include "position_serializer.h"
 
 #define _FEN_DELIMITER " "
 #define _FEN_LENGTH_UPPER_BOUND 100
+#define _SILENT_MOVE_COUNT_LENGTH_UPPER_BOUND 10
 #define _FILES_COUNT_CHAR '8'
+
+static bool en_passant_can_be_captured(board *board, int8_t en_passant_file, int8_t en_passant_rank);
+static bool is_valid_en_passant_capture(board *board, vector2 from_pos_vector, position en_passant_capture_pos);
 
 board_data board_data_from_fen_string(char *fen_string)
 {
@@ -112,12 +117,131 @@ board_data board_data_from_fen_string(char *fen_string)
     return board_data;
 }
 
-void board_data_to_fen_string(board_data board_data, char *result)
+void board_to_fen_string(board *board, char *result)
 {
+    uint8_t write_index, empty_files_count;
+    int8_t rank, file, en_passant_rank;
+    position pos;
+    piece piece;
+    piece_type piece_type;
+    color piece_color;
+    char piece_char, en_passant_str[POSITION_STR_LEN];
+    bool no_castling;
     assert(result);
-    (void)board_data;
-    (void)result;
-    // TODO
+    write_index = 0;
+    
+    // Pieces on the board
+    for (rank = RANKS_COUNT - 1; rank >= 0; rank--)
+    {
+        empty_files_count = 0;
+        for (file = 0; file < FILES_COUNT; file++)
+        {
+            pos = compute_index_if_valid(file, rank).index;
+            piece = board->position[pos];
+            if (!is_piece_empty(piece))
+            {
+                piece_type = get_type(piece);
+                piece_color = get_color(piece);
+                if (empty_files_count != 0)
+                {
+                    result[write_index++] = (char)('0' + empty_files_count);
+                    empty_files_count = 0;
+                }
+                switch (piece_type)
+                {
+                    case PIECE_KING:
+                        piece_char = KING_LOWER_CHAR;
+                        break;
+                    case PIECE_PAWN:
+                        piece_char = PAWN_LOWER_CHAR;
+                        break;
+                    case PIECE_KNIGHT:
+                        piece_char = KNIGHT_LOWER_CHAR;
+                        break;
+                    case PIECE_BISHOP:
+                        piece_char = BISHOP_LOWER_CHAR;
+                        break;
+                    case PIECE_ROOK:
+                        piece_char = ROOK_LOWER_CHAR;
+                        break;
+                    case PIECE_QUEEN:
+                        piece_char = QUEEN_LOWER_CHAR;
+                        break;
+                    default:
+                        piece_char = ' ';
+                        break;
+                }
+                result[write_index++] = (char)(piece_color == COLOR_WHITE ? toupper(piece_char) : piece_char);
+            }
+            else
+            {
+                empty_files_count++;
+            }
+        }
+        if (empty_files_count != 0)
+        {
+            result[write_index++] = (char)('0' + empty_files_count);
+        }
+        if (rank != 0)
+        {
+            result[write_index++] = '/';
+        }
+    }
+
+    // Color to move
+    result[write_index++] = ' ';
+    result[write_index++] = board->color_to_move == COLOR_WHITE ? WHITE_TO_MOVE_CHAR : BLACK_TO_MOVE_CHAR;
+
+    // Castling
+    result[write_index++] = ' ';
+    no_castling = true;
+    if ((get_white_castling_right(board->current_game_state.castling_data) & CASTLING_KING) != 0)
+    {
+        result[write_index++] = WHITE_CASTLE_KING_SIDE_CHAR;
+        no_castling = false;
+    }
+    if ((get_white_castling_right(board->current_game_state.castling_data) & CASTLING_QUEEN) != 0)
+    {
+        result[write_index++] = WHITE_CASTLE_QUEEN_SIDE_CHAR;
+        no_castling = false;
+    }
+    if ((get_black_castling_right(board->current_game_state.castling_data) & CASTLING_KING) != 0)
+    {
+        result[write_index++] = BLACK_CASTLE_KING_SIDE_CHAR;
+        no_castling = false;
+    }
+    if ((get_black_castling_right(board->current_game_state.castling_data) & CASTLING_QUEEN) != 0)
+    {
+        result[write_index++] = BLACK_CASTLE_QUEEN_SIDE_CHAR;
+        no_castling = false;
+    }
+    if (no_castling)
+    {
+        result[write_index++] = SKIP_CHAR;
+    }
+
+    // En passant
+    result[write_index++] = ' ';
+    en_passant_rank = board->color_to_move == COLOR_WHITE ? WHITE_EN_PASSANT_RANK : BLACK_EN_PASSANT_RANK;
+    if (board->current_game_state.last_en_passant_file == NO_FILE || !en_passant_can_be_captured(board, board->current_game_state.last_en_passant_file, en_passant_rank))
+    {
+        result[write_index++] = SKIP_CHAR;
+    }
+    else
+    {
+        position_to_string(compute_index_if_valid(board->current_game_state.last_en_passant_file, en_passant_rank).index, en_passant_str);
+        result[write_index++] = en_passant_str[0];
+        result[write_index++] = en_passant_str[1];
+    }
+
+    // Silent move counter
+    result[write_index++] = ' ';
+    write_index = (uint8_t)(write_index + sprintf(result + write_index, "%u", board->current_game_state.silent_move_count));
+
+    // Full move counter
+    result[write_index++] = ' ';
+    write_index = (uint8_t)(write_index + sprintf(result + write_index, "%u", board->ply_count / 2U + 1U));
+    result[write_index] = '\0';
 }
 
 void load_board_from_board_data(board *board, board_data board_data)
@@ -163,19 +287,38 @@ void load_board_from_board_data(board *board, board_data board_data)
     push_on_game_state_stack(board->game_state_history, board->current_game_state);
 }
 
-board_data board_to_board_data(board *board)
+static bool en_passant_can_be_captured(board *board, int8_t en_passant_file, int8_t en_passant_rank)
 {
-    board_data board_data;
-    position pos;
-    assert(board);
-    for (pos = 0; pos < POSITIONS_COUNT; pos++)
+    vector2 capture_from_left, capture_from_right;
+    index_validation_result en_passant_capture_pos_result;
+    en_passant_capture_pos_result = compute_index_if_valid(en_passant_file, en_passant_rank); 
+    if (en_passant_capture_pos_result.valid)
     {
-        board_data.position[pos] = board->position[pos];
+        capture_from_left.x = en_passant_file - 1;
+        capture_from_left.y = en_passant_rank + (board->color_to_move == COLOR_WHITE ? -1 : 1);
+        capture_from_right.x = en_passant_file + 1;
+        capture_from_right.y = en_passant_rank + (board->color_to_move == COLOR_WHITE ? -1 : 1);
+        return is_valid_en_passant_capture(board, capture_from_left, en_passant_capture_pos_result.index)
+            || is_valid_en_passant_capture(board, capture_from_right, en_passant_capture_pos_result.index);
     }
-    board_data.color_to_move = board->color_to_move;
-    board_data.castling_data = board->current_game_state.castling_data;
-    board_data.last_en_passant_file = board->current_game_state.last_en_passant_file;
-    board_data.ply_count = board->ply_count;
-    board_data.silent_move_count = board->current_game_state.silent_move_count;
-    return board_data;
+    return false;
+}
+
+static bool is_valid_en_passant_capture(board *board, vector2 from_pos_vector, position en_passant_capture_pos)
+{
+    move move;
+    bool is_legal;
+    index_validation_result from_pos_result;
+    from_pos_result = compute_index_if_valid(from_pos_vector.x, from_pos_vector.y);
+    if (from_pos_result.valid && board->position[from_pos_result.index] == create_piece(board->color_to_move, PIECE_PAWN))
+    {
+        move = create_movement(from_pos_result.index, en_passant_capture_pos, MOVE_EN_PASSANT_CAPTURE);
+        do_move(board, move, false);
+        do_null_move(board);
+        is_legal = !compute_check_state(board);
+        undo_null_move(board);
+        undo_move(board, move, false);
+        return is_legal;
+    }
+    return false;
 }

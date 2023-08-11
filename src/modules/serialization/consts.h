@@ -3,6 +3,8 @@
 
 // Immutable consts
 
+
+#define START_FEN_STR "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define NO_POSITION_STR "-0"
 #define POSITION_STR_LEN 3
 #define MOVE_DATA_STR_PROMOTION_FIRST_INDEX 4
@@ -13,7 +15,6 @@
 #define LAST_FILE_NAME 'h'
 #define FIRST_RANK_NAME '1'
 #define LAST_RANK_NAME '8'
-
 #define KING_LOWER_CHAR 'k'
 #define PAWN_LOWER_CHAR 'p'
 #define KNIGHT_LOWER_CHAR 'n'
@@ -24,7 +25,10 @@
 #define WHITE_CASTLE_QUEEN_SIDE_CHAR 'Q'
 #define BLACK_CASTLE_KING_SIDE_CHAR 'k'
 #define BLACK_CASTLE_QUEEN_SIDE_CHAR 'q'
+#define WHITE_TO_MOVE_CHAR 'w'
+#define BLACK_TO_MOVE_CHAR 'b'
 #define WHITE_TO_MOVE_STR "w"
+#define SKIP_CHAR '-'
 #define QUEEN_PROMOTION_CHAR QUEEN_LOWER_CHAR
 #define ROOK_PROMOTION_CHAR ROOK_LOWER_CHAR
 #define BISHOP_PROMOTION_CHAR BISHOP_LOWER_CHAR

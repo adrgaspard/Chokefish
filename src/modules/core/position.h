@@ -6,6 +6,7 @@
 static inline bool is_position_valid(position position);
 static inline int8_t get_file(position position);
 static inline vector2 to_position_vector(position position);
+static inline index_validation_result compute_index_if_valid(int32_t x, int32_t y);
 
 static inline bool is_position_valid(position position)
 {
@@ -36,6 +37,14 @@ static inline vector2 to_position_vector(position position)
         vector.y = position / RANKS_COUNT;
     }
     return vector;
+}
+
+static inline index_validation_result compute_index_if_valid(int32_t x, int32_t y)
+{
+    index_validation_result result;
+    result.valid = x >= 0 && x < FILES_COUNT && y >= 0 && y < RANKS_COUNT;
+    result.index = result.valid ? (position)(y * FILES_COUNT + x) : NO_POSITION;
+    return result;
 }
 
 #endif // POSITION_H

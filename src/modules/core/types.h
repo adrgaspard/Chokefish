@@ -75,6 +75,12 @@ typedef struct vector2
     int32_t y;
 } vector2;
 
+typedef struct index_validation_result
+{
+    bool valid;
+    position index;
+} index_validation_result;
+
 typedef struct magic_data
 {
     bitboard value;

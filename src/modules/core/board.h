@@ -158,7 +158,7 @@ static inline void do_move(board *board, move move, bool is_search)
     flags = get_flags(move);
     en_passant = is_en_passant(flags);
     moved_piece = board->position[start_pos];
-    moved_piece_type = get_type(moved_piece_type);
+    moved_piece_type = get_type(moved_piece);
     captured_piece = en_passant ? create_piece(opponent_color, PIECE_PAWN) : board->position[dest_pos];
     captured_piece_type = get_type(captured_piece);
     old_castling_data = board->current_game_state.castling_data;
@@ -313,7 +313,7 @@ static inline void undo_move(board *board, move move, bool is_search)
     flags = get_flags(move);
     promotion = is_promotion(flags);
     moved_piece = promotion ? create_piece(current_color, PIECE_PAWN) : board->position[dest_pos];
-    moved_piece_type = get_type(moved_piece_type);
+    moved_piece_type = get_type(moved_piece);
 
     // Handle promotion
     if (promotion)

@@ -11,12 +11,6 @@
 
 DECLARE_STATIC_ARRAY_TYPE(position, POSITIONS_COUNT, position_array64)
 
-typedef struct index_validation_result
-{
-    bool valid;
-    position index;
-} index_validation_result;
-
 static vector2 s_orthogonal_vectors[] =
 { 
     { -1, 0 }, 
@@ -251,14 +245,6 @@ static void initialize_magic_data(position position, bool ortho_instead_of_diag)
         magic->legal_moves[key] = legal_moves_mask;
     }
     finalize_bitboard_dynamic_array(&blockers_combinations);
-}
-
-static index_validation_result compute_index_if_valid(int32_t x, int32_t y)
-{
-    index_validation_result result;
-    result.valid = x >= 0 && x < FILES_COUNT && y >= 0 && y < RANKS_COUNT;
-    result.index = result.valid ? (position)(y * FILES_COUNT + x) : NO_POSITION;
-    return result;
 }
 
 static position_array64 compute_blockers_indices(bitboard moves_mask, uint32_t *indices_count)
