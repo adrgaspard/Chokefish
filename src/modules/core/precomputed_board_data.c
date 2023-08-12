@@ -4,27 +4,39 @@
 #include "precomputed_magics.h"
 #include "static_collections.h"
 
-#define _WHITE_PAWN_OFFSET(y) y + 1
-#define _BLACK_PAWN_OFFSET(y) y - 1
-#define _ORTHO_AND_DIAG_VECTORS_COUNT 4
-#define _KNIGHT_VECTORS_COUNT 8
+#define _WHITE_PAWN_OFFSET(y) (y + 1)
+#define _BLACK_PAWN_OFFSET(y) (y - 1)
+#define _CENTER_FIRST_HALF_VALUE (RANKS_COUNT / 2 - 1)
+#define _CENTER_SECOND_HALF_VALUE (RANKS_COUNT / 2)
 
 DECLARE_STATIC_ARRAY_TYPE(position, POSITIONS_COUNT, position_array64)
 
+static vector2 s_directional_vectors[] =
+{ 
+    { 0, 1 }, 
+    { 0, -1 }, 
+    { -1, 0 }, 
+    { 1, 0 },
+    { -1, 1 }, 
+    { 1, -1 }, 
+    { 1, 1 }, 
+    { -1, -1 } 
+};
+
 static vector2 s_orthogonal_vectors[] =
 { 
-    { -1, 0 }, 
     { 0, 1 }, 
-    { 1, 0 }, 
-    { 0, -1 } 
+    { 0, -1 }, 
+    { -1, 0 }, 
+    { 1, 0 } 
 };
 
 static vector2 s_diagonal_vectors[] =
 { 
-    { -1, -1 }, 
     { -1, 1 }, 
+    { 1, -1 }, 
     { 1, 1 }, 
-    { 1, -1 } 
+    { -1, -1 } 
 };
 
 static vector2 s_knight_vectors[] =
@@ -41,6 +53,10 @@ static vector2 s_knight_vectors[] =
 
 DECLARE_MAGIC_VALUES()
 
+static void initialize_directional_offsets();
+static void initialize_distances();
+static void initialize_align_masks();
+static void initialize_directional_ray_masks();
 static void initialize_directional_moves_masks_and_magics();
 static void initialize_positions_ranks_files_masks();
 static void initialize_attacks_moves_masks();
@@ -51,6 +67,10 @@ static void compute_blockers_combinations(bitboard *combinations, uint32_t combi
 
 void initialize_precomputed_board_data()
 {
+    initialize_directional_offsets();
+    initialize_distances();
+    initialize_align_masks();
+    initialize_directional_ray_masks();
     initialize_directional_moves_masks_and_magics();
     initialize_positions_ranks_files_masks();
     initialize_attacks_moves_masks();
@@ -77,7 +97,7 @@ bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_diag)
     mask = 0;
     vectors = ortho_instead_of_diag ? s_orthogonal_vectors : s_diagonal_vectors;
     start_pos_vector = to_position_vector(start_pos);
-    for (vector_index = 0; vector_index < _ORTHO_AND_DIAG_VECTORS_COUNT; vector_index++)
+    for (vector_index = 0; vector_index < ORTHO_OR_DIAG_OFFSETS_COUNT; vector_index++)
     {
         for (distance = 1; distance < RANKS_COUNT; distance++)
         {
@@ -111,7 +131,7 @@ bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard
     mask = 0;
     vectors = ortho_instead_of_diag ? s_orthogonal_vectors : s_diagonal_vectors;
     start_pos_vector = to_position_vector(start_pos);
-    for (vector_index = 0; vector_index < _ORTHO_AND_DIAG_VECTORS_COUNT; vector_index++)
+    for (vector_index = 0; vector_index < ORTHO_OR_DIAG_OFFSETS_COUNT; vector_index++)
     {
         for (distance = 1; distance < RANKS_COUNT; distance++)
         {
@@ -134,6 +154,119 @@ bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard
         }
     }
     return mask;
+}
+
+static void initialize_directional_offsets()
+{
+    g_directional_offset[0] = FILES_COUNT;
+    g_directional_offset[1] = -FILES_COUNT;
+    g_directional_offset[2] = -1;
+    g_directional_offset[3] = 1;
+    g_directional_offset[4] = FILES_COUNT - 1;
+    g_directional_offset[5] = -FILES_COUNT + 1;
+    g_directional_offset[6] = FILES_COUNT + 1;
+    g_directional_offset[7] = -FILES_COUNT - 1;
+}
+
+static void initialize_distances()
+{
+    position start_pos, dest_pos;
+    vector2 start_pos_vector, dest_pos_vector;
+    int8_t top, bottom, left, right, tmp_a, tmp_b, file_distance, rank_distance, file_distance_from_center, rank_distance_from_center;
+    for (start_pos = 0; start_pos < POSITIONS_COUNT; start_pos++)
+    {
+        start_pos_vector = to_position_vector(start_pos);
+        top = (int8_t)(FILES_COUNT - 1 - start_pos_vector.y);
+        bottom = (int8_t)start_pos_vector.y;
+        left = (int8_t)start_pos_vector.x;
+        right = (int8_t)(RANKS_COUNT - 1 - start_pos_vector.x);
+        g_distances_to_edge[start_pos][0] = (uint8_t)top;
+        g_distances_to_edge[start_pos][1] = (uint8_t)bottom;
+        g_distances_to_edge[start_pos][2] = (uint8_t)left;
+        g_distances_to_edge[start_pos][3] = (uint8_t)right;
+        g_distances_to_edge[start_pos][4] = (uint8_t)(top < left ? top : left);
+        g_distances_to_edge[start_pos][5] = (uint8_t)(bottom < right ? bottom : right);
+        g_distances_to_edge[start_pos][6] = (uint8_t)(top < right ? top : right);
+        g_distances_to_edge[start_pos][7] = (uint8_t)(bottom < left ? bottom : left);
+        tmp_a = (int8_t)(_CENTER_FIRST_HALF_VALUE - start_pos_vector.x);
+        tmp_b = (int8_t)(start_pos_vector.x - _CENTER_SECOND_HALF_VALUE);
+        file_distance_from_center = tmp_a > tmp_b ? tmp_a : tmp_b;
+        tmp_a = (int8_t)(_CENTER_FIRST_HALF_VALUE - start_pos_vector.y);
+        tmp_b = (int8_t)(start_pos_vector.y - _CENTER_SECOND_HALF_VALUE);
+        rank_distance_from_center = tmp_a > tmp_b ? tmp_a : tmp_b;
+        g_center_manhattan_distance[start_pos] = (uint8_t)(file_distance_from_center + rank_distance_from_center);
+        for (dest_pos = 0; dest_pos < POSITIONS_COUNT; dest_pos++)
+        {
+            dest_pos_vector = to_position_vector(dest_pos);
+            file_distance = (int8_t)(start_pos_vector.x - dest_pos_vector.x);
+            file_distance = (int8_t)(file_distance >= 0 ? file_distance : -file_distance);
+            rank_distance = (int8_t)(start_pos_vector.y - dest_pos_vector.y);
+            rank_distance = (int8_t)(rank_distance >= 0 ? rank_distance : -rank_distance);
+            g_orthogonal_distance[start_pos][dest_pos] = (uint8_t)(file_distance + rank_distance);
+        }
+    }
+}
+
+static void initialize_align_masks()
+{
+    int8_t i;
+    position start_pos, dest_pos;
+    vector2 start_pos_vector, dest_pos_vector, offset_vector, direction_vector, align_vector;
+    index_validation_result index_result;
+    for (start_pos = 0; start_pos < POSITIONS_COUNT; start_pos++)
+    {
+        for (dest_pos = 0; dest_pos < POSITIONS_COUNT; dest_pos++)
+        {
+            g_align_mask[start_pos][dest_pos] = 0ULL;
+            start_pos_vector = to_position_vector(start_pos);
+            dest_pos_vector = to_position_vector(dest_pos);
+            offset_vector.x = dest_pos_vector.x - start_pos_vector.x;
+            offset_vector.y = dest_pos_vector.y - start_pos_vector.y;
+            direction_vector.x = offset_vector.x == 0 ? 0 : (offset_vector.x > 0 ? 1 : -1);
+            direction_vector.y = offset_vector.y == 0 ? 0 : (offset_vector.y > 0 ? 1 : -1);
+            for (i = -FILES_COUNT; i < FILES_COUNT; i++)
+            {
+                align_vector.x = start_pos_vector.x + direction_vector.x * i;
+                align_vector.y = start_pos_vector.y + direction_vector.y * i;
+                index_result = compute_index_if_valid(align_vector.x, align_vector.y);
+                if (index_result.valid)
+                {
+                    g_align_mask[start_pos][dest_pos] |= 1ULL << index_result.index;
+                }
+            }
+        }
+    }
+}
+
+static void initialize_directional_ray_masks()
+{
+    int8_t i;
+    uint8_t direction_index;
+    position pos;
+    vector2 pos_vector, ray_vector;
+    index_validation_result index_result;
+    for (direction_index = 0; direction_index < DIRECTIONAL_OFFSETS_COUNT; direction_index++)
+    {
+        for (pos = 0; pos < POSITIONS_COUNT; pos++)
+        {
+            g_directional_ray_mask[direction_index][pos] = 0ULL;
+            pos_vector = to_position_vector(pos);
+            for (i = 0; i < FILES_COUNT; i++)
+            {
+                ray_vector.x = pos_vector.x + s_directional_vectors[direction_index].x * i;
+                ray_vector.y = pos_vector.y + s_directional_vectors[direction_index].y * i;
+                index_result = compute_index_if_valid(ray_vector.x, ray_vector.y);
+                if (index_result.valid)
+                {
+                    g_directional_ray_mask[direction_index][pos] |= 1ULL << index_result.index;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
 }
 
 static void initialize_directional_moves_masks_and_magics()
@@ -182,7 +315,7 @@ static void initialize_attacks_moves_masks()
         {
             pos_index = (position)(y * FILES_COUNT + x);
             // Compute king movements
-            for (direction_index = 0; direction_index < _ORTHO_AND_DIAG_VECTORS_COUNT; direction_index++)
+            for (direction_index = 0; direction_index < ORTHO_OR_DIAG_OFFSETS_COUNT; direction_index++)
             {           
                 index_result = compute_index_if_valid(x + s_orthogonal_vectors[direction_index].x, y + s_orthogonal_vectors[direction_index].y);
                 if (index_result.valid)
@@ -196,7 +329,7 @@ static void initialize_attacks_moves_masks()
                 }
             }
             // Compute knight attacks
-            for (direction_index = 0; direction_index < _KNIGHT_VECTORS_COUNT; direction_index++)
+            for (direction_index = 0; direction_index < KNIGHT_OFFSETS_COUNT; direction_index++)
             {
                 index_result = compute_index_if_valid(x + s_knight_vectors[direction_index].x, y + s_knight_vectors[direction_index].y);
                 if (index_result.valid)
