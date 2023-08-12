@@ -279,7 +279,7 @@ static inline void _generate_sliding_moves(board *board, move_generation_data *d
 	{
 		// Remove pinned pieces from sliders
 		orthogonal_sliders_mask &= ~data->pin_ray_mask;
-		diagonal_moves_mask &= ~data->pin_ray_mask;
+		diagonal_sliders_mask &= ~data->pin_ray_mask;
 	}
 
 	// Orthogonal moves
