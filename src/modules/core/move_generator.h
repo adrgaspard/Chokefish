@@ -2,7 +2,9 @@
 #define MOVE_GENERATOR_H
 
 #include "bitboard.h"
+#include "castling.h"
 #include "color.h"
+#include "move.h"
 #include "piece.h"
 #include "precomputed_board_data.h"
 #include "types.h"
@@ -33,8 +35,8 @@ static inline void _compute_attack_data(board *board, move_generation_data *data
 static inline void _compute_sliding_attacks(board *board, move_generation_data *data, bitboard pieces_mask, bool ortho_instead_of_diag);
 static inline bool _is_position_pinned(bitboard pin_ray_mask, position position);
 static inline void _generate_king_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options);
-static inline void _generate_sliding_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options);
-static inline void _generate_knight_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options);
+static inline void _generate_sliding_moves(board *board, move_generation_data *data, move_generation_result *result);
+static inline void _generate_knight_moves(board *board, move_generation_data *data, move_generation_result *result);
 static inline void _generate_pawn_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options);
 static inline void _generate_pawn_promotions(position start_pos, position dest_pos, move_generation_result *result, move_generation_options options, bool is_capture);
 static inline bool _is_check_after_en_passant(board *board, move_generation_data *data, position start_pos, position dest_pos, position capture_pos);
@@ -65,8 +67,8 @@ static inline void generate_moves(board *board, move_generation_result *result, 
 	_generate_king_moves(board, &data, result, options);
 	if (!data.is_currently_double_check)
 	{
-		_generate_sliding_moves(board, &data, result, options);
-		_generate_knight_moves(board, &data, result, options);
+		_generate_sliding_moves(board, &data, result);
+		_generate_knight_moves(board, &data, result);
 		_generate_pawn_moves(board, &data, result, options);
 	}
 
@@ -221,29 +223,118 @@ static inline bool _is_position_pinned(bitboard pin_ray_mask, position position)
 
 static inline void _generate_king_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
 {
-	(void)board;
-	(void)data;
-	(void)result;
-	(void)options;
-	// TODO
+	bitboard legal_mask, moves_mask, castling_blockers_mask, castling_mask, castling_block_mask;
+	position dest_pos;
+	bool is_capture;
+	castling castling_right;
+	legal_mask = ~(data->opponent_all_attacks_mask | data->friendly_pieces_mask);
+	moves_mask = g_king_moves[data->current_king_pos] & legal_mask & data->allowed_destinations_mask;
+	while (moves_mask != 0)
+	{
+		dest_pos = pop_least_significant_bit(&moves_mask);
+		is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
+		result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
+	}
+	
+	// Castling
+	if (!data->is_currently_check && options.include_quiet_moves)
+	{
+		castling_blockers_mask = data->opponent_all_attacks_mask | data->all_pieces_mask;
+		castling_right = data->current_color == COLOR_WHITE
+			? get_white_castling_right(board->current_game_state.castling_data)
+			: get_black_castling_right(board->current_game_state.castling_data);
+		if ((castling_right & CASTLING_KING) != 0)
+		{
+			castling_mask = data->current_color == COLOR_WHITE ? WHITE_KING_SIDE_CASTLE_MASK : BLACK_KING_SIDE_CASTLE_MASK;
+			if ((castling_mask & castling_blockers_mask) == 0)
+			{
+				dest_pos = data->current_color == COLOR_WHITE ? POS_G1 : POS_G8;
+				result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, MOVE_KING_CASTLE);
+			}
+		}
+		if ((castling_right & CASTLING_QUEEN) != 0)
+		{
+			castling_mask = data->current_color == COLOR_WHITE ? WHITE_QUEEN_SIDE_CASTLE_MASK : BLACK_QUEEN_SIDE_CASTLE_MASK;
+			castling_block_mask = data->current_color == COLOR_WHITE ? WHITE_QUEEN_SIDE_CASTLE_BLOCK_MASK : BLACK_QUEEN_SIDE_CASTLE_BLOCK_MASK;
+			if ((castling_mask & castling_blockers_mask) == 0 && (castling_block_mask & data->all_pieces_mask) == 0)
+			{
+				dest_pos = data->current_color == COLOR_WHITE ? POS_C1 : POS_C8;
+				result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, MOVE_QUEEN_CASTLE);
+			}
+		}
+	}
 }
 
-static inline void _generate_sliding_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
+static inline void _generate_sliding_moves(board *board, move_generation_data *data, move_generation_result *result)
 {
-	(void)board;
-	(void)data;
-	(void)result;
-	(void)options;
-	// TODO
+	bitboard moves_mask, orthogonal_sliders_mask, diagonal_sliders_mask, orthogonal_moves_mask, diagonal_moves_mask;
+	position start_pos, dest_pos;
+	bool is_capture;
+
+	// Initialization
+	moves_mask = data->empty_pos_or_enemy_pieces_mask & data->check_ray_mask & data->allowed_destinations_mask;
+	orthogonal_sliders_mask = board->orthogonal_sliders_mask[data->current_color];
+	diagonal_sliders_mask = board->diagonal_sliders_mask[data->current_color];
+	if (data->is_currently_check)
+	{
+		// Remove pinned pieces from sliders
+		orthogonal_sliders_mask &= ~data->pin_ray_mask;
+		diagonal_moves_mask &= ~data->pin_ray_mask;
+	}
+
+	// Orthogonal moves
+	while (orthogonal_sliders_mask != 0)
+	{
+		start_pos = pop_least_significant_bit(&orthogonal_sliders_mask);
+		orthogonal_moves_mask = get_orthogonal_moves_bitboard(start_pos, data->all_pieces_mask) & moves_mask;
+		if (_is_position_pinned(data->pin_ray_mask, start_pos))
+		{
+			orthogonal_moves_mask &= g_align_mask[start_pos][data->current_king_pos];
+		}
+		while (orthogonal_moves_mask != 0)
+		{
+			dest_pos = pop_least_significant_bit(&orthogonal_moves_mask);
+			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
+			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
+		}
+	}
+
+	// Diagonal moves
+	while (diagonal_sliders_mask != 0)
+	{
+		start_pos = pop_least_significant_bit(&diagonal_sliders_mask);
+		diagonal_moves_mask = get_diagonal_moves_bitboard(start_pos, data->all_pieces_mask) & moves_mask;
+		if (_is_position_pinned(data->pin_ray_mask, start_pos))
+		{
+			diagonal_moves_mask &= g_align_mask[start_pos][data->current_king_pos];
+		}
+		while (diagonal_moves_mask != 0)
+		{
+			dest_pos = pop_least_significant_bit(&diagonal_moves_mask);
+			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
+			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
+		}
+	}
 }
 
-static inline void _generate_knight_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
+static inline void _generate_knight_moves(board *board, move_generation_data *data, move_generation_result *result)
 {
-	(void)board;
-	(void)data;
-	(void)result;
-	(void)options;
-	// TODO
+	bitboard knights_mask, moves_mask, current_knight_moves_mask;
+	position start_pos, dest_pos;
+	bool is_capture;
+	knights_mask = board->piece_masks[data->current_color][PIECE_KNIGHT] & data->not_pin_ray_mask;
+	moves_mask = data->empty_pos_or_enemy_pieces_mask & data->check_ray_mask & data->allowed_destinations_mask;
+	while (knights_mask != 0)
+	{
+		start_pos = pop_least_significant_bit(&knights_mask);
+		current_knight_moves_mask = g_knight_attacks[start_pos] & moves_mask;
+		while (current_knight_moves_mask != 0)
+		{
+			dest_pos = pop_least_significant_bit(&current_knight_moves_mask);
+			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
+			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
+		}
+	}
 }
 
 static inline void _generate_pawn_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
