@@ -11,7 +11,7 @@ static inline void toggle_positions(bitboard *bitboard, position first, position
 static inline bool contains_position(bitboard bitboard, position position);
 static inline int8_t pop_least_significant_bit(bitboard *bitboard);
 static inline bitboard shift(bitboard bitboard, int8_t shift_quantity);
-static inline bitboard get_pawn_bitboard_attacks(bitboard pawn_bitboard, color color);
+static inline bitboard get_pawn_attacks_mask(bitboard pawn_bitboard, color color);
 
 static inline void set_position_to_zero(bitboard *bitboard, position position)
 {
@@ -51,7 +51,7 @@ static inline bitboard shift(bitboard bitboard, int8_t shift_quantity)
     return shift_quantity >= 0 ? bitboard << shift_quantity : bitboard >> -shift_quantity;
 }
 
-static inline bitboard get_pawn_bitboard_attacks(bitboard pawn_bitboard, color color)
+static inline bitboard get_pawn_attacks_mask(bitboard pawn_bitboard, color color)
 {
     return color == COLOR_WHITE
         ? ((pawn_bitboard << (FILES_COUNT + 1)) & g_not_file_mask[0]) | ((pawn_bitboard << (FILES_COUNT - 1)) & g_not_file_mask[FILES_COUNT - 1])

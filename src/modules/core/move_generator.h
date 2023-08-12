@@ -181,7 +181,7 @@ static inline void _compute_attack_data(board *board, move_generation_data *data
 
 	// Compute pawn attacks
 	pawns_mask = board->piece_masks[data->opponent_color][PIECE_PAWN];
-	pawns_attacks_mask = get_pawn_bitboard_attacks(pawns_mask, data->opponent_color);
+	pawns_attacks_mask = get_pawn_attacks_mask(pawns_mask, data->opponent_color);
 	if (contains_position(pawns_attacks_mask, data->current_king_pos))
 	{
 		data->is_currently_double_check = data->is_currently_check;
@@ -248,11 +248,134 @@ static inline void _generate_knight_moves(board *board, move_generation_data *da
 
 static inline void _generate_pawn_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
 {
-	(void)board;
-	(void)data;
-	(void)result;
-	(void)options;
-	// TODO
+	int8_t push_direction, push_offset, en_passant_rank;
+	bitboard pawns_mask, promotion_rank_mask, single_pushes_mask, promotion_pushes_mask, first_capture_edge_file_mask, second_capture_edge_file_mask,
+		first_capture_mask, second_capture_mask, no_promotion_single_pushes_mask, first_promotion_capture_mask, second_promotion_capture_mask,
+		double_push_dest_rank_mask, double_pushes_mask, en_passant_potential_attackers_mask;
+	position start_pos, dest_pos, en_passant_capture_pos;
+
+	// Initialization
+	push_direction = data->current_color == COLOR_WHITE ? 1 : -1;
+	push_offset = (int8_t)(push_direction * FILES_COUNT);
+	pawns_mask = board->piece_masks[data->current_color][PIECE_PAWN];
+	promotion_rank_mask = data->current_color == COLOR_WHITE ? g_rank_mask[RANKS_COUNT - 1] : g_rank_mask[0];
+	single_pushes_mask = shift(pawns_mask, push_offset) & data->empty_pos_mask;
+	promotion_pushes_mask = single_pushes_mask & promotion_rank_mask & data->check_ray_mask;
+	first_capture_edge_file_mask = data->current_color == COLOR_WHITE ? g_not_file_mask[0] : g_not_file_mask[FILES_COUNT - 1];
+	second_capture_edge_file_mask = data->current_color == COLOR_WHITE ? g_not_file_mask[FILES_COUNT - 1] : g_not_file_mask[0];
+	first_capture_mask = shift(pawns_mask & first_capture_edge_file_mask, (int8_t)(push_direction * (FILES_COUNT - 1))) & data->enemy_pieces_mask;
+	second_capture_mask = shift(pawns_mask & second_capture_edge_file_mask, (int8_t)(push_direction * (FILES_COUNT + 1))) & data->enemy_pieces_mask;
+	no_promotion_single_pushes_mask = single_pushes_mask & ~promotion_rank_mask & data->check_ray_mask;
+	first_promotion_capture_mask = first_capture_mask & promotion_rank_mask & data->check_ray_mask;
+	second_promotion_capture_mask = second_capture_mask & promotion_rank_mask & data->check_ray_mask;
+	first_capture_mask &= ~promotion_rank_mask & data->check_ray_mask;
+	second_capture_mask &= ~promotion_rank_mask & data->check_ray_mask;
+
+	// Single and double pushes (quiet moves, no promotion)
+	if (options.include_quiet_moves)
+	{
+		// Single pushes
+		while (no_promotion_single_pushes_mask != 0)
+		{
+			dest_pos = pop_least_significant_bit(&no_promotion_single_pushes_mask);
+			start_pos = (int8_t)(dest_pos - push_offset);
+			if (!_is_position_pinned(data->pin_ray_mask, start_pos)
+				|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
+			{
+				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_QUIET);
+			}
+		}
+		// Double pushes
+		double_push_dest_rank_mask = data->current_color == COLOR_WHITE ? g_rank_mask[3] : g_rank_mask[RANKS_COUNT - 4];
+		double_pushes_mask = shift(single_pushes_mask, push_offset) & data->empty_pos_mask & double_push_dest_rank_mask & data->check_ray_mask;
+		while (double_pushes_mask != 0)
+		{
+			dest_pos = pop_least_significant_bit(&double_pushes_mask);
+			start_pos = (int8_t)(dest_pos - push_offset * 2);
+			if (!_is_position_pinned(data->pin_ray_mask, start_pos)
+				|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
+			{
+				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_DOUBLE_PAWN_PUSH);
+			}
+		}
+	}
+
+	// Captures (no promotion, no en passant)
+	while (first_capture_mask != 0)
+	{
+		dest_pos = pop_least_significant_bit(&first_capture_mask);
+		start_pos = (int8_t)(dest_pos - push_direction * (FILES_COUNT - 1));
+		if (!_is_position_pinned(data->pin_ray_mask, start_pos)
+			|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
+		{
+			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_CAPTURE);
+		}
+	}
+	while (second_capture_mask != 0)
+	{
+		dest_pos = pop_least_significant_bit(&second_capture_mask);
+		start_pos = (int8_t)(dest_pos - push_direction * (FILES_COUNT + 1));
+		if (!_is_position_pinned(data->pin_ray_mask, start_pos)
+			|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
+		{
+			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_CAPTURE);
+		}
+	}
+
+	// All promotions (with capture or not)
+	while (promotion_pushes_mask != 0)
+	{
+		dest_pos = pop_least_significant_bit(&promotion_pushes_mask);
+		start_pos = (int8_t)(dest_pos - push_offset);
+		if (!_is_position_pinned(data->pin_ray_mask, start_pos))
+		{
+			_generate_pawn_promotions(start_pos, dest_pos, result, options, false);
+		}
+	}
+	while (first_promotion_capture_mask != 0)
+	{
+		dest_pos = pop_least_significant_bit(&first_promotion_capture_mask);
+		start_pos = (int8_t)(dest_pos - push_direction * (FILES_COUNT - 1));
+		if (!_is_position_pinned(data->pin_ray_mask, start_pos)
+			|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
+		{
+			_generate_pawn_promotions(start_pos, dest_pos, result, options, true);
+		}
+	}
+	while (second_promotion_capture_mask != 0)
+	{
+		dest_pos = pop_least_significant_bit(&second_promotion_capture_mask);
+		start_pos = (int8_t)(dest_pos - push_direction * (FILES_COUNT + 1));
+		if (!_is_position_pinned(data->pin_ray_mask, start_pos)
+			|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
+		{
+			_generate_pawn_promotions(start_pos, dest_pos, result, options, true);
+		}
+	}
+
+	// En passant capture
+	if (board->current_game_state.last_en_passant_file != NO_FILE)
+	{
+		en_passant_rank = data->current_color == COLOR_WHITE ? RANKS_COUNT - 3 : 2;
+		dest_pos = compute_index_if_valid(board->current_game_state.last_en_passant_file, en_passant_rank).index;
+		en_passant_capture_pos = (int8_t)(dest_pos - push_offset);
+		if (contains_position(data->check_ray_mask, en_passant_capture_pos))
+		{
+			en_passant_potential_attackers_mask = pawns_mask & get_pawn_attacks_mask(1ULL << dest_pos, data->opponent_color);
+			while (en_passant_potential_attackers_mask != 0)
+			{
+				start_pos = pop_least_significant_bit(&en_passant_potential_attackers_mask);
+				if (!_is_position_pinned(data->pin_ray_mask, start_pos)
+					|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
+				{
+					if (!_is_check_after_en_passant(board, data, start_pos, dest_pos, en_passant_capture_pos))
+					{
+						result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_EN_PASSANT_CAPTURE);
+					}
+				}
+			}
+		}
+	}
 }
 
 static inline void _generate_pawn_promotions(position start_pos, position dest_pos, move_generation_result *result, move_generation_options options, bool is_capture)
