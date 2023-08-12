@@ -115,7 +115,7 @@ typedef struct board
     position king_position[PLAYERS_COUNT];
     bitboard piece_masks[PLAYERS_COUNT][PIECE_TYPES_COUNT - 1];
     bitboard color_mask[PLAYERS_COUNT];
-    bitboard all_piece_mask;
+    bitboard all_pieces_mask;
     bitboard orthogonal_sliders_mask[PLAYERS_COUNT];
     bitboard diagonal_sliders_mask[PLAYERS_COUNT];
     game_state current_game_state;
@@ -128,5 +128,18 @@ typedef struct board
     bool check_state;
     bool is_check_state_cached;
 } board;
+
+typedef struct move_generation_options
+{
+    bool include_quiet_moves;
+    promotion_type promotion_types_to_include;
+} move_generation_options;
+
+typedef struct move_generation_result
+{
+    move moves[MAX_MOVES_COUNT];
+    uint8_t moves_count;
+    bool is_currently_check;
+} move_generation_result;
 
 #endif // CORE_TYPES_H

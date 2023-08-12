@@ -14,6 +14,12 @@ bitboard g_orthogonal_moves_mask[POSITIONS_COUNT];
 bitboard g_diagonal_moves_mask[POSITIONS_COUNT];
 magic_data g_orthogonal_magic_data[POSITIONS_COUNT];
 magic_data g_diagonal_magic_data[POSITIONS_COUNT];
+// TODO : distance to edge
+// TODO : directional ray masks
+// TODO : directional offsets (already done in .c but in two distincts parts)
+// TODO : align masks
+// TODO : orthogonal distance
+// TODO : center manhattan distance
 
 void initialize_precomputed_board_data();
 bitboard_dynamic_array compute_blockers_bitboards(bitboard moves_mask);

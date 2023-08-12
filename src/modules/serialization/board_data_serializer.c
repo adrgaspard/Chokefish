@@ -283,7 +283,7 @@ void load_board_from_board_data(board *board, board_data board_data)
     }
     board->color_to_move = board_data.color_to_move;
     board->ply_count = board_data.ply_count;
-    board->all_piece_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
+    board->all_pieces_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
     update_sliders(board);
     board->current_game_state = create_game_state(board_data.castling_data, board_data.last_en_passant_file, board_data.silent_move_count, create_empty_piece(), 0);
     key = compute_zobrist_key(board);

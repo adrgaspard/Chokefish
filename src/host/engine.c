@@ -1,5 +1,6 @@
 #include <string.h>
 #include "../modules/core/board.h"
+#include "../modules/core/move_generator.h"
 #include "../modules/core/precomputed_board_data.h"
 #include "../modules/core/shared_random.h"
 #include "../modules/core/zobrist.h"

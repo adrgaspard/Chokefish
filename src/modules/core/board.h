@@ -33,7 +33,7 @@ static inline board create_board(game_state_stack *game_state_stack, move_stack 
     color color;
     piece_type type;
     board board;
-    board.all_piece_mask = 0ULL;
+    board.all_pieces_mask = 0ULL;
     game_state.captured_piece = create_empty_piece();
     game_state.castling_data = create_castling_data(CASTLING_NONE, CASTLING_NONE);
     game_state.silent_move_count = 0;
@@ -85,7 +85,7 @@ static inline bool compute_check_state(board *board)
     current_color = board->color_to_move;
     opponent_color =get_opponent(current_color);
     king_position = board->king_position[current_color];
-    blockers = board->all_piece_mask;
+    blockers = board->all_pieces_mask;
     if (board->orthogonal_sliders_mask[opponent_color] != 0)
     {
         if ((get_orthogonal_moves_bitboard(king_position, blockers) & board->orthogonal_sliders_mask[opponent_color]) != 0)
@@ -271,7 +271,7 @@ static inline void do_move(board *board, move move, bool is_search)
     move_counter = (uint8_t)(board->current_game_state.silent_move_count + 1U);
 
     // Update extra bitboards
-    board->all_piece_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
+    board->all_pieces_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
     update_sliders(board);
 
     // Update board game state and stacks
@@ -368,7 +368,7 @@ static inline void undo_move(board *board, move move, bool is_search)
     }
 
     // Update extra bitboards
-    board->all_piece_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
+    board->all_pieces_mask = board->color_mask[COLOR_WHITE] | board->color_mask[COLOR_BLACK];
     update_sliders(board);
 
     // Update board game state and stacks
