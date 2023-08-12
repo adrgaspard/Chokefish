@@ -56,6 +56,7 @@ typedef enum castling {
     CASTLING_BOTH = CASTLING_KING | CASTLING_QUEEN
 } castling;
 
+// For move generation, only PROMOTION_QUEEN, PROMOTION_QUEEN_AND_KNIGHT and PROMOTION_ALL can be used.
 typedef enum promotion_type
 {
     PROMOTION_NONE = 0,

@@ -29,12 +29,15 @@ typedef struct move_generation_data
 } move_generation_data;
 
 static inline void generate_moves(board *board, move_generation_result *result, move_generation_options options);
-static inline void compute_attack_data(board *board, move_generation_data *data);
-static inline void compute_sliding_attacks(board *board, move_generation_data *data, bitboard pieces_mask, bool ortho_instead_of_diag);
-static inline void generate_king_moves();
-static inline void generate_sliding_moves();
-static inline void generate_knight_moves();
-static inline void generate_pawn_moves();
+static inline void _compute_attack_data(board *board, move_generation_data *data);
+static inline void _compute_sliding_attacks(board *board, move_generation_data *data, bitboard pieces_mask, bool ortho_instead_of_diag);
+static inline bool _is_position_pinned(bitboard pin_ray_mask, position position);
+static inline void _generate_king_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options);
+static inline void _generate_sliding_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options);
+static inline void _generate_knight_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options);
+static inline void _generate_pawn_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options);
+static inline void _generate_pawn_promotions(position start_pos, position dest_pos, move_generation_result *result, move_generation_options options, bool is_capture);
+static inline bool _is_check_after_en_passant(board *board, move_generation_data *data, position start_pos, position dest_pos, position capture_pos);
 
 static inline void generate_moves(board *board, move_generation_result *result, move_generation_options options)
 {
@@ -56,22 +59,22 @@ static inline void generate_moves(board *board, move_generation_result *result, 
 	data.empty_pos_or_enemy_pieces_mask = data.empty_pos_mask | data.enemy_pieces_mask;
 	data.allowed_destinations_mask = options.include_quiet_moves ? UINT64_MAX : data.enemy_pieces_mask;
 	data.opponent_sliding_attacks_mask = 0;
-	compute_attack_data(board, &data);
+	_compute_attack_data(board, &data);
 
 	// Generate moves
-	generate_king_moves();
+	_generate_king_moves(board, &data, result, options);
 	if (!data.is_currently_double_check)
 	{
-		generate_sliding_moves();
-		generate_knight_moves();
-		generate_pawn_moves();
+		_generate_sliding_moves(board, &data, result, options);
+		_generate_knight_moves(board, &data, result, options);
+		_generate_pawn_moves(board, &data, result, options);
 	}
 
 	// Update result secondary content
 	result->is_currently_check = data.is_currently_check;
 }
 
-static inline void compute_attack_data(board *board, move_generation_data *data)
+static inline void _compute_attack_data(board *board, move_generation_data *data)
 {
 	bool is_diagonal, is_friendly_piece_in_ray;
 	bitboard slider_mask, ray_mask, knights_mask, knights_attacks_mask, current_king_mask, current_knight_attacks_mask, 
@@ -82,8 +85,8 @@ static inline void compute_attack_data(board *board, move_generation_data *data)
 	piece piece;
 	piece_type piece_type;
 	// Compute orthogonal & diagonal attacks
-	compute_sliding_attacks(board, data, board->orthogonal_sliders_mask[data->opponent_color], true);
-	compute_sliding_attacks(board, data, board->diagonal_sliders_mask[data->opponent_color], false);
+	_compute_sliding_attacks(board, data, board->orthogonal_sliders_mask[data->opponent_color], true);
+	_compute_sliding_attacks(board, data, board->diagonal_sliders_mask[data->opponent_color], false);
 
 	// Search for pieces in any direction around the current king for eventual pins or checks
 	start_direction_index = 0;
@@ -198,7 +201,7 @@ static inline void compute_attack_data(board *board, move_generation_data *data)
 	}
 }
 
-static inline void compute_sliding_attacks(board *board, move_generation_data *data, bitboard pieces_mask, bool ortho_instead_of_diag)
+static inline void _compute_sliding_attacks(board *board, move_generation_data *data, bitboard pieces_mask, bool ortho_instead_of_diag)
 {
 	bitboard blockers, moves;
 	blockers = board->all_pieces_mask & ~(1ULL << data->current_king_pos);
@@ -211,24 +214,76 @@ static inline void compute_sliding_attacks(board *board, move_generation_data *d
 	}
 }
 
-static inline void generate_king_moves()
+static inline bool _is_position_pinned(bitboard pin_ray_mask, position position)
 {
+	return ((pin_ray_mask >> position) & 1) != 0;
+}
+
+static inline void _generate_king_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
+{
+	(void)board;
+	(void)data;
+	(void)result;
+	(void)options;
 	// TODO
 }
 
-static inline void generate_sliding_moves()
+static inline void _generate_sliding_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
 {
+	(void)board;
+	(void)data;
+	(void)result;
+	(void)options;
 	// TODO
 }
 
-static inline void generate_knight_moves()
+static inline void _generate_knight_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
 {
+	(void)board;
+	(void)data;
+	(void)result;
+	(void)options;
 	// TODO
 }
 
-static inline void generate_pawn_moves()
+static inline void _generate_pawn_moves(board *board, move_generation_data *data, move_generation_result *result, move_generation_options options)
 {
+	(void)board;
+	(void)data;
+	(void)result;
+	(void)options;
 	// TODO
+}
+
+static inline void _generate_pawn_promotions(position start_pos, position dest_pos, move_generation_result *result, move_generation_options options, bool is_capture)
+{
+	result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_QUEEN_PROMOTION_CAPTURE : MOVE_QUEEN_PROMOTION);
+	// Only include one variation (queen) when quiet moves are disabled
+	if (options.include_quiet_moves)
+	{
+		if ((options.promotion_types_to_include & PROMOTION_KIGHT) != 0)
+		{
+			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_KNIGHT_PROMOTION_CAPTURE : MOVE_KNIGHT_PROMOTION);
+			if (options.promotion_types_to_include == PROMOTION_ALL)
+			{
+				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_ROOK_PROMOTION_CAPTURE : MOVE_ROOK_PROMOTION);
+				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_BISHOP_PROMOTION_CAPTURE : MOVE_BISHOP_PROMOTION);
+			}
+		}
+	}
+}
+
+static inline bool _is_check_after_en_passant(board *board, move_generation_data *data, position start_pos, position dest_pos, position capture_pos)
+{
+	bitboard opponent_ortho_sliders_mask, previous_blockers_mask, orthogonal_attacks_mask;
+	opponent_ortho_sliders_mask = board->orthogonal_sliders_mask[data->opponent_color];
+	if (opponent_ortho_sliders_mask != 0)
+	{
+		previous_blockers_mask = (data->all_pieces_mask ^ (1ULL << capture_pos | 1ULL << start_pos | 1ULL << dest_pos));
+		orthogonal_attacks_mask = get_orthogonal_moves_bitboard(data->current_king_pos, previous_blockers_mask);
+		return (orthogonal_attacks_mask & opponent_ortho_sliders_mask) != 0;
+	}
+	return false;
 }
 
 #endif // MOVE_GENERATOR_H

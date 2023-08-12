@@ -9,8 +9,10 @@ zobrist_key g_en_passant_file_hashes[FILES_COUNT + 1];
 zobrist_key g_opponent_turn_hash;
 
 void initialize_zobrist();
-
 zobrist_key compute_zobrist_key(board *board);
+static inline zobrist_key get_piece_hash(piece piece, position position);
+static inline zobrist_key get_castling_hash(castling_data data);
+static inline zobrist_key get_en_passant_file_hash(int8_t en_passant_file);
 
 static inline zobrist_key get_piece_hash(piece piece, position position)
 {
