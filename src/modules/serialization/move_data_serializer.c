@@ -9,6 +9,13 @@ static inline promotion_type promotion_type_from_char(char promotion_char);
 
 static inline char promotion_type_to_char(promotion_type promotion_type);
 
+void move_to_string(move move, char *result)
+{
+    move_data data;
+    data = move_data_from_move(move);
+    move_data_to_string(data, result);
+}
+
 void move_data_to_string(move_data move_data, char *result)
 {
     char promotion_char;

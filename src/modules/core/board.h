@@ -234,24 +234,24 @@ static inline void do_move(board *board, move move, bool is_search)
     }
 
     // Update castling data
-    if (old_castling_data != 0)
+    if (new_castling_data != 0)
     {
         // Update castling data if the piece goes on a initial rook position
-        if (start_pos == POS_A1 || dest_pos == POS_A1)
+        if (start_pos == POS_H1 || dest_pos == POS_H1)
         {
-            new_castling_data = get_castling_data_without_queen_side(old_castling_data, COLOR_WHITE);
+            new_castling_data = get_castling_data_without_king_side(new_castling_data, COLOR_WHITE);
+        }
+        else if (start_pos == POS_A1 || dest_pos == POS_A1)
+        {
+            new_castling_data = get_castling_data_without_queen_side(new_castling_data, COLOR_WHITE);
+        }
+        if (start_pos == POS_H8 || dest_pos == POS_H8)
+        {
+            new_castling_data = get_castling_data_without_king_side(new_castling_data, COLOR_BLACK);
         }
         else if (start_pos == POS_A8 || dest_pos == POS_A8)
         {
-            new_castling_data = get_castling_data_without_queen_side(old_castling_data, COLOR_BLACK);
-        }
-        else if (start_pos == POS_H1 || dest_pos == POS_H1)
-        {
-            new_castling_data = get_castling_data_without_king_side(old_castling_data, COLOR_WHITE);
-        }
-        else if (start_pos == POS_H8 || dest_pos == POS_H8)
-        {
-            new_castling_data = get_castling_data_without_king_side(old_castling_data, COLOR_BLACK);
+            new_castling_data = get_castling_data_without_queen_side(new_castling_data, COLOR_BLACK);
         }
     }
 

@@ -28,6 +28,7 @@ board_data board_data_from_fen_string(char *fen_string)
     assert(fen_string);
     board_data.silent_move_count = 0;
     board_data.last_en_passant_file = NO_FILE;
+    board_data.ply_count = 0;
     strncpy(fen_copy, fen_string, _FEN_LENGTH_UPPER_BOUND - 1);
     fen_ptr = strtok(fen_copy, _FEN_DELIMITER);
     assert(fen_ptr);
@@ -91,10 +92,10 @@ board_data board_data_from_fen_string(char *fen_string)
     castling[COLOR_BLACK] = CASTLING_NONE;
     for (char_index = 0; char_index < third_part_len; char_index++)
     {
-        castling[COLOR_WHITE] |= fen_ptr[char_index] == WHITE_CASTLE_KING_SIDE_CHAR ? CASTLING_KING : 0;
-        castling[COLOR_WHITE] |= fen_ptr[char_index] == WHITE_CASTLE_KING_SIDE_CHAR ? CASTLING_QUEEN : 0;
-        castling[COLOR_BLACK] |= fen_ptr[char_index] == BLACK_CASTLE_KING_SIDE_CHAR ? CASTLING_KING : 0;
-        castling[COLOR_BLACK] |= fen_ptr[char_index] == BLACK_CASTLE_KING_SIDE_CHAR ? CASTLING_QUEEN : 0;
+        castling[COLOR_WHITE] |= fen_ptr[char_index] == WHITE_CASTLE_KING_SIDE_CHAR ? CASTLING_KING : CASTLING_NONE;
+        castling[COLOR_WHITE] |= fen_ptr[char_index] == WHITE_CASTLE_QUEEN_SIDE_CHAR ? CASTLING_QUEEN : CASTLING_NONE;
+        castling[COLOR_BLACK] |= fen_ptr[char_index] == BLACK_CASTLE_KING_SIDE_CHAR ? CASTLING_KING : CASTLING_NONE;
+        castling[COLOR_BLACK] |= fen_ptr[char_index] == BLACK_CASTLE_QUEEN_SIDE_CHAR ? CASTLING_QUEEN : CASTLING_NONE;
     }
     board_data.castling_data = create_castling_data(castling[COLOR_WHITE], castling[COLOR_BLACK]);
     fen_ptr = strtok(NULL, _FEN_DELIMITER);
