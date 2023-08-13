@@ -6,13 +6,14 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(APPLICATIONS_TO_INCLUDE
     ${PROJECT_NAME} "src/host/engine.c" "core,serialization"
     Generator "src/host/generator.c" "core,generation"
-    TestSuite "src/host/test.c" "core,serialization,test"
+    TestSuite "src/host/test.c" "core,serialization,game_tools,test"
 )
 set(MODULES_TO_INCLUDE
     core NULL
     generation "core"
     serialization "core"
-    test "core,serialization"
+    game_tools "core,serialization"
+    test "core,serialization,game_tools"
     # ai "core"
     # uci "core"
 )

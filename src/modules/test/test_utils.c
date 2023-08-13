@@ -4,21 +4,14 @@
 #include "../core/move_generation_result.h"
 #include "../core/move_generator.h"
 #include "../core/logging.h"
+#include "../game_tools/game_data.h"
 #include "../serialization/board_data_serializer.h"
 #include "test_utils.h"
 
 #define INTO_BRACKET(content) FG_WHITE "[" COLOR_RESET content COLOR_RESET FG_WHITE "]" COLOR_RESET
-#define EXPLORATION_NODE_TEST_PREFIX INTO_BRACKET("Node exploration") " "
+#define EXPLORATION_NODE_TEST_PREFIX INTO_BRACKET(FG_BLUE "Node exploration") " "
 #define OK_RESULT BG_GREEN FG_WHITE "[OK]" COLOR_RESET
 #define KO_RESULT BG_RED FG_WHITE "[KO]" COLOR_RESET
-
-typedef struct test_base_data
-{
-    move_stack move_stack;
-    zobrist_stack zobrist_stack;
-    game_state_stack game_state_stack;
-    board board;
-} test_base_data;
 
 static move_generation_options s_move_generation_options =
 {
@@ -26,7 +19,8 @@ static move_generation_options s_move_generation_options =
     .promotion_types_to_include = PROMOTION_ALL
 };
 
-static test_base_data create_test_base_data(char *fen_string);
+static game_data s_game_data;
+
 static uint64_t search_nodes(board *board, int32_t depth);
 static void run_node_exploration_test(char *fen_string, int32_t depth, uint64_t expected_nodes_count);
 
@@ -41,22 +35,6 @@ void run_node_exploration_batch(char *position_name, char *fen_string, node_expl
         current_case = cases[case_index];
         run_node_exploration_test(fen_string, current_case.depth, current_case.expected_nodes_count);
     }
-}
-
-static test_base_data create_test_base_data(char *fen_string)
-{
-    test_base_data data;
-    board_data board_data;
-    data.move_stack = create_move_stack();
-    data.zobrist_stack = create_zobrist_stack();
-    data.game_state_stack = create_game_state_stack();
-    data.board = create_board(&(data.game_state_stack), &(data.move_stack), &(data.zobrist_stack));
-    if (fen_string != NULL)
-    {
-        board_data = board_data_from_fen_string(fen_string);
-        load_board_from_board_data(&(data.board), board_data);
-    }
-    return data;
 }
 
 static uint64_t search_nodes(board *board, int32_t depth)
@@ -84,11 +62,10 @@ static uint64_t search_nodes(board *board, int32_t depth)
 
 static void run_node_exploration_test(char *fen_string, int32_t depth, uint64_t expected_nodes_count)
 {
-    test_base_data data;
     uint64_t found_nodes_count, start_time, end_time;
-    data = create_test_base_data(fen_string);
+    reset_game_data(&(s_game_data), fen_string);
     start_time = get_current_uptime();
-    found_nodes_count = search_nodes(&(data.board), depth);
+    found_nodes_count = search_nodes(&(s_game_data.board), depth);
     end_time = get_current_uptime();
     printf("    ");
     if (expected_nodes_count == found_nodes_count)
