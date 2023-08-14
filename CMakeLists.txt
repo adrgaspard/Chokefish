@@ -4,7 +4,7 @@ project(${PROJECT_NAME})
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(APPLICATIONS_TO_INCLUDE
-    ${PROJECT_NAME} "src/host/engine.c" "core,serialization"
+    ${PROJECT_NAME} "src/host/engine.c" "core,serialization,game_tools,uci"
     Generator "src/host/generator.c" "core,generation"
     TestSuite "src/host/test.c" "core,serialization,game_tools,test"
 )
@@ -15,7 +15,7 @@ set(MODULES_TO_INCLUDE
     game_tools "core,serialization"
     test "core,serialization,game_tools"
     # ai "core"
-    # uci "core"
+    uci "core,serialization,game_tools"
 )
 
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
