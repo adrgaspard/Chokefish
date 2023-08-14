@@ -10,5 +10,6 @@ int main()
     initialize_zobrist();
     initialize_precomputed_board_data();
     run_node_exploration_test_suite();
+    run_performance_test_suite();
     return 0;
 }
