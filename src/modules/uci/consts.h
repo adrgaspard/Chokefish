@@ -1,21 +1,20 @@
 #ifndef UCI_CONSTS_H
 #define UCI_CONSTS_H
 
+// Mutable consts
+
+#define ENGINE_NAME "Chokefish"
+#define ENGINE_AUTHOR "Gaspard Andrieu"
+
+// Partially mutable consts
+
+#define MAX_WORKER_THREADS 8
+
 // Immutable consts
 
 // GE means GUI to Engine, EG means engine to GUI
 
 #define UCI_DELIMITER " "
-
-#define UCI_OPTION_DEFAULT "default"
-#define UCI_OPTION_PONDER "Ponder"
-#define UCI_OPTION_PONDER_DEFAULT_VALUE true
-#define UCI_OPTION_OWNBOOK "OwnBook"
-#define UCI_OPTION_OWNBOOK_DEFAULT_VALUE true
-#define UCI_OPTION_THREADSCOUNT "ThreadsCount"
-#define UCI_OPTION_THREADSCOUNT_DEFAULT_VALUE 1
-#define UCI_OPTION_THREADSCOUNT_MIN_VALUE 1
-#define UCI_OPTION_THREADSCOUNT_MAX_VALUE 32
 
 #define GE_CMD_UCI "uci"
 
@@ -74,5 +73,10 @@
 #define EG_CMD_INFO_OPT_SCORE_OPT_MATE "mate"
 
 #define EG_CMD_OPTION "option"
+#define EG_CMD_OPTION_OPT_NAME "name"
+#define EG_CMD_OPTION_OPT_TYPE "type"
+#define EG_CMD_OPTION_OPT_DEFAULT "default"
+#define EG_CMD_OPTION_OPT_MIN "min"
+#define EG_CMD_OPTION_OPT_MAX "max"
 
 #endif // UCI_CONSTS_H
