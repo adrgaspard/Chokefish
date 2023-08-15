@@ -4,6 +4,7 @@
 // Immutable consts
 
 #define START_FEN_STR "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define FEN_LENGTH_UPPER_BOUND 100
 #define NO_POSITION_STR "-0"
 #define POSITION_STR_LEN 3
 #define MOVE_DATA_STR_PROMOTION_FIRST_INDEX 4

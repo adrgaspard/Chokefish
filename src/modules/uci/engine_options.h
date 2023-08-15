@@ -12,6 +12,9 @@
 #define _OPTION_PART1 UCI_DELIMITER EG_CMD_OPTION_OPT_TYPE UCI_DELIMITER
 #define _OPTION_PART2 UCI_DELIMITER EG_CMD_OPTION_OPT_DEFAULT UCI_DELIMITER
 
+#define OPT_NAME_MAX_LENGTH 100
+#define OPT_VALUE_MAX_LENGHT 500
+
 #define OPT_BOOL_STR "check"
 #define OPT_BOOL_TRUE_STR "true"
 #define OPT_BOOL_FALSE_STR "false"
@@ -28,21 +31,56 @@
 #define UCI_OPTION_THREADSCOUNT_MIN_VALUE 1
 #define UCI_OPTION_THREADSCOUNT_MAX_VALUE MAX_WORKER_THREADS
 
-#define PRINT_BOOL_OPTION(name, value) printf(_OPTION_PART0 name _OPTION_PART1 OPT_BOOL_STR _OPTION_PART2 "%s" "\n", value ? OPT_BOOL_TRUE_STR : OPT_BOOL_FALSE_STR);
-#define PRINT_INT_OPTION(name, value, min, max) printf(_OPTION_PART0 name _OPTION_PART1 OPT_INT_STR _OPTION_PART2 "%d" UCI_DELIMITER EG_CMD_OPTION_OPT_MIN UCI_DELIMITER "%d" UCI_DELIMITER EG_CMD_OPTION_OPT_MAX UCI_DELIMITER "%d" "\n", value, min, max);
+#define _PRINT_BOOL_OPTION(name, value) printf(_OPTION_PART0 name _OPTION_PART1 OPT_BOOL_STR _OPTION_PART2 "%s" "\n", value ? OPT_BOOL_TRUE_STR : OPT_BOOL_FALSE_STR);
+#define _PRINT_INT_OPTION(name, value, min, max) printf(_OPTION_PART0 name _OPTION_PART1 OPT_INT_STR _OPTION_PART2 "%ld" UCI_DELIMITER EG_CMD_OPTION_OPT_MIN UCI_DELIMITER "%ld" UCI_DELIMITER EG_CMD_OPTION_OPT_MAX UCI_DELIMITER "%ld" "\n", value, min, max);
+
+#define _TRY_SET_BOOL_OPTION(option_name_static, option_name_str, option_value_str, option_ptr) \
+do                                                                                              \
+{                                                                                               \
+    if (strcmp(option_name_str, option_name_static) == 0)                                       \
+    {                                                                                           \
+        if (strcmp(option_value_str, OPT_BOOL_TRUE_STR) == 0)                                   \
+        {                                                                                       \
+            *option_ptr = true;                                                                 \
+        }                                                                                       \
+        else if (strcmp(option_value_str, OPT_BOOL_FALSE_STR) == 0)                             \
+        {                                                                                       \
+            *option_ptr = false;                                                                \
+        }                                                                                       \
+        return;                                                                                 \
+    }                                                                                           \
+} while (false);
+
+#define _TRY_SET_INT_OPTION(option_name_static, option_name_str, option_value_str, option_ptr, value_min, value_max)    \
+do                                                                                                                      \
+{                                                                                                                       \
+    char *convert_ptr;                                                                                                  \
+    int64_t convert_result;                                                                                             \
+    if (strcmp(option_name_str, option_name_static) == 0)                                                               \
+    {                                                                                                                   \
+        convert_result = strtol(option_value_str, &convert_ptr, 10);                                                    \
+        if (*convert_ptr == '\0' && convert_result >= value_min && convert_result <= value_max)                         \
+        {                                                                                                               \
+            *option_ptr = convert_result;                                                                               \
+        }                                                                                                               \
+        return;                                                                                                         \
+    }                                                                                                                   \
+} while (false);
+
 
 typedef struct engine_options
 {
     bool ponder;
     bool own_book;
-    int32_t threads_count;
-    int32_t threads_count_min;
-    int32_t threads_count_max;
+    int64_t threads_count;
+    int64_t threads_count_min;
+    int64_t threads_count_max;
 } engine_options;
 
 static inline engine_options get_default_options();
 static inline bool are_engine_options_valid(engine_options options);
 static inline void print_options(engine_options options);
+static inline void setoption(engine_options *options, char *option_name, char *option_value);
 
 static inline engine_options get_default_options()
 {
@@ -63,9 +101,18 @@ static inline bool are_engine_options_valid(engine_options options)
 
 static inline void print_options(engine_options options)
 {
-    PRINT_BOOL_OPTION(UCI_OPTION_PONDER, options.ponder)
-    PRINT_BOOL_OPTION(UCI_OPTION_OWNBOOK, options.own_book)
-    PRINT_INT_OPTION(UCI_OPTION_THREADSCOUNT, options.threads_count, options.threads_count_min, options.threads_count_max)
+    _PRINT_BOOL_OPTION(UCI_OPTION_PONDER, options.ponder)
+    _PRINT_BOOL_OPTION(UCI_OPTION_OWNBOOK, options.own_book)
+    _PRINT_INT_OPTION(UCI_OPTION_THREADSCOUNT, options.threads_count, options.threads_count_min, options.threads_count_max)
+}
+
+static inline void setoption(engine_options *options, char *option_name, char *option_value)
+{
+    assert(options && option_name && option_value);
+    _TRY_SET_BOOL_OPTION(UCI_OPTION_PONDER, option_name, option_value, &(options->ponder))
+    _TRY_SET_BOOL_OPTION(UCI_OPTION_OWNBOOK, option_name, option_value, &(options->own_book))
+    _TRY_SET_INT_OPTION(UCI_OPTION_THREADSCOUNT, option_name, option_value, &(options->threads_count), 
+        options->threads_count_min, options->threads_count_max)
 }
 
 #endif // ENGINE_OPTIONS_H

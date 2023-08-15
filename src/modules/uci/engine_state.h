@@ -5,17 +5,21 @@
 
 typedef enum engine_state
 {
-    WAITING_FOR_SETUP,
-    WAITING_FOR_READY,
-    IDLING,
+    WAITING_FOR_SETUP = 0x01,
+    WAITING_FOR_READY = 0x02,
+    IDLING = 0x04,
+    SEARCHING = 0x08,
+    PONDERING = 0x10
 } engine_state;
 
 
 static inline engine_state get_default_state();
 static inline bool is_waiting_for_setup(engine_state engine_state);
 static inline bool is_waiting_for_ready(engine_state engine_state);
+static inline bool is_working(engine_state engine_state);
 static inline void on_sending_uciok(engine_state *engine_state);
 static inline void on_sending_readyok(engine_state *engine_state);
+static inline void on_cancelling_search(engine_state *engine_state);
 
 static inline engine_state get_default_state()
 {
@@ -32,6 +36,11 @@ static inline bool is_waiting_for_ready(engine_state engine_state)
     return engine_state == WAITING_FOR_READY;
 }
 
+static inline bool is_working(engine_state engine_state)
+{
+    return (engine_state & (SEARCHING | PONDERING)) != 0;
+}
+
 static inline void on_sending_uciok(engine_state *engine_state)
 {
     assert(is_waiting_for_setup(*engine_state));
@@ -45,6 +54,12 @@ static inline void on_sending_readyok(engine_state *engine_state)
     {
         *engine_state = IDLING;
     }
+}
+
+static inline void on_cancelling_search(engine_state *engine_state)
+{
+    assert(is_working(*engine_state));
+    *engine_state = IDLING;
 }
 
 #endif // ENGINE_STATE_H

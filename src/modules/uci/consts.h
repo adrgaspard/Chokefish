@@ -15,6 +15,7 @@
 // GE means GUI to Engine, EG means engine to GUI
 
 #define UCI_DELIMITER " "
+#define UCI_DELIMITER_CHAR ' '
 
 #define GE_CMD_UCI "uci"
 
@@ -33,6 +34,7 @@
 #define GE_CMD_POSITION "position"
 #define GE_CMD_POSITION_OPT_FEN "fen"
 #define GE_CMD_POSITION_OPT_STARTPOS "startpos"
+#define GE_CMD_POSITION_OPT_MOVES "moves"
 
 #define GE_CMD_GO "go"
 #define GE_CMD_GO_OPT_SEARCHMOVES "searchmoves"

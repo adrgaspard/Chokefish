@@ -6,7 +6,6 @@
 #include "position_serializer.h"
 
 #define _FEN_DELIMITER " "
-#define _FEN_LENGTH_UPPER_BOUND 100
 #define _SILENT_MOVE_COUNT_LENGTH_UPPER_BOUND 10
 #define _FILES_COUNT_CHAR '8'
 
@@ -16,7 +15,7 @@ static bool is_valid_en_passant_capture(board *board, vector2 from_pos_vector, p
 board_data board_data_from_fen_string(char *fen_string)
 {
     board_data board_data;
-    char fen_copy[_FEN_LENGTH_UPPER_BOUND], *fen_ptr, current_char;
+    char fen_copy[FEN_LENGTH_UPPER_BOUND + 1], *fen_ptr, current_char;
     size_t first_part_len, third_part_len;
     uint32_t char_index, move_count;
     int8_t current_file, current_rank;
@@ -29,7 +28,7 @@ board_data board_data_from_fen_string(char *fen_string)
     board_data.silent_move_count = 0;
     board_data.last_en_passant_file = NO_FILE;
     board_data.ply_count = 0;
-    strncpy(fen_copy, fen_string, _FEN_LENGTH_UPPER_BOUND - 1);
+    strncpy(fen_copy, fen_string, FEN_LENGTH_UPPER_BOUND - 1);
     fen_ptr = strtok(fen_copy, _FEN_DELIMITER);
     assert(fen_ptr);
     first_part_len = strlen(fen_ptr);
