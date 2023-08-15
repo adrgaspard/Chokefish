@@ -34,22 +34,6 @@
 #define _PRINT_BOOL_OPTION(name, value) printf(_OPTION_PART0 name _OPTION_PART1 OPT_BOOL_STR _OPTION_PART2 "%s" "\n", value ? OPT_BOOL_TRUE_STR : OPT_BOOL_FALSE_STR);
 #define _PRINT_INT_OPTION(name, value, min, max) printf(_OPTION_PART0 name _OPTION_PART1 OPT_INT_STR _OPTION_PART2 "%ld" UCI_DELIMITER EG_CMD_OPTION_OPT_MIN UCI_DELIMITER "%ld" UCI_DELIMITER EG_CMD_OPTION_OPT_MAX UCI_DELIMITER "%ld" "\n", value, min, max);
 
-#define _TRY_SET_BOOL_OPTION(option_name_static, option_name_str, option_value_str, option_ptr) \
-do                                                                                              \
-{                                                                                               \
-    if (strcmp(option_name_str, option_name_static) == 0)                                       \
-    {                                                                                           \
-        if (strcmp(option_value_str, OPT_BOOL_TRUE_STR) == 0)                                   \
-        {                                                                                       \
-            *option_ptr = true;                                                                 \
-        }                                                                                       \
-        else if (strcmp(option_value_str, OPT_BOOL_FALSE_STR) == 0)                             \
-        {                                                                                       \
-            *option_ptr = false;                                                                \
-        }                                                                                       \
-        return;                                                                                 \
-    }                                                                                           \
-} while (false);
 
 #define _TRY_SET_INT_OPTION(option_name_static, option_name_str, option_value_str, option_ptr, value_min, value_max)    \
 do                                                                                                                      \
@@ -81,6 +65,8 @@ static inline engine_options get_default_options();
 static inline bool are_engine_options_valid(engine_options options);
 static inline void print_options(engine_options options);
 static inline void setoption(engine_options *options, char *option_name, char *option_value);
+static inline void _setoption_bool(bool *option_ptr, char *value);
+static inline void _setoption_int64(int64_t *option_ptr, char *value, int64_t min, int64_t max);
 
 static inline engine_options get_default_options()
 {
@@ -109,10 +95,41 @@ static inline void print_options(engine_options options)
 static inline void setoption(engine_options *options, char *option_name, char *option_value)
 {
     assert(options && option_name && option_value);
-    _TRY_SET_BOOL_OPTION(UCI_OPTION_PONDER, option_name, option_value, &(options->ponder))
-    _TRY_SET_BOOL_OPTION(UCI_OPTION_OWNBOOK, option_name, option_value, &(options->own_book))
-    _TRY_SET_INT_OPTION(UCI_OPTION_THREADSCOUNT, option_name, option_value, &(options->threads_count), 
-        options->threads_count_min, options->threads_count_max)
+    if (strcmp(option_name, UCI_OPTION_PONDER) == 0)
+    {
+        _setoption_bool(&(options->ponder), option_value);
+    }
+    else if (strcmp(option_name, UCI_OPTION_OWNBOOK) == 0)
+    {
+        _setoption_bool(&(options->own_book), option_value);
+    }
+    else if (strcmp(option_name, UCI_OPTION_THREADSCOUNT) == 0)
+    {
+        _setoption_int64(&(options->threads_count), option_value, options->threads_count_min, options->threads_count_max);
+    }
+}
+
+static inline void _setoption_bool(bool *option_ptr, char *value)
+{
+    if (strcmp(value, OPT_BOOL_TRUE_STR) == 0)
+    {
+        *option_ptr = true;
+    }
+    else if (strcmp(value, OPT_BOOL_FALSE_STR) == 0)
+    {
+        *option_ptr = false;
+    } 
+}
+
+static inline void _setoption_int64(int64_t *option_ptr, char *value, int64_t min, int64_t max)
+{
+    char *convertion_ptr;
+    int64_t converted_value;
+    converted_value = strtol(value, &convertion_ptr, 10);
+    if (*convertion_ptr == '\0' && converted_value >= min && converted_value <= max)
+    {
+        *option_ptr = converted_value;
+    }
 }
 
 #endif // ENGINE_OPTIONS_H

@@ -19,7 +19,7 @@ static inline bool is_waiting_for_ready(engine_state engine_state);
 static inline bool is_working(engine_state engine_state);
 static inline void on_sending_uciok(engine_state *engine_state);
 static inline void on_sending_readyok(engine_state *engine_state);
-static inline void on_cancelling_search(engine_state *engine_state);
+static inline void on_cancelling_work(engine_state *engine_state);
 
 static inline engine_state get_default_state()
 {
@@ -56,7 +56,7 @@ static inline void on_sending_readyok(engine_state *engine_state)
     }
 }
 
-static inline void on_cancelling_search(engine_state *engine_state)
+static inline void on_cancelling_work(engine_state *engine_state)
 {
     assert(is_working(*engine_state));
     *engine_state = IDLING;
