@@ -37,16 +37,12 @@
 #define GE_CMD_POSITION_OPT_MOVES "moves"
 
 #define GE_CMD_GO "go"
-#define GE_CMD_GO_OPT_SEARCHMOVES "searchmoves"
 #define GE_CMD_GO_OPT_PONDER "ponder"
 #define GE_CMD_GO_OPT_WTIME "wtime"
 #define GE_CMD_GO_OPT_BTIME "btime"
 #define GE_CMD_GO_OPT_WINC "winc"
 #define GE_CMD_GO_OPT_BINC "binc"
 #define GE_CMD_GO_OPT_MOVESTOGO "movestogo"
-#define GE_CMD_GO_OPT_DEPTH "depth"
-#define GE_CMD_GO_OPT_NODES "nodes"
-#define GE_CMD_GO_OPT_MATE "mate"
 #define GE_CMD_GO_OPT_MOVETIME "movetime"
 #define GE_CMD_GO_OPT_INFINITE "infinite"
 

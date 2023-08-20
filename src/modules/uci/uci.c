@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include "../ai/engine.h"
+#include "../ai/types.h"
 #include "../core/board.h"
 #include "../core/move_generation_result.h"
 #include "../core/move_generator.h"
@@ -12,6 +14,18 @@
 #include "engine_state.h"
 
 #define COMMAND_STR_LEN 80000
+#define GO_OPT_NO_VALUE -1
+
+typedef enum go_cmd_edition
+{
+    GO_NONE,
+    GO_WTIME,
+    GO_BTIME,
+    GO_WINC,
+    GO_BINC,
+    GO_MOVESTOGO,
+    GO_MOVETIME
+} go_cmd_edition;
 
 static char s_command_str[COMMAND_STR_LEN + 1];
 static char s_edit_command_str[COMMAND_STR_LEN + 1];
@@ -21,6 +35,7 @@ static engine_options s_options;
 static engine_state s_state;
 static bool s_debug;
 static game_data s_master_game_data;
+static search_result s_search_result;
 static move_generation_options s_all_moves = { .include_quiet_moves = true, .promotion_types_to_include = PROMOTION_ALL };
 
 static void handle_uci_command();
@@ -29,6 +44,7 @@ static void handle_isready_command();
 static void handle_setoption_command(char *current_cmd);
 static void handle_ucinewgame_command();
 static void handle_position_command(char *current_cmd, uint64_t start_index);
+static void handle_go_command(char *current_cmd);
 static void handle_quit_command();
 
 void handle_commands()
@@ -87,6 +103,7 @@ void handle_commands()
             }
             else if (strcmp(current_cmd, GE_CMD_GO) == 0)
             {
+                handle_go_command(current_cmd);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_STOP) == 0)
@@ -212,9 +229,9 @@ static void handle_ucinewgame_command()
         if (is_working(s_state))
         {
             on_cancelling_work(&s_state);
-            // TODO: cancel ponder/search without returning anything
+            cancel_search();
         }
-        // TODO: clear all search cache, put the state on idling
+        reset_engine_cache();
     }
 }
 
@@ -225,21 +242,21 @@ static void handle_position_command(char *current_cmd, uint64_t start_index)
     move_generation_result generation_result;
     move current_move;
     bool is_new_game;
+    if (is_waiting_for_setup(s_state) || is_waiting_for_ready(s_state))
+    {
+        return;
+    }
+    start_index += strlen(current_cmd) + 1;
+    if (strlen(s_command_str) <= start_index)
+    {
+        return;
+    }
     uci_delimiter_static_len = strlen(UCI_DELIMITER);
     fen_opt_static_len = strlen(GE_CMD_POSITION_OPT_FEN UCI_DELIMITER);
     moves_ptr = NULL;
     moves_opt_len = 0;
     new_moves_index = 0;
     new_moves_ptr = NULL;
-    start_index += strlen(current_cmd) + 1;
-    if (is_waiting_for_setup(s_state) || is_waiting_for_ready(s_state))
-    {
-        return;
-    }
-    if (strlen(s_command_str) <= start_index)
-    {
-        return;
-    }
     command_args = s_edit_command_str + start_index;
     if (strstr(command_args, GE_CMD_POSITION_OPT_MOVES) != NULL)
     {
@@ -338,17 +355,208 @@ static void handle_position_command(char *current_cmd, uint64_t start_index)
     if (is_working(s_state))
     {
         on_cancelling_work(&s_state);
-        // TODO: cancel ponder/search without returning anything
+        cancel_search();
     }
-    if (s_options.ponder)
+}
+
+static void handle_go_command(char *current_cmd)
+{
+    bool expecting_keyword, ponder;
+    time_system time_system;
+    go_cmd_edition edition;
+    int64_t convertion_value, wtime, btime, winc, binc, movestogo, movetime;
+    char *convertion_ptr;
+    if (!is_idling(s_state))
     {
-        // TODO: register on_starting_ponder in engine_state.h
-        // TODO: start pondering
+        return;
+    }
+    expecting_keyword = true;
+    ponder = false;
+    time_system = TS_NONE;
+    edition = GO_NONE;
+    wtime = GO_OPT_NO_VALUE;
+    btime = GO_OPT_NO_VALUE;
+    winc = GO_OPT_NO_VALUE;
+    binc = GO_OPT_NO_VALUE;
+    movestogo = GO_OPT_NO_VALUE;
+    movetime = GO_OPT_NO_VALUE;
+    current_cmd = strtok(NULL, UCI_DELIMITER);
+    while (current_cmd != NULL)
+    {
+        if (strcmp(current_cmd, GE_CMD_GO_OPT_PONDER) == 0)
+        {
+            if (!expecting_keyword)
+            {
+                return;
+            }
+            ponder = true;
+        }
+        else if (strcmp(current_cmd, GE_CMD_GO_OPT_WTIME) == 0)
+        {
+            if (!expecting_keyword || time_system == TS_DEFINED || time_system == TS_INFINITE)
+            {
+                return;
+            }
+            expecting_keyword = false;
+            edition = GO_WTIME;
+        }
+        else if (strcmp(current_cmd, GE_CMD_GO_OPT_BTIME) == 0)
+        {
+            if (!expecting_keyword || time_system == TS_DEFINED || time_system == TS_INFINITE)
+            {
+                return;
+            }
+            expecting_keyword = false;
+            edition = GO_BTIME;
+        }
+        else if (strcmp(current_cmd, GE_CMD_GO_OPT_WINC) == 0)
+        {
+            if (!expecting_keyword || (time_system != TS_NONE && time_system != TS_INCREMENTAL))
+            {
+                return;
+            }
+            time_system = TS_INCREMENTAL;
+            expecting_keyword = false;
+            edition = GO_WINC;
+        }
+        else if (strcmp(current_cmd, GE_CMD_GO_OPT_BINC) == 0)
+        {
+            if (!expecting_keyword || (time_system != TS_NONE && time_system != TS_INCREMENTAL))
+            {
+                return;
+            }
+            time_system = TS_INCREMENTAL;
+            expecting_keyword = false;
+            edition = GO_BINC;
+        }
+        else if (strcmp(current_cmd, GE_CMD_GO_OPT_MOVESTOGO) == 0)
+        {
+            if (!expecting_keyword || time_system != TS_NONE)
+            {
+                return;
+            }
+            time_system = TS_CONTROL;
+            expecting_keyword = false;
+            edition = GO_MOVESTOGO;
+        }
+        else if (strcmp(current_cmd, GE_CMD_GO_OPT_MOVETIME) == 0)
+        {
+            if (!expecting_keyword || time_system != TS_NONE)
+            {
+                return;
+            }
+            time_system = TS_CONTROL;
+            expecting_keyword = false;
+            edition = GO_MOVETIME;
+        }
+        else if (strcmp(current_cmd, GE_CMD_GO_OPT_INFINITE) == 0)
+        {
+            if (!expecting_keyword || time_system != TS_NONE)
+            {
+                return;
+            }
+            time_system = TS_INFINITE;
+        }
+        else if (expecting_keyword)
+        {
+            return;
+        }
+        else
+        {
+            convertion_value = strtol(current_cmd, &convertion_ptr, 10);
+            if (convertion_ptr == current_cmd)
+            {
+                return;
+            }
+            switch (edition)
+            {
+                case GO_WTIME:
+                    if (convertion_value <= 0)
+                    {
+                        return;
+                    }
+                    wtime = convertion_value;
+                    break;
+                case GO_BTIME:
+                    if (convertion_value <= 0)
+                    {
+                        return;
+                    }
+                    btime = convertion_value;
+                    break;
+                case GO_WINC:
+                    if (convertion_value < 0)
+                    {
+                        return;
+                    }
+                    winc = convertion_value;
+                    break;
+                case GO_BINC:
+                    if (convertion_value < 0)
+                    {
+                        return;
+                    }
+                    binc = convertion_value;
+                    break;
+                case GO_MOVESTOGO:
+                    if (convertion_value <= 0)
+                    {
+                        return;
+                    }
+                    movestogo = convertion_value;
+                    break;
+                case GO_MOVETIME:
+                    if (convertion_value <= 0)
+                    {
+                        return;
+                    }
+                    movetime = convertion_value;
+                    break;
+                default:
+                    return;
+            }
+            edition = GO_NONE;
+            expecting_keyword = true;
+        }
+        current_cmd = strtok(NULL, UCI_DELIMITER);
+    }
+    switch (time_system)
+    {
+        case TS_INFINITE:
+            on_starting_work(&s_state, ponder);
+            start_search_infinite_time(&s_master_game_data, &s_search_result);
+            break;
+        case TS_DEFINED:
+            if (movetime == GO_OPT_NO_VALUE)
+            {
+                return;
+            }
+            on_starting_work(&s_state, ponder);
+            start_search_defined_time(&s_master_game_data, &s_search_result, (uint64_t)movetime);
+            break;
+        case TS_INCREMENTAL:
+            if (wtime == GO_OPT_NO_VALUE || btime == GO_OPT_NO_VALUE || winc == GO_OPT_NO_VALUE || binc == GO_OPT_NO_VALUE)
+            {
+                return;
+            }
+            on_starting_work(&s_state, ponder);
+            start_search_incremental_time(&s_master_game_data, &s_search_result, (uint64_t)wtime, (uint64_t)winc, (uint64_t)btime, (uint64_t)binc);
+            break;
+        case TS_CONTROL:
+            if (wtime == GO_OPT_NO_VALUE || btime == GO_OPT_NO_VALUE || movestogo == GO_OPT_NO_VALUE)
+            {
+                return;
+            }
+            on_starting_work(&s_state, ponder);
+            start_search_time_control(&s_master_game_data, &s_search_result, (uint64_t)wtime, (uint64_t)btime, (uint64_t)movestogo);
+            break;
+        default:
+            return;
     }
 }
 
 static void handle_quit_command()
 {
-    // TODO: kill all existing threads
+    cancel_search();
     exit(EXIT_SUCCESS);
 }
