@@ -50,7 +50,7 @@ void handle_commands()
             }
             else if (strcmp(current_cmd, GE_CMD_DEBUG) == 0)
             {
-                handle_debug_command(current_cmd, &s_debug);
+                handle_debug_command(current_cmd, &s_debug, s_state, &s_search_result);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_ISREADY) == 0)
@@ -75,15 +75,17 @@ void handle_commands()
             }
             else if (strcmp(current_cmd, GE_CMD_GO) == 0)
             {
-                handle_go_command(current_cmd, &s_state, &s_game_data, &s_search_result);
+                handle_go_command(current_cmd, &s_state, &s_game_data, &s_search_result, s_debug);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_STOP) == 0)
             {
+                handle_stop_command(&s_state, &s_search_result);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_PONDERHIT) == 0)
             {
+                handle_ponderhit_command(&s_state);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_QUIT) == 0)
@@ -99,36 +101,6 @@ void handle_commands()
         }
     }
 }
-
-// static void search_debug_print_loop(void *arg)
-// {
-//     usleep(100);
-//     while (is_working(s_state))
-//     {
-//         pthread_testcancel();
-//         print_search_result_info();
-//         usleep(100);
-//     }
-// }
-
-// static void print_search_result_info()
-// {
-//     pthread_rwlock_rdlock(&(s_search_result.lock));
-//     if (s_search_result.valid)
-//     {
-//         printf(EG_CMD_INFO UCI_DELIMITER EG_CMD_INFO_OPT_DEPTH  " %u "  EG_CMD_INFO_OPT_TIME " %lu " EG_CMD_INFO_OPT_NODES " %lu " EG_CMD_INFO_OPT_SCORE UCI_DELIMITER, 
-//             s_search_result.depth, get_current_uptime() - s_search_result.start_time, s_search_result.nodes_explored);
-//         if (s_search_result.is_mate)
-//         {
-//             printf(EG_CMD_INFO_OPT_SCORE_OPT_MATE " %u\n", s_search_result.mate_score);
-//         }
-//         else
-//         {
-//             printf(EG_CMD_INFO_OPT_SCORE_OPT_MATE " %.2lf\n", s_search_result.centipawns_score);
-//         }
-//     }
-//     pthread_rwlock_unlock(&(s_search_result.lock));
-// }
 
 static void reset_internal_data()
 {

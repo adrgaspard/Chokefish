@@ -9,6 +9,7 @@
 #include "../serialization/move_data_serializer.h"
 #include "commands.h"
 #include "consts.h"
+#include "debug_printer.h"
 #include "engine_state.h"
 
 move_generation_options s_all_moves = { .include_quiet_moves = true, .promotion_types_to_include = PROMOTION_ALL };
@@ -135,4 +136,5 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
         on_cancelling_work(state);
         cancel_search();
     }
+    disable_debug_printing();
 }
