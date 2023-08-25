@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "consts.h"
+#include "types.h"
 
 #define _OPTION_PART0 EG_CMD_OPTION UCI_DELIMITER EG_CMD_OPTION_OPT_NAME UCI_DELIMITER
 #define _OPTION_PART1 UCI_DELIMITER EG_CMD_OPTION_OPT_TYPE UCI_DELIMITER
@@ -50,16 +51,6 @@ do                                                                              
         return;                                                                                                         \
     }                                                                                                                   \
 } while (false);
-
-
-typedef struct engine_options
-{
-    bool ponder;
-    bool own_book;
-    int64_t threads_count;
-    int64_t threads_count_min;
-    int64_t threads_count_max;
-} engine_options;
 
 static inline engine_options get_default_options();
 static inline bool are_engine_options_valid(engine_options options);

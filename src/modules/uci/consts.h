@@ -9,6 +9,7 @@
 // Partially mutable consts
 
 #define MAX_WORKER_THREADS 8
+#define COMMAND_STR_LEN 80000
 
 // Immutable consts
 

@@ -2,16 +2,7 @@
 #define ENGINE_STATE_H
 
 #include <assert.h>
-
-typedef enum engine_state
-{
-    WAITING_FOR_SETUP = 0x01,
-    WAITING_FOR_READY = 0x02,
-    IDLING = 0x04,
-    SEARCHING = 0x08,
-    PONDERING = 0x10
-} engine_state;
-
+#include "types.h"
 
 static inline engine_state get_default_state();
 static inline bool is_waiting_for_setup(engine_state engine_state);
