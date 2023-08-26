@@ -28,6 +28,7 @@ typedef struct search_token
     bool currently_pondering;
     bool infinite_time;
     bool cancellation_requested;
+    bool response_requested;
     uint64_t search_time;
     uint64_t ponder_start_time;
     pthread_t search_thread;

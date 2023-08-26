@@ -195,13 +195,13 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
         case TS_INCREMENTAL:
             if (wtime != GO_OPT_NO_VALUE && btime != GO_OPT_NO_VALUE && winc != GO_OPT_NO_VALUE && binc != GO_OPT_NO_VALUE)
             {
-                search_time = get_search_time_from_incremental((uint64_t)wtime, (uint64_t)winc, (uint64_t)btime, (uint64_t)binc);
+                search_time = get_search_time_from_incremental(&(game_data->board), (uint64_t)wtime, (uint64_t)winc, (uint64_t)btime, (uint64_t)binc);
             }
             break;
         case TS_CONTROL:
             if (wtime != GO_OPT_NO_VALUE && btime != GO_OPT_NO_VALUE && movestogo != GO_OPT_NO_VALUE)
             {
-                search_time = get_search_time_from_control((uint64_t)wtime, (uint64_t)btime, (uint64_t)movestogo);
+                search_time = get_search_time_from_control(&(game_data->board), (uint64_t)wtime, (uint64_t)btime, (uint64_t)movestogo);
             }
             break;
         default:

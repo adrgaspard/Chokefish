@@ -11,7 +11,7 @@ void handle_ucinewgame_command(engine_state *state, search_token *token)
         if (is_working(*state))
         {
             on_cancelling_work(state);
-            cancel_search(token);
+            cancel_search(token, true);
         }
         disable_debug_printing();
         reset_engine_cache();

@@ -3,6 +3,7 @@
 #include "../ai/search_result.h"
 #include "../core/enhanced_time.h"
 #include "../game_tools/game_data.h"
+#include "bestmove_cmd_printer.h"
 #include "consts.h"
 #include "search_manager.h"
 
@@ -19,6 +20,7 @@ search_token create_empty_token()
     token.currently_pondering = false;
     token.infinite_time = false;
     token.cancellation_requested = false;
+    token.response_requested = false;
     token.ponder_start_time = 0;
     token.search_time = 0;
     reset_search_result(&(token.result), false);
@@ -46,9 +48,13 @@ void stop_pondering_timed(search_token *token, uint64_t new_search_time)
     stop_pondering(token, new_search_time);
 }
 
-void cancel_search(search_token *token)
+void cancel_search(search_token *token, bool skip_bestmove_response)
 {
     assert(!token->is_empty);
+    if (skip_bestmove_response)
+    {
+        token->response_requested = false;
+    }
     token->cancellation_requested = true;
     if (!token->currently_pondering && !token->infinite_time && !token->cancellation_requested)
     {
@@ -64,6 +70,7 @@ static void start_search(search_token *token_ptr, game_data *data_to_be_copied, 
     token_ptr->currently_pondering = ponder;
     token_ptr->infinite_time = initial_search_time == 0;
     token_ptr->cancellation_requested = false;
+    token_ptr->response_requested = true;
     token_ptr->search_time = initial_search_time;
     copy_game_data(&(token_ptr->game_data), data_to_be_copied);
     token_ptr->ponder_start_time = ponder ? get_current_uptime() : 0;
@@ -91,6 +98,10 @@ static void *search_threaded(void *arg)
     token = (search_token *)arg;
     assert(token != NULL);
     search(&(token->game_data), &(token->result), &(token->cancellation_requested));
+    if (token->response_requested)
+    {
+        print_bestmove_response(&(token->result));
+    }
     return NULL;
 }
 

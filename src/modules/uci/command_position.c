@@ -134,7 +134,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     if (is_working(*state))
     {
         on_cancelling_work(state);
-        cancel_search(token);
+        cancel_search(token, true);
     }
     disable_debug_printing();
 }
