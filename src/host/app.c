@@ -6,7 +6,7 @@
 
 int main()
 {
-    initialize_shared_random(42);
+    initialize_shared_random((uint32_t)time(NULL));
     initialize_zobrist();
     initialize_precomputed_board_data();
     initialize_debug_printer();
