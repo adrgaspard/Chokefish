@@ -97,7 +97,7 @@ static void *search_threaded(void *arg)
     search_token *token;
     token = (search_token *)arg;
     assert(token != NULL);
-    search(&(token->game_data), &(token->result), &(token->cancellation_requested));
+    search(&(token->game_data.board), &(token->result), &(token->cancellation_requested));
     if (token->response_requested)
     {
         print_bestmove_response(&(token->result));
