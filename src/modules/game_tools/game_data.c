@@ -17,3 +17,11 @@ void reset_game_data(game_data *data, char *fen_string)
         load_board_from_board_data(&(data->board), board_data);
     }
 }
+
+void copy_game_data(game_data *destination, game_data *source)
+{
+    *destination = *source;
+    destination->board.game_state_history = &(destination->game_state_stack);
+    destination->board.move_history = &(destination->move_stack);
+    destination->board.position_repetition_history = &(destination->zobrist_stack);
+}

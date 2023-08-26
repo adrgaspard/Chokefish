@@ -10,6 +10,7 @@
 
 #define MAX_WORKER_THREADS 8
 #define COMMAND_STR_LEN 80000
+#define CANCELLATION_CHECK_TIME_IN_MS 10000
 
 // Immutable consts
 

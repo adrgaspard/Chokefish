@@ -8,6 +8,7 @@
 #include "uci.h"
 #include "engine_options.h"
 #include "engine_state.h"
+#include "search_manager.h"
 
 static engine_options s_options;
 
@@ -21,7 +22,8 @@ static char s_current_fen[FEN_LENGTH_UPPER_BOUND + 1];
 static char s_current_moves[COMMAND_STR_LEN + 1];
 
 static game_data s_game_data;
-static search_result s_search_result;
+
+static search_token s_search_token;
 
 static void reset_internal_data();
 
@@ -50,7 +52,7 @@ void handle_commands()
             }
             else if (strcmp(current_cmd, GE_CMD_DEBUG) == 0)
             {
-                handle_debug_command(current_cmd, &s_debug, s_state, &s_search_result);
+                handle_debug_command(current_cmd, &s_debug, s_state, &(s_search_token.result));
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_ISREADY) == 0)
@@ -65,32 +67,32 @@ void handle_commands()
             }
             else if (strcmp(current_cmd, GE_CMD_UCINEWGAME) == 0)
             {
-                handle_ucinewgame_command(&s_state);
+                handle_ucinewgame_command(&s_state, &s_search_token);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_POSITION) == 0)
             {
-                handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_game_data, s_current_fen, s_current_moves);
+                handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_game_data, &s_search_token, s_current_fen, s_current_moves);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_GO) == 0)
             {
-                handle_go_command(current_cmd, &s_state, &s_game_data, &s_search_result, s_debug);
+                handle_go_command(current_cmd, &s_state, &s_game_data, &s_search_token, s_debug);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_STOP) == 0)
             {
-                handle_stop_command(&s_state, &s_search_result);
+                handle_stop_command(&s_state, &s_search_token);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_PONDERHIT) == 0)
             {
-                handle_ponderhit_command(&s_state);
+                handle_ponderhit_command(&s_state, &s_search_token);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_QUIT) == 0)
             {
-                handle_quit_command();
+                handle_quit_command(s_state, &s_search_token);
                 break;
             }
             else
@@ -119,5 +121,5 @@ static void reset_internal_data()
         s_current_fen[i] = '\0';
     }
     reset_game_data(&s_game_data, START_FEN_STR);
-    s_search_result = create_search_result();
+    s_search_token = create_empty_token();
 }

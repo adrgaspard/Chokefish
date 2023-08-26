@@ -1,8 +1,9 @@
 #include <string.h>
-#include "../ai/engine.h"
+#include "../ai/time_manager.h"
 #include "commands.h"
 #include "consts.h"
 #include "debug_printer.h"
+#include "search_manager.h"
 #include "engine_state.h"
 
 #define GO_OPT_NO_VALUE -1
@@ -18,14 +19,13 @@ typedef enum go_cmd_edition
     GO_MOVETIME
 } go_cmd_edition;
 
-static void do_search_preprocessing(engine_state *state, search_result *result, bool ponder, bool debug);
-
-void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data, search_result *search_result, bool debug)
+void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data, search_token *search_token, bool debug)
 {
     bool expecting_keyword, ponder;
     time_system time_system;
     go_cmd_edition edition;
     int64_t convertion_value, wtime, btime, winc, binc, movestogo, movetime;
+    uint64_t search_time;
     char *convertion_ptr;
     if (!is_idling(*state))
     {
@@ -41,6 +41,7 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
     binc = GO_OPT_NO_VALUE;
     movestogo = GO_OPT_NO_VALUE;
     movetime = GO_OPT_NO_VALUE;
+    search_time = 0;
     edit_cmd = strtok(NULL, UCI_DELIMITER);
     while (edit_cmd != NULL)
     {
@@ -184,40 +185,42 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
     switch (time_system)
     {
         case TS_INFINITE:
-            do_search_preprocessing(state, search_result, ponder, debug);
-            start_search_infinite_time(game_data, search_result);
-            return;
+            break;
         case TS_DEFINED:
             if (movetime != GO_OPT_NO_VALUE)
             {
-                do_search_preprocessing(state, search_result, ponder, debug);
-                start_search_defined_time(game_data, search_result, (uint64_t)movetime);
+                search_time = (uint64_t)movetime;
             }
-            return;
+            break;
         case TS_INCREMENTAL:
             if (wtime != GO_OPT_NO_VALUE && btime != GO_OPT_NO_VALUE && winc != GO_OPT_NO_VALUE && binc != GO_OPT_NO_VALUE)
             {
-                do_search_preprocessing(state, search_result, ponder, debug);
-                start_search_incremental_time(game_data, search_result, (uint64_t)wtime, (uint64_t)winc, (uint64_t)btime, (uint64_t)binc);
+                search_time = get_search_time_from_incremental((uint64_t)wtime, (uint64_t)winc, (uint64_t)btime, (uint64_t)binc);
             }
-            return;
+            break;
         case TS_CONTROL:
             if (wtime != GO_OPT_NO_VALUE && btime != GO_OPT_NO_VALUE && movestogo != GO_OPT_NO_VALUE)
             {
-                do_search_preprocessing(state, search_result, ponder, debug);
-                start_search_time_control(game_data, search_result, (uint64_t)wtime, (uint64_t)btime, (uint64_t)movestogo);
+                search_time = get_search_time_from_control((uint64_t)wtime, (uint64_t)btime, (uint64_t)movestogo);
             }
-            return;
+            break;
         default:
             return;
     }
-}
-
-static void do_search_preprocessing(engine_state *state, search_result *result, bool ponder, bool debug)
-{
-    on_starting_work(state, ponder);
-    if (debug)
+    if (time_system == TS_INFINITE || search_time != 0)
     {
-        enable_debug_printing(result);
+        on_starting_work(state, ponder);
+        if (debug)
+        {
+            enable_debug_printing(&(search_token->result));
+        }
+        if (time_system == TS_INFINITE)
+        {
+            start_search_infinite(search_token, game_data, ponder);
+        }
+        else
+        {
+            start_search_timed(search_token, game_data, ponder, search_time);
+        }
     }
 }

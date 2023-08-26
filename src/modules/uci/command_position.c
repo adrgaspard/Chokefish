@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include "../ai/engine.h"
 #include "../core/board.h"
 #include "../core/move_generation_result.h"
 #include "../core/move_generator.h"
@@ -11,10 +10,11 @@
 #include "consts.h"
 #include "debug_printer.h"
 #include "engine_state.h"
+#include "search_manager.h"
 
 move_generation_options s_all_moves = { .include_quiet_moves = true, .promotion_types_to_include = PROMOTION_ALL };
 
-void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, engine_state *state, game_data *game_data, char *current_fen, char *current_moves)
+void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, engine_state *state, game_data *game_data, search_token *token, char *current_fen, char *current_moves)
 {
     char fen[FEN_LENGTH_UPPER_BOUND + 1], *command_args, *moves_ptr, *fen_ptr, *new_moves_ptr, *current_move_ptr;
     uint64_t moves_opt_len, fen_part_len, fen_opt_static_len, uci_delimiter_static_len, new_moves_index;
@@ -103,7 +103,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     }
     if (is_new_game)
     {
-        handle_ucinewgame_command(state);
+        handle_ucinewgame_command(state, token);
         reset_game_data(game_data, fen);
     }
     if (new_moves_ptr == NULL)
@@ -134,7 +134,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     if (is_working(*state))
     {
         on_cancelling_work(state);
-        cancel_search();
+        cancel_search(token);
     }
     disable_debug_printing();
 }
