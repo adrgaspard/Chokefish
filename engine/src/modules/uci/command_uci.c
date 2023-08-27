@@ -10,7 +10,7 @@ void handle_uci_command(engine_state *state, engine_options options)
     {
         // Identifying engine
         printf(EG_CMD_ID " " EG_CMD_ID_OPT_NAME " " ENGINE_NAME "\n");
-        printf(EG_CMD_ID " " ENGINE_AUTHOR " " ENGINE_AUTHOR "\n");
+        printf(EG_CMD_ID " " EG_CMD_ID_OPT_AUTHOR " " ENGINE_AUTHOR "\n");
 
         // Sending options
         print_options(options);
