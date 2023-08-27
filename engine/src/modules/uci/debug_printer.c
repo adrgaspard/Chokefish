@@ -83,6 +83,7 @@ static void print_search_result_info(search_result *result)
         {
             printf(EG_CMD_INFO_OPT_SCORE_OPT_CP " %.2lf\n", result->centipawns_score);
         }
+        fflush(stdout);
     }
     pthread_rwlock_unlock(&(result->lock));
 }

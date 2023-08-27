@@ -9,5 +9,6 @@ void handle_isready_command(engine_state *state)
     {
         on_sending_readyok(state);
         printf(EG_CMD_READYOK "\n");
+        fflush(stdout);
     }
 }

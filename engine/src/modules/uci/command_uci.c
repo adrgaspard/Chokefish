@@ -18,5 +18,6 @@ void handle_uci_command(engine_state *state, engine_options options)
         // Actualize state
         on_sending_uciok(state);
         printf(EG_CMD_UCIOK "\n");
+        fflush(stdout);
     }
 }

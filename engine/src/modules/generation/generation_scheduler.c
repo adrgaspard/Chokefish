@@ -41,6 +41,7 @@ void schedule_generation()
             print_search_informations(true, orthogonal_best_magics);
             printf("\n");
             print_search_informations(false, diagonal_best_magics);
+            fflush(stdout);
         }
         if (current_search_id % SAVE_SEARCH_RESULTS_INTERVAL == 0)
         {
@@ -151,6 +152,7 @@ static void print_search_informations(bool ortho_instead_of_diag, magic_result *
     printf(FG_GRAY "Highest required bit count: " FG_WHITE U8 COLOR_RESET "\n", max_bit_size);
     printf(FG_GRAY "Average size per position: " FG_WHITE "%.2f" FG_GRAY " kb" COLOR_RESET "\n", total_kb_size / (magics_found_count > 0 ? magics_found_count : 1));
     printf(FG_GRAY "Total size: " FG_WHITE "%.2f" FG_GRAY " kb" COLOR_RESET "\n", total_kb_size);
+    fflush(stdout);
 }
 
 static void run_search(magic_generation_data *data, magic_result *orthogonal_best_magics, magic_result *diagonal_best_magics, uint32_t search_id)

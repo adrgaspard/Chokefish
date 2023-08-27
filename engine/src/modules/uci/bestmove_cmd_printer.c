@@ -20,6 +20,7 @@ void print_bestmove_response(search_result *result, bool ponder)
             printf(" " EG_CMD_BESTMOVE_OPT_PONDER " %s ", ponder_move_str);
         }
         printf("\n");
+        fflush(stdout);
     }
     pthread_rwlock_unlock(&(result->lock));
 }

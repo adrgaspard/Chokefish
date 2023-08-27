@@ -49,6 +49,7 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
         board_to_fen_string(board, fen);
         printf("Fen: %s\n", fen);
         printf("Key: " H64 "\n", board->current_game_state.zobrist_key);
+        fflush(stdout);
     }
     else if (strcmp(edit_cmd, GE_CMD_DISPLAY_OPT_MINIMAL) == 0)
     {
@@ -60,6 +61,7 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
             }
             printf("\n");
         }
+        fflush(stdout);
     }
 }
 
