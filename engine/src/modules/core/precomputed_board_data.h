@@ -3,23 +3,23 @@
 
 #include "types.h"
 
-bitboard g_position_mask[POSITIONS_COUNT];
-bitboard g_rank_mask[RANKS_COUNT];
-bitboard g_file_mask[FILES_COUNT];
-bitboard g_not_file_mask[FILES_COUNT];
-bitboard g_knight_attacks[POSITIONS_COUNT];
-bitboard g_pawn_attacks[PLAYERS_COUNT][POSITIONS_COUNT];
-bitboard g_king_moves[POSITIONS_COUNT];
-bitboard g_orthogonal_moves_mask[POSITIONS_COUNT];
-bitboard g_diagonal_moves_mask[POSITIONS_COUNT];
-magic_data g_orthogonal_magic_data[POSITIONS_COUNT];
-magic_data g_diagonal_magic_data[POSITIONS_COUNT];
-int8_t g_directional_offset[DIRECTIONAL_OFFSETS_COUNT];
-uint8_t g_distances_to_edge[POSITIONS_COUNT][DIRECTIONAL_OFFSETS_COUNT];
-uint8_t g_orthogonal_distance[POSITIONS_COUNT][POSITIONS_COUNT];
-uint8_t g_center_manhattan_distance[POSITIONS_COUNT];
-bitboard g_align_mask[POSITIONS_COUNT][POSITIONS_COUNT];
-bitboard g_directional_ray_mask[DIRECTIONAL_OFFSETS_COUNT][POSITIONS_COUNT];
+extern bitboard g_position_mask[POSITIONS_COUNT];
+extern bitboard g_rank_mask[RANKS_COUNT];
+extern bitboard g_file_mask[FILES_COUNT];
+extern bitboard g_not_file_mask[FILES_COUNT];
+extern bitboard g_knight_attacks[POSITIONS_COUNT];
+extern bitboard g_pawn_attacks[PLAYERS_COUNT][POSITIONS_COUNT];
+extern bitboard g_king_moves[POSITIONS_COUNT];
+extern bitboard g_orthogonal_moves_mask[POSITIONS_COUNT];
+extern bitboard g_diagonal_moves_mask[POSITIONS_COUNT];
+extern magic_data g_orthogonal_magic_data[POSITIONS_COUNT];
+extern magic_data g_diagonal_magic_data[POSITIONS_COUNT];
+extern int8_t g_directional_offset[DIRECTIONAL_OFFSETS_COUNT];
+extern uint8_t g_distances_to_edge[POSITIONS_COUNT][DIRECTIONAL_OFFSETS_COUNT];
+extern uint8_t g_orthogonal_distance[POSITIONS_COUNT][POSITIONS_COUNT];
+extern uint8_t g_center_manhattan_distance[POSITIONS_COUNT];
+extern bitboard g_align_mask[POSITIONS_COUNT][POSITIONS_COUNT];
+extern bitboard g_directional_ray_mask[DIRECTIONAL_OFFSETS_COUNT][POSITIONS_COUNT];
 
 void initialize_precomputed_board_data();
 bitboard_dynamic_array compute_blockers_bitboards(bitboard moves_mask);

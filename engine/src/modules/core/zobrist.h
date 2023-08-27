@@ -3,10 +3,10 @@
 
 #include "types.h"
 
-zobrist_key g_piece_hashes[PIECE_INDEXES_COUNT][POSITIONS_COUNT];
-zobrist_key g_castling_hashes[CASTLING_STATES_COUNT * CASTLING_STATES_COUNT];
-zobrist_key g_en_passant_file_hashes[FILES_COUNT + 1];
-zobrist_key g_opponent_turn_hash;
+extern zobrist_key g_piece_hashes[PIECE_INDEXES_COUNT][POSITIONS_COUNT];
+extern zobrist_key g_castling_hashes[CASTLING_STATES_COUNT * CASTLING_STATES_COUNT];
+extern zobrist_key g_en_passant_file_hashes[FILES_COUNT + 1];
+extern zobrist_key g_opponent_turn_hash;
 
 void initialize_zobrist();
 zobrist_key compute_zobrist_key(board *board);

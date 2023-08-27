@@ -33,11 +33,11 @@ void search(board *board, search_result *search_result, bool *cancellation_reque
     }
     search_result->finished = true;
     pthread_rwlock_unlock(&(search_result->lock));
-    printf(FG_YELLOW "EngineCall: search []" COLOR_RESET "\n");
+    // printf(FG_YELLOW "EngineCall: search []" COLOR_RESET "\n");
 }
 
 void reset_engine_cache()
 {
     // TODO : Make a true cache deletion when engine will have a cache
-    printf(FG_YELLOW "EngineCall: reset_engine_cache []" COLOR_RESET "\n");
+    // printf(FG_YELLOW "EngineCall: reset_engine_cache []" COLOR_RESET "\n");
 }
