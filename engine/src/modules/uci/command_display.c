@@ -1,4 +1,5 @@
 #include <string.h>
+#include "../core/logging.h"
 #include "../core/piece.h"
 #include "../core/position.h"
 #include "../serialization/board_data_serializer.h"
@@ -47,7 +48,7 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
         printf(" \n\n");
         board_to_fen_string(board, fen);
         printf("Fen: %s\n", fen);
-        printf("Key: %016lX\n", board->current_game_state.zobrist_key);
+        printf("Key: " H64 "\n", board->current_game_state.zobrist_key);
     }
     else if (strcmp(edit_cmd, GE_CMD_DISPLAY_OPT_MINIMAL) == 0)
     {

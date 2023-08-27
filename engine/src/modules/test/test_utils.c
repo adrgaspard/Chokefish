@@ -58,7 +58,7 @@ uint64_t run_performance_test(char *fen_string, int32_t depth)
     }
     move_generation_result = create_move_generation_result();    
     generate_moves(board, &move_generation_result, s_move_generation_options);
-    printf(PERFT_TEST_PREFIX FG_GRAY "Starting with a depth of " FG_CYAN "%d" FG_GRAY ", with FEN = " FG_CYAN "%s" FG_GRAY " ..."
+    printf(PERFT_TEST_PREFIX FG_GRAY "Starting with a depth of " FG_CYAN I32 FG_GRAY ", with FEN = " FG_CYAN "%s" FG_GRAY " ..."
         COLOR_RESET "\n", depth, fen_string);
     for (move_index = 0; move_index < move_generation_result.moves_count; move_index++)
     {
@@ -70,9 +70,9 @@ uint64_t run_performance_test(char *fen_string, int32_t depth)
         undo_move(board, current_move, false);
         total_uptime += get_current_uptime() - start_time;
         total_nodes_count += current_move_nodes_count;
-        printf(FG_GRAY "    - %s: " FG_YELLOW "%lu" COLOR_RESET "\n", move_str, current_move_nodes_count);
+        printf(FG_GRAY "    - %s: " FG_YELLOW U64 COLOR_RESET "\n", move_str, current_move_nodes_count);
     }
-    printf(FG_GRAY"    Total nodes found: " FG_YELLOW "%lu" COLOR_RESET "\n", total_nodes_count);
+    printf(FG_GRAY"    Total nodes found: " FG_YELLOW U64 COLOR_RESET "\n", total_nodes_count);
     printf(FG_GRAY"    Time elapsed: " FG_YELLOW "%.2fs" COLOR_RESET "\n", (double)(total_uptime) / 1000.0);
     return total_nodes_count;
 }
@@ -93,7 +93,7 @@ static void run_node_exploration_case(char *fen_string, int32_t depth, uint64_t 
     {
         printf(KO_RESULT);
     }
-    printf(" " FG_GRAY "Depth: " FG_YELLOW "%u" FG_GRAY " / Expected nodes: " FG_YELLOW "%lu" FG_GRAY " / Found nodes: " FG_YELLOW "%lu"
+    printf(" " FG_GRAY "Depth: " FG_YELLOW I32 FG_GRAY " / Expected nodes: " FG_YELLOW U64 FG_GRAY " / Found nodes: " FG_YELLOW U64
         FG_GRAY " / Time elapsed: " FG_YELLOW "%.2fs" COLOR_RESET "\n",
         depth, expected_nodes_count, found_nodes_count, (double)(end_time - start_time) / 1000.0);
 }

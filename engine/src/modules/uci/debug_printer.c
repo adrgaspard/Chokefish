@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include "../ai/types.h"
 #include "../core/enhanced_time.h"
+#include "../core/logging.h"
 #include "consts.h"
 #include "debug_printer.h"
 
@@ -67,14 +68,16 @@ static void *debug_print_loop(void *arg)
 
 static void print_search_result_info(search_result *result)
 {
+    uint64_t time;
     pthread_rwlock_rdlock(&(result->lock));
+    time = get_current_uptime() - result->start_time;
     if (result->valid)
     {
-        printf(EG_CMD_INFO UCI_DELIMITER EG_CMD_INFO_OPT_DEPTH  " %u "  EG_CMD_INFO_OPT_TIME " %lu " EG_CMD_INFO_OPT_NODES " %lu " EG_CMD_INFO_OPT_SCORE UCI_DELIMITER, 
-            result->depth, get_current_uptime() - result->start_time, result->nodes_explored);
+        printf(EG_CMD_INFO UCI_DELIMITER EG_CMD_INFO_OPT_DEPTH  " " U16 " "  EG_CMD_INFO_OPT_TIME " " U64 " " EG_CMD_INFO_OPT_NODES " " U64 " " EG_CMD_INFO_OPT_SCORE UCI_DELIMITER, 
+            result->depth, time, result->nodes_explored);
         if (result->is_mate)
         {
-            printf(EG_CMD_INFO_OPT_SCORE_OPT_MATE " %u\n", result->mate_score);
+            printf(EG_CMD_INFO_OPT_SCORE_OPT_MATE " " U16 "\n", result->mate_score);
         }
         else
         {

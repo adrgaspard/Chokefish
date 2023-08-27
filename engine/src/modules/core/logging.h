@@ -1,6 +1,30 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
+#define STRINGIFY_LITERAL(literal) # literal
+
+#if defined(__MINGW32__) || defined(__MINGW64__)
+
+#define H64 STRINGIFY_LITERAL(%016llX)
+#define U64 STRINGIFY_LITERAL(%llu)
+#define I64 STRINGIFY_LITERAL(%lld)
+#define U32 STRINGIFY_LITERAL(%lu)
+#define I32 STRINGIFY_LITERAL(%d)
+#define U16 STRINGIFY_LITERAL(%u)
+#define U8 STRINGIFY_LITERAL(%hhu)
+
+#else
+
+#define H64 STRINGIFY_LITERAL(%016lX)
+#define U64 STRINGIFY_LITERAL(%lu)
+#define I64 STRINGIFY_LITERAL(%ld)
+#define U32 STRINGIFY_LITERAL(%u)
+#define I32 STRINGIFY_LITERAL(%d)
+#define U16 STRINGIFY_LITERAL(%u)
+#define U8 STRINGIFY_LITERAL(%hhu)
+
+#endif
+
 #define FG_BLACK "\x1b[0;30m"
 #define FG_DARK_RED "\x1b[0;31m"
 #define FG_DARK_GREEN "\x1b[0;32m"

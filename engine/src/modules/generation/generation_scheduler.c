@@ -19,6 +19,7 @@ void schedule_generation()
     magic_result orthogonal_best_magics[POSITIONS_COUNT], diagonal_best_magics[POSITIONS_COUNT];
     position pos;
     uint32_t current_search_id;
+    uint64_t file_id;
     data = create_magic_generation_data();
     current_search_id = 0;
     for (pos = 0; pos < POSITIONS_COUNT; pos++)
@@ -36,15 +37,16 @@ void schedule_generation()
         if (current_search_id % PRINT_SEARCH_INFORMATIONS_INTERVAL == 0)
         {
             printf("\n------------------------------------------------------\n\n");
-            printf(FG_YELLOW "Current time: %ld\n\n", time(NULL));
+            printf(FG_YELLOW "Current time: " I64 "\n\n", time(NULL));
             print_search_informations(true, orthogonal_best_magics);
             printf("\n");
             print_search_informations(false, diagonal_best_magics);
         }
         if (current_search_id % SAVE_SEARCH_RESULTS_INTERVAL == 0)
         {
+            file_id = current_search_id / SAVE_SEARCH_RESULTS_INTERVAL;
             strcpy(file_path, FILE_PATH_BASE);
-            sprintf(identifier, "%u", current_search_id / SAVE_SEARCH_RESULTS_INTERVAL);
+            sprintf(identifier, U64, file_id);
             strcat(file_path, identifier);
             save_search_results(file_path, orthogonal_best_magics, diagonal_best_magics);
         }
@@ -66,7 +68,7 @@ static void load_search_results(char *path, magic_result *orthogonal_best_magics
     {
         for (pos = 0; pos < POSITIONS_COUNT; pos++)
         {
-            if (fscanf(buffer, "%lu %hhu", &(result.value), &(result.bit_size)) == EOF)
+            if (fscanf(buffer, U64 " " U8, &(result.value), &(result.bit_size)) == EOF)
             {
                 perror("File reading error");
                 exit(1);
@@ -79,7 +81,7 @@ static void load_search_results(char *path, magic_result *orthogonal_best_magics
         }
         for (pos = 0; pos < POSITIONS_COUNT; pos++)
         {
-            if (fscanf(buffer, "%lu %hhu", &(result.value), &(result.bit_size)) == EOF)
+            if (fscanf(buffer, U64 " " U8, &(result.value), &(result.bit_size)) == EOF)
             {
                 perror("File reading error");
                 exit(1);
@@ -107,12 +109,12 @@ static void save_search_results(char *path, magic_result *orthogonal_best_magics
     {
         for (pos = 0; pos < POSITIONS_COUNT; pos++)
         {
-            fprintf(buffer, "%lu %u\n", orthogonal_best_magics[pos].value, orthogonal_best_magics[pos].bit_size);
+            fprintf(buffer, U64 " " U16 "\n", orthogonal_best_magics[pos].value, orthogonal_best_magics[pos].bit_size);
         }
         fprintf(buffer, "\n");
         for (pos = 0; pos < POSITIONS_COUNT; pos++)
         {
-            fprintf(buffer, "%lu %u\n", diagonal_best_magics[pos].value, diagonal_best_magics[pos].bit_size);
+            fprintf(buffer, U64 " " U16 "\n", diagonal_best_magics[pos].value, diagonal_best_magics[pos].bit_size);
         }
         fclose(buffer);
     }
@@ -146,8 +148,8 @@ static void print_search_informations(bool ortho_instead_of_diag, magic_result *
     printf(FG_WHITE "%s ", ortho_instead_of_diag ? "Orthogonal magics" : "Diagonal magics");
     printf(magics_found_count == POSITIONS_COUNT ? BG_GREEN : BG_RED);
     printf("%02d / %02d found" COLOR_RESET "\n", magics_found_count, POSITIONS_COUNT);
-    printf(FG_GRAY "Lowest required bit count: " FG_WHITE "%u" COLOR_RESET "\n", min_bit_size);
-    printf(FG_GRAY "Highest required bit count: " FG_WHITE "%u" COLOR_RESET "\n", max_bit_size);
+    printf(FG_GRAY "Lowest required bit count: " FG_WHITE U8 COLOR_RESET "\n", min_bit_size);
+    printf(FG_GRAY "Highest required bit count: " FG_WHITE U8 COLOR_RESET "\n", max_bit_size);
     printf(FG_GRAY "Average size per position: " FG_WHITE "%.2f" FG_GRAY " kb" COLOR_RESET "\n", total_kb_size / (magics_found_count > 0 ? magics_found_count : 1));
     printf(FG_GRAY "Total size: " FG_WHITE "%.2f" FG_GRAY " kb" COLOR_RESET "\n", total_kb_size);
 }

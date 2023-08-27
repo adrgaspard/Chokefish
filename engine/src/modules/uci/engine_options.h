@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "../core/logging.h"
 #include "consts.h"
 #include "types.h"
 
@@ -33,7 +34,7 @@
 #define UCI_OPTION_THREADSCOUNT_MAX_VALUE MAX_WORKER_THREADS
 
 #define _PRINT_BOOL_OPTION(name, value) printf(_OPTION_PART0 name _OPTION_PART1 OPT_BOOL_STR _OPTION_PART2 "%s" "\n", value ? OPT_BOOL_TRUE_STR : OPT_BOOL_FALSE_STR);
-#define _PRINT_INT_OPTION(name, value, min, max) printf(_OPTION_PART0 name _OPTION_PART1 OPT_INT_STR _OPTION_PART2 "%ld" UCI_DELIMITER EG_CMD_OPTION_OPT_MIN UCI_DELIMITER "%ld" UCI_DELIMITER EG_CMD_OPTION_OPT_MAX UCI_DELIMITER "%ld" "\n", value, min, max);
+#define _PRINT_INT_OPTION(name, value, min, max) printf(_OPTION_PART0 name _OPTION_PART1 OPT_INT_STR _OPTION_PART2 I64 UCI_DELIMITER EG_CMD_OPTION_OPT_MIN UCI_DELIMITER I64 UCI_DELIMITER EG_CMD_OPTION_OPT_MAX UCI_DELIMITER I64 "\n", value, min, max);
 
 
 #define _TRY_SET_INT_OPTION(option_name_static, option_name_str, option_value_str, option_ptr, value_min, value_max)    \
