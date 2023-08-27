@@ -13,6 +13,42 @@
 #define U16 STRINGIFY_LITERAL(%u)
 #define U8 STRINGIFY_LITERAL(%hhu)
 
+#define FG_BLACK ""
+#define FG_DARK_RED ""
+#define FG_DARK_GREEN ""
+#define FG_DARK_YELLOW ""
+#define FG_DARK_BLUE ""
+#define FG_DARK_MAGENTA ""
+#define FG_DARK_CYAN ""
+#define FG_GRAY ""
+#define FG_DARK_GRAY ""
+#define FG_RED ""
+#define FG_GREEN ""
+#define FG_YELLOW ""
+#define FG_BLUE ""
+#define FG_MAGENTA ""
+#define FG_CYAN ""
+#define FG_WHITE ""
+
+#define BG_BLACK ""
+#define BG_DARK_RED ""
+#define BG_DARK_GREEN ""
+#define BG_DARK_YELLOW ""
+#define BG_DARK_BLUE ""
+#define BG_DARK_MAGENTA ""
+#define BG_DARK_CYAN ""
+#define BG_GRAY ""
+#define BG_DARK_GRAY ""
+#define BG_RED ""
+#define BG_GREEN ""
+#define BG_YELLOW ""
+#define BG_BLUE ""
+#define BG_MAGENTA ""
+#define BG_CYAN ""
+#define BG_WHITE ""
+
+#define COLOR_RESET ""
+
 #else
 
 #define H64 STRINGIFY_LITERAL(%016lX)
@@ -22,8 +58,6 @@
 #define I32 STRINGIFY_LITERAL(%d)
 #define U16 STRINGIFY_LITERAL(%u)
 #define U8 STRINGIFY_LITERAL(%hhu)
-
-#endif
 
 #define FG_BLACK "\x1b[0;30m"
 #define FG_DARK_RED "\x1b[0;31m"
@@ -60,5 +94,7 @@
 #define BG_WHITE "\x1b[1;47m"
 
 #define COLOR_RESET "\x1b[0m"
+
+#endif
 
 #endif // LOGGING_H

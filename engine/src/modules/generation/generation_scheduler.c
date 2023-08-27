@@ -146,8 +146,7 @@ static void print_search_informations(bool ortho_instead_of_diag, magic_result *
         }
     }
     printf(FG_WHITE "%s ", ortho_instead_of_diag ? "Orthogonal magics" : "Diagonal magics");
-    printf(magics_found_count == POSITIONS_COUNT ? BG_GREEN : BG_RED);
-    printf("%02d / %02d found" COLOR_RESET "\n", magics_found_count, POSITIONS_COUNT);
+    printf("%s" "%02d / %02d found" COLOR_RESET "\n", magics_found_count == POSITIONS_COUNT ? BG_GREEN : BG_RED, magics_found_count, POSITIONS_COUNT);
     printf(FG_GRAY "Lowest required bit count: " FG_WHITE U8 COLOR_RESET "\n", min_bit_size);
     printf(FG_GRAY "Highest required bit count: " FG_WHITE U8 COLOR_RESET "\n", max_bit_size);
     printf(FG_GRAY "Average size per position: " FG_WHITE "%.2f" FG_GRAY " kb" COLOR_RESET "\n", total_kb_size / (magics_found_count > 0 ? magics_found_count : 1));
