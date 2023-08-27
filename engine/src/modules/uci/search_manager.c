@@ -5,6 +5,8 @@
 #include "../game_tools/game_data.h"
 #include "bestmove_cmd_printer.h"
 #include "consts.h"
+#include "debug_printer.h"
+#include "engine_state.h"
 #include "search_manager.h"
 
 static void start_search(search_token *token_ptr, game_data *data_to_be_copied, bool ponder, uint64_t initial_search_time);
@@ -12,19 +14,27 @@ static void stop_pondering(search_token *token_ptr, uint64_t new_search_time);
 static void *search_threaded(void *arg);
 static void *search_cancellation_threaded(void *arg);
 
-search_token create_empty_token()
+search_token create_empty_token(engine_state *engine_state_ptr, engine_options *engine_options_ptr, bool *debug_ptr)
 {
     search_token token;
-    token.is_empty = true;
-    token.has_ponder = false;
-    token.currently_pondering = false;
-    token.infinite_time = false;
-    token.cancellation_requested = false;
-    token.response_requested = false;
-    token.ponder_start_time = 0;
-    token.search_time = 0;
-    reset_search_result(&(token.result), false);
+    reset_token(&token);
+    token.engine_state_ptr = engine_state_ptr;
+    token.engine_options_ptr = engine_options_ptr;
+    token.debug_ptr = debug_ptr;
     return token;
+}
+
+void reset_token(search_token *token)
+{
+    token->is_empty = true;
+    token->has_ponder = false;
+    token->currently_pondering = false;
+    token->infinite_time = false;
+    token->cancellation_requested = false;
+    token->response_requested = false;
+    token->ponder_start_time = 0;
+    token->search_time = 0;
+    reset_search_result(&(token->result), false);
 }
 
 void start_search_infinite(search_token *empty_token, game_data *data_to_be_copied, bool ponder)
@@ -98,9 +108,18 @@ static void *search_threaded(void *arg)
     token = (search_token *)arg;
     assert(token != NULL);
     search(&(token->game_data.board), &(token->result), &(token->cancellation_requested));
+    while(!token->cancellation_requested && token->currently_pondering)
+    {
+        usleep(PONDER_FINISHED_CHECK_TIME_IN_MS * 1000);
+    }
+    disable_debug_printing(&(token->result), token->response_requested && *(token->debug_ptr));
     if (token->response_requested)
     {
-        print_bestmove_response(&(token->result));
+        print_bestmove_response(&(token->result), token->engine_options_ptr->ponder);
+    }
+    if (!token->cancellation_requested)
+    {
+        on_work_finished(token->engine_state_ptr);
     }
     return NULL;
 }
@@ -115,12 +134,12 @@ static void *search_cancellation_threaded(void *arg)
     while (remaining_time > CANCELLATION_CHECK_TIME_IN_MS)
     {
         remaining_time -= CANCELLATION_CHECK_TIME_IN_MS;
-        usleep(CANCELLATION_CHECK_TIME_IN_MS);
+        usleep(CANCELLATION_CHECK_TIME_IN_MS * 1000);
         pthread_testcancel();
     }
     if (remaining_time > 0)
     {
-        usleep((uint32_t)remaining_time);
+        usleep((uint32_t)remaining_time * 1000);
         pthread_testcancel();
     }
     token->cancellation_requested = true;

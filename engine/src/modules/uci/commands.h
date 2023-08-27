@@ -17,5 +17,6 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
 void handle_stop_command(engine_state *state, search_token *token);
 void handle_ponderhit_command(engine_state *state, search_token *token);
 void handle_quit_command(engine_state state, search_token *token);
+void handle_display_command(char *edit_cmd, engine_state state, board *board);
 
 #endif // COMMAND_UCI_H

@@ -10,6 +10,6 @@ void handle_quit_command(engine_state state, search_token *token)
     {
         cancel_search(token, true);
     }
-    disable_debug_printing();
+    disable_debug_printing(&(token->result), false);
     exit(EXIT_SUCCESS);
 }

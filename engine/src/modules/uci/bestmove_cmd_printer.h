@@ -3,6 +3,6 @@
 
 #include "../ai/types.h"
 
-void print_bestmove_response(search_result *result);
+void print_bestmove_response(search_result *result, bool ponder);
 
 #endif // BESTMOVE_CMD_PRINTER_H

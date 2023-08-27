@@ -107,7 +107,7 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
             {
                 return;
             }
-            time_system = TS_CONTROL;
+            time_system = TS_DEFINED;
             expecting_keyword = false;
             edition = GO_MOVETIME;
         }
@@ -214,6 +214,7 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
         {
             enable_debug_printing(&(search_token->result));
         }
+        reset_token(search_token);
         if (time_system == TS_INFINITE)
         {
             start_search_infinite(search_token, game_data, ponder);

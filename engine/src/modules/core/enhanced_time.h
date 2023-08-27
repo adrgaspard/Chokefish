@@ -8,7 +8,9 @@ static inline uint64_t get_current_uptime();
 
 static inline uint64_t get_current_uptime()
 {
-    return (uint64_t)(clock() / (CLOCKS_PER_SEC / 1000));
+    struct timespec current_time;
+    clock_gettime(CLOCK_MONOTONIC, &current_time);
+    return (uint64_t)current_time.tv_sec * 1000ULL + (uint64_t)current_time.tv_nsec / 1000000ULL;
 }
 
 #endif // ENHANCED_TIME_H

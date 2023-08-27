@@ -15,6 +15,7 @@ static inline void on_sending_readyok(engine_state *engine_state);
 static inline void on_starting_work(engine_state *engine_state, bool ponder);
 static inline void on_switching_from_ponder_to_search(engine_state *engine_state);
 static inline void on_cancelling_work(engine_state *engine_state);
+static inline void on_work_finished(engine_state *engine_state);
 
 static inline engine_state get_default_state()
 {
@@ -74,6 +75,12 @@ static inline void on_switching_from_ponder_to_search(engine_state *engine_state
 }
 
 static inline void on_cancelling_work(engine_state *engine_state)
+{
+    assert(is_working(*engine_state));
+    *engine_state = IDLING;
+}
+
+static inline void on_work_finished(engine_state *engine_state)
 {
     assert(is_working(*engine_state));
     *engine_state = IDLING;

@@ -6,7 +6,7 @@
 #include "consts.h"
 #include "debug_printer.h"
 
-#define LOOP_TIME_IN_MS 100
+#define LOOP_TIME_IN_MS 2000
 
 static pthread_t s_thread;
 static bool s_enabled;
@@ -32,16 +32,20 @@ void enable_debug_printing(search_result *result)
     pthread_mutex_unlock(&s_mutex);
 }
 
-void disable_debug_printing()
+void disable_debug_printing(search_result *result, bool print_one_last_time)
 {
     pthread_mutex_lock(&s_mutex);
     if (s_enabled)
     {
         pthread_cancel(s_thread);
         s_enabled = false;
-        pthread_join(s_thread, NULL);
     }
     pthread_mutex_unlock(&s_mutex);
+    if (print_one_last_time)
+    {
+        assert(result != NULL);
+        print_search_result_info(result);
+    }
 }
 
 static void *debug_print_loop(void *arg)
@@ -50,12 +54,12 @@ static void *debug_print_loop(void *arg)
     result = (search_result *)arg;
     if (result != NULL)
     {
-        usleep(LOOP_TIME_IN_MS);
+        usleep(LOOP_TIME_IN_MS * 1000);
         while (true)
         {
             pthread_testcancel();
             print_search_result_info(result);
-            usleep(LOOP_TIME_IN_MS);
+            usleep(LOOP_TIME_IN_MS * 1000);
         }
     }
     return NULL;
@@ -74,7 +78,7 @@ static void print_search_result_info(search_result *result)
         }
         else
         {
-            printf(EG_CMD_INFO_OPT_SCORE_OPT_MATE " %.2lf\n", result->centipawns_score);
+            printf(EG_CMD_INFO_OPT_SCORE_OPT_CP " %.2lf\n", result->centipawns_score);
         }
     }
     pthread_rwlock_unlock(&(result->lock));

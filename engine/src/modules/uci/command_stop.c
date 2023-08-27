@@ -5,7 +5,7 @@
 
 void handle_stop_command(engine_state *state, search_token *token)
 {
-    disable_debug_printing();
+    disable_debug_printing(&(token->result), false);
     if (is_working(*state))
     {
         cancel_search(token, false);

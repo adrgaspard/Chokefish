@@ -35,6 +35,9 @@ typedef struct search_token
     pthread_t search_cancellation_thread;
     search_result result;
     game_data game_data;
+    engine_state *engine_state_ptr;
+    engine_options *engine_options_ptr;
+    bool *debug_ptr;
 } search_token;
 
 #endif // UCI_TYPES_H

@@ -20,7 +20,7 @@ void handle_debug_command(char *edit_cmd, bool *debug, engine_state state, searc
         else if (strcmp(edit_cmd, GE_CMD_DEBUG_OPT_OFF) == 0)
         {
             *debug = false;
-            disable_debug_printing();
+            disable_debug_printing(result, false);
         }
     }
 }

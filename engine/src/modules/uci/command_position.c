@@ -72,6 +72,10 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
         strcpy(current_fen, fen);
         strcpy(current_moves, moves_ptr == NULL ? "" : moves_ptr);
     }
+    else if (moves_ptr == NULL)
+    {
+        is_new_game = true;
+    }
     else
     {
         while (true)
@@ -136,5 +140,5 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
         on_cancelling_work(state);
         cancel_search(token, true);
     }
-    disable_debug_printing();
+    disable_debug_printing(&(token->result), false);
 }

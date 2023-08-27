@@ -95,6 +95,11 @@ void handle_commands()
                 handle_quit_command(s_state, &s_search_token);
                 break;
             }
+            else if (strcmp(current_cmd, GE_CMD_DISPLAY) == 0)
+            {
+                handle_display_command(current_cmd, s_state, &(s_game_data.board));
+                break;
+            }
             else
             {
                 start_index += strlen(current_cmd) + 1;
@@ -121,5 +126,5 @@ static void reset_internal_data()
         s_current_fen[i] = '\0';
     }
     reset_game_data(&s_game_data, START_FEN_STR);
-    s_search_token = create_empty_token();
+    s_search_token = create_empty_token(&s_state, &s_options, &s_debug);
 }

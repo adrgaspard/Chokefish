@@ -11,6 +11,7 @@
 #define MAX_WORKER_THREADS 8
 #define COMMAND_STR_LEN 80000
 #define CANCELLATION_CHECK_TIME_IN_MS 10000
+#define PONDER_FINISHED_CHECK_TIME_IN_MS 100
 
 // Immutable consts
 
@@ -53,6 +54,9 @@
 #define GE_CMD_PONDERHIT "ponderhit"
 
 #define GE_CMD_QUIT "quit"
+
+#define GE_CMD_DISPLAY "display"
+#define GE_CMD_DISPLAY_OPT_MINIMAL "minimal"
 
 #define EG_CMD_ID "id"
 #define EG_CMD_ID_OPT_NAME "name"
