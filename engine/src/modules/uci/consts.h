@@ -56,7 +56,7 @@
 #define GE_CMD_QUIT "quit"
 
 #define GE_CMD_DISPLAY "display"
-#define GE_CMD_DISPLAY_OPT_MINIMAL "minimal"
+#define GE_CMD_DISPLAY_OPT_FEN "fen"
 
 #define EG_CMD_ID "id"
 #define EG_CMD_ID_OPT_NAME "name"
@@ -82,5 +82,7 @@
 #define EG_CMD_OPTION_OPT_DEFAULT "default"
 #define EG_CMD_OPTION_OPT_MIN "min"
 #define EG_CMD_OPTION_OPT_MAX "max"
+
+#define EG_CMD_FEN "fen"
 
 #endif // UCI_CONSTS_H

@@ -51,16 +51,10 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
         printf("Key: " H64 "\n", board->current_game_state.zobrist_key);
         fflush(stdout);
     }
-    else if (strcmp(edit_cmd, GE_CMD_DISPLAY_OPT_MINIMAL) == 0)
+    else if (strcmp(edit_cmd, GE_CMD_DISPLAY_OPT_FEN) == 0)
     {
-        for (y = RANKS_COUNT - 1; y >= 0; y--)
-        {
-            for (x = 0; x < FILES_COUNT; x++)
-            {
-                print_piece(board, x, y);
-            }
-            printf("\n");
-        }
+        board_to_fen_string(board, fen);
+        printf(EG_CMD_FEN " %s\n", fen);
         fflush(stdout);
     }
 }
