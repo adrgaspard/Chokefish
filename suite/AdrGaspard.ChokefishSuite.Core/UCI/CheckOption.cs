@@ -1,8 +1,10 @@
-﻿namespace AdrGaspard.ChokefishSuite.Core
+﻿using AdrGaspard.ChokefishSuite.Core.Helpers;
+
+namespace AdrGaspard.ChokefishSuite.Core.UCI
 {
-    public class ChessEngineCheckOption : ChessEngineOption
+    public class CheckOption : UciOption
     {
-        public ChessEngineCheckOption(string name, bool defaultValue) : base(name, OptionType.Check)
+        public CheckOption(string name, bool defaultValue) : base(name, UciOptionType.Check)
         {
             DefaultValue = defaultValue;
             Value = defaultValue;

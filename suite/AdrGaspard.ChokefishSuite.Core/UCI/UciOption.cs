@@ -1,8 +1,8 @@
-﻿namespace AdrGaspard.ChokefishSuite.Core
+﻿namespace AdrGaspard.ChokefishSuite.Core.UCI
 {
-    public abstract class ChessEngineOption
+    public abstract class UciOption
     {
-        protected ChessEngineOption(string name, OptionType type)
+        protected UciOption(string name, UciOptionType type)
         {
             Name = name;
             Type = type;
@@ -10,7 +10,7 @@
 
         public string Name { get; private init; }
 
-        public OptionType Type { get; private init; }
+        public UciOptionType Type { get; private init; }
 
         internal abstract bool TrySetValue(object value);
 

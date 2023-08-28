@@ -1,6 +1,6 @@
-﻿namespace AdrGaspard.ChokefishSuite.Core
+﻿namespace AdrGaspard.ChokefishSuite.Core.UCI
 {
-    public static class Responses
+    public static class UciResponses
     {
         public const string Id = "id";
         public const string IdArgumentName = "name";

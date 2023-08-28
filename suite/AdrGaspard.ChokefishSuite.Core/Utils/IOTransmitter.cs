@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace AdrGaspard.ChokefishSuite.Core
+namespace AdrGaspard.ChokefishSuite.Core.Utils
 {
     public class IOTransmitter : IDisposable
     {

@@ -1,8 +1,10 @@
-﻿namespace AdrGaspard.ChokefishSuite.Core
+﻿using AdrGaspard.ChokefishSuite.Core.Utils;
+
+namespace AdrGaspard.ChokefishSuite.Core.UCI
 {
-    public class ChessEngineSpinOption : ChessEngineOption
+    public class SpinOption : UciOption
     {
-        public ChessEngineSpinOption(string name, int defaultValue, int? minValue = null, int? maxValue = null) : base(name, OptionType.Spin)
+        public SpinOption(string name, int defaultValue, int? minValue = null, int? maxValue = null) : base(name, UciOptionType.Spin)
         {
             DefaultValue = defaultValue;
             Value = defaultValue;
@@ -10,11 +12,11 @@
             MaxValue = maxValue ?? int.MaxValue;
             if (defaultValue < minValue)
             {
-                throw new ChessEngineException($"The default value of a {nameof(ChessEngineSpinOption)} was smaller than his min value");
+                throw new ChessException($"The default value of a {nameof(SpinOption)} was smaller than his min value");
             }
             if (defaultValue > maxValue)
             {
-                throw new ChessEngineException($"The default value of a {nameof(ChessEngineSpinOption)} was greater than his min value");
+                throw new ChessException($"The default value of a {nameof(SpinOption)} was greater than his min value");
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace AdrGaspard.ChokefishSuite.Core
+﻿using AdrGaspard.ChokefishSuite.Core.UCI;
+
+namespace AdrGaspard.ChokefishSuite.Core.Helpers
 {
     public static class OptionHelper
     {
@@ -8,7 +10,9 @@
 
         public const string Spin = "spin";
 
-        public static ChessEngineOption? ConvertToOption(this string[] splitedArguments)
+        public const string PonderOptionName = "Ponder";
+
+        public static UciOption? ConvertToOption(this string[] splitedArguments)
         {
             if (splitedArguments.Length >= 4)
             {
@@ -16,7 +20,7 @@
                 string nameValue = splitedArguments[1];
                 string typeAttribute = splitedArguments[2];
                 string typeValue = splitedArguments[3];
-                if (nameAttribute == Responses.OptionArgumentName && typeAttribute == Responses.OptionArgumentType)
+                if (nameAttribute == UciResponses.OptionArgumentName && typeAttribute == UciResponses.OptionArgumentType)
                 {
                     switch (typeValue)
                     {
@@ -31,28 +35,28 @@
             return null;
         }
 
-        private static ChessEngineCheckOption? ConvertToCheckOption(this string[] splitedArguments, string nameValue)
+        private static CheckOption? ConvertToCheckOption(this string[] splitedArguments, string nameValue)
         {
             if (splitedArguments.Length == 6)
             {
                 string defaultAttribute = splitedArguments[4];
                 string defaultBool = splitedArguments[5];
-                if (defaultAttribute == Responses.OptionArgumentDefault)
+                if (defaultAttribute == UciResponses.OptionArgumentDefault)
                 {
                     if (defaultBool == CheckValueTrue)
                     {
-                        return new ChessEngineCheckOption(nameValue, true);
+                        return new CheckOption(nameValue, true);
                     }
                     else if (defaultBool == CheckValueFalse)
                     {
-                        return new ChessEngineCheckOption(nameValue, false);
+                        return new CheckOption(nameValue, false);
                     }
                 }
             }
             return null;
         }
 
-        private static ChessEngineSpinOption? ConvertToSpinOption(this string[] splitedArguments, string nameValue)
+        private static SpinOption? ConvertToSpinOption(this string[] splitedArguments, string nameValue)
         {
             bool expectingKeyword = true, errorEncountered = false, editingDefault = false, editingMin = false, editingMax = false;
             int? defaultInt = null, minInt = null, maxInt = null;
@@ -69,13 +73,13 @@
                     editingMax = false;
                     switch (splitedArguments[i])
                     {
-                        case Responses.OptionArgumentDefault:
+                        case UciResponses.OptionArgumentDefault:
                             editingDefault = true;
                             break;
-                        case Responses.OptionArgumentMin:
+                        case UciResponses.OptionArgumentMin:
                             editingMin = true;
                             break;
-                        case Responses.OptionArgumentMax:
+                        case UciResponses.OptionArgumentMax:
                             editingMax = true;
                             break;
                         default:
@@ -112,7 +116,7 @@
                 }
             }
             return expectingKeyword && !errorEncountered && defaultInt.HasValue && defaultInt >= (minInt ?? int.MinValue) && defaultInt <= (maxInt ?? int.MaxValue)
-                ? new ChessEngineSpinOption(nameValue, defaultInt.Value, minInt, maxInt)
+                ? new SpinOption(nameValue, defaultInt.Value, minInt, maxInt)
                 : null;
         }
     }

@@ -1,6 +1,6 @@
-﻿namespace AdrGaspard.ChokefishSuite.Core
+﻿namespace AdrGaspard.ChokefishSuite.Core.UCI
 {
-    public static class Commands
+    public static class UciCommands
     {
         public const string Uci = "uci";
 

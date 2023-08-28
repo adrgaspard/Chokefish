@@ -1,11 +1,13 @@
-﻿namespace AdrGaspard.ChokefishSuite.Core
+﻿namespace AdrGaspard.ChokefishSuite.Core.UCI
 {
-    public enum ChessEngineState
+    public enum UciChessGuiState
     {
         None,
         WaitingForUciok,
         WaitingForReadyOk,
         Idling,
+        Pondering,
+        Searching,
         WaitingForDisplay,
         Disposed
     }
