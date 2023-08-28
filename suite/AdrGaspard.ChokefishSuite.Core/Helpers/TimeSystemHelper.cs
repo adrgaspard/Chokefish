@@ -7,11 +7,9 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
     {
         public static string? ToUciString(this ChessTimeSystem timeSystem)
         {
-            if (timeSystem == null || !timeSystem.IsValid)
-            {
-                return null;
-            }
-            return timeSystem.IsInfinite
+            return timeSystem == null || !timeSystem.IsValid
+                ? null
+                : timeSystem.IsInfinite
                 ? UciCommands.GoArgumentInfinite
                 : timeSystem.IsDefined
                 ? $"{UciCommands.GoArgumentMovetime} {timeSystem.DefinedSearchTimeInMs}"

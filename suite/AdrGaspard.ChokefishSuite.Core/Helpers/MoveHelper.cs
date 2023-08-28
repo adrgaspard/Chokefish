@@ -13,7 +13,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
         {
             if (str is not null && str.Length >= 4 && str.Length <= 6)
             {
-                if (str[..2].ToChessSquare() is ChessSquare oldSquare && str.Substring(2, 4).ToChessSquare() is ChessSquare newSquare)
+                if (str[..2].ToChessSquare() is ChessSquare oldSquare && str[2..4].ToChessSquare() is ChessSquare newSquare)
                 {
                     if (str.Length == 4)
                     {
