@@ -66,6 +66,60 @@ namespace AdrGaspard.ChokefishSuite.Core
             }
         }
 
+        public bool SetDebug(bool value)
+        {
+            if (CurrentState != ChessEngineState.None && CurrentState != ChessEngineState.Disposed)
+            {
+                _transmitter.SendInputData($"{Commands.Debug} {(value ? Commands.DebugArgumentOn : Commands.DebugArgumentOff)}");
+                return true;
+            }
+            return false;
+        }
+
+        public bool SetOption(string optionName, object value)
+        {
+            if (CurrentState != ChessEngineState.None && CurrentState != ChessEngineState.Disposed && Options.FirstOrDefault(option => option.Name == optionName) is ChessEngineOption option && option.TrySetValue(value))
+            {
+                _transmitter.SendInputData($"{Commands.Setoption} {Commands.SetoptionArgumentName} {optionName} {Commands.SetoptionArgumentValue} {option.GetStringValue()}");
+                return true;
+            }
+            return false;
+        }
+
+        public bool ResetGame()
+        {
+            if (CurrentState != ChessEngineState.None && CurrentState != ChessEngineState.Disposed)
+            {
+                _transmitter.SendInputData(Commands.Ucinewgame);
+                return true;
+            }
+            return false;
+        }
+
+        public bool SetPosition(string initialPosition, IEnumerable<string> moves)
+        {
+            if (CurrentState != ChessEngineState.None && CurrentState != ChessEngineState.Disposed)
+            {
+                bool isStartpos = initialPosition == Commands.PositionArgumentStartpos;
+                if (isStartpos /*isValid*/) // TODO : check if initial position is valid
+                {
+                    moves ??= Enumerable.Empty<string>();
+                    CurrentState = ChessEngineState.Idling;
+                    _transmitter.SendInputData($"{Commands.Position} {(isStartpos ? "" : $"{Commands.PositionArgumentFen} ")}{initialPosition}{(moves.Any() ? $" {Commands.PositionArgumentMoves} {string.Join(' ', moves)}" : "")}");
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // TODO : start search / go command
+
+        // TODO : stop search / stop command
+
+        // TODO : switch from ponder to classical search / ponderhit command
+
+        // TODO : RefreshBoard / display command
+
         public void Dispose()
         {
             lock (_lock)
@@ -101,6 +155,12 @@ namespace AdrGaspard.ChokefishSuite.Core
                         break;
                     case Responses.Readyok:
                         ProcessReadyokResponse();
+                        break;
+                    case Responses.Bestmove:
+                        // TODO
+                        break;
+                    case Responses.Info:
+                        // TODO
                         break;
                     case Responses.Fen:
                         ProcessFenResponse(arguments);

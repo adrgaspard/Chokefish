@@ -11,5 +11,9 @@
         public string Name { get; private init; }
 
         public OptionType Type { get; private init; }
+
+        internal abstract bool TrySetValue(object value);
+
+        public abstract string GetStringValue();
     }
 }

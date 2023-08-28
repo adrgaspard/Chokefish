@@ -25,5 +25,20 @@
         public int MaxValue { get; private init; }
 
         public int Value { get; internal set; }
+
+        internal override bool TrySetValue(object value)
+        {
+            if (value is int i && i >= MinValue && i <= MaxValue)
+            {
+                Value = i;
+                return true;
+            }
+            return false;
+        }
+
+        public override string GetStringValue()
+        {
+            return Value.ToString();
+        }
     }
 }
