@@ -1,12 +1,13 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Utils;
+using static System.TimeSpan;
 
 namespace AdrGaspard.ChokefishSuite.Core.GameData
 {
     public class ChessTimeSystem
     {
-        public static readonly ChessTimeSystem Infinite = new(0, 0, 0, 0, 0, 0);
+        public static readonly ChessTimeSystem Infinite = new(Zero, Zero, Zero, Zero, Zero, 0);
 
-        private ChessTimeSystem(uint definedSearchTimeInMs, uint whiteTimeInMs, uint blackTimeInMs, uint whiteIncrementTimeInMs, uint blackIncrementTimeInMs, uint movesToGo)
+        private ChessTimeSystem(TimeSpan definedSearchTimeInMs, TimeSpan whiteTimeInMs, TimeSpan blackTimeInMs, TimeSpan whiteIncrementTimeInMs, TimeSpan blackIncrementTimeInMs, uint movesToGo)
         {
             DefinedSearchTimeInMs = definedSearchTimeInMs;
             WhiteTimeInMs = whiteTimeInMs;
@@ -16,47 +17,47 @@ namespace AdrGaspard.ChokefishSuite.Core.GameData
             MovesToGo = movesToGo;
         }
 
-        public uint DefinedSearchTimeInMs { get; private init; }
+        public TimeSpan DefinedSearchTimeInMs { get; private init; }
 
-        public uint WhiteTimeInMs { get; private init; }
+        public TimeSpan WhiteTimeInMs { get; private init; }
 
-        public uint BlackTimeInMs { get; private init; }
+        public TimeSpan BlackTimeInMs { get; private init; }
 
-        public uint WhiteIncrementTimeInMs { get; private init; }
+        public TimeSpan WhiteIncrementTimeInMs { get; private init; }
 
-        public uint BlackIncrementTimeInMs { get; private init; }
+        public TimeSpan BlackIncrementTimeInMs { get; private init; }
 
         public uint MovesToGo { get; private init; }
 
-        public bool IsInfinite => DefinedSearchTimeInMs == 0 && WhiteTimeInMs == 0 && BlackTimeInMs == 0 && WhiteIncrementTimeInMs == 0 && BlackIncrementTimeInMs == 0 && MovesToGo == 0;
+        public bool IsInfinite => DefinedSearchTimeInMs <= Zero && WhiteTimeInMs <= Zero && BlackTimeInMs <= Zero && WhiteIncrementTimeInMs <= Zero && BlackIncrementTimeInMs <= Zero && MovesToGo == 0;
 
-        public bool IsDefined => DefinedSearchTimeInMs != 0 && WhiteTimeInMs == 0 && BlackTimeInMs == 0 && WhiteIncrementTimeInMs == 0 && BlackIncrementTimeInMs == 0 && MovesToGo == 0;
+        public bool IsDefined => DefinedSearchTimeInMs != Zero && WhiteTimeInMs <= Zero && BlackTimeInMs <= Zero && WhiteIncrementTimeInMs <= Zero && BlackIncrementTimeInMs <= Zero && MovesToGo == 0;
 
-        public bool IsIncremental => DefinedSearchTimeInMs == 0 && WhiteTimeInMs != 0 && BlackTimeInMs != 0 && MovesToGo == 0;
+        public bool IsIncremental => DefinedSearchTimeInMs <= Zero && WhiteTimeInMs != Zero && BlackTimeInMs != Zero && MovesToGo == 0;
 
-        public bool IsControl => DefinedSearchTimeInMs == 0 && WhiteTimeInMs != 0 && BlackTimeInMs != 0 && MovesToGo != 0;
+        public bool IsControl => DefinedSearchTimeInMs <= Zero && WhiteTimeInMs != Zero && BlackTimeInMs != Zero && MovesToGo != 0;
 
         public bool IsValid => IsInfinite ^ IsDefined ^ IsIncremental ^ IsControl;
 
-        public static ChessTimeSystem CreateDefined(uint timeInMs)
+        public static ChessTimeSystem CreateDefined(TimeSpan timeInMs)
         {
-            return timeInMs == 0
+            return timeInMs <= Zero
                 ? throw new ChessException($"The parameter {nameof(timeInMs)} must be positive.")
-                : new(timeInMs, 0, 0, 0, 0, 0);
+                : new(timeInMs, Zero, Zero, Zero, Zero, 0);
         }
 
-        public static ChessTimeSystem CreateIncremental(uint whiteTimeInMs, uint whiteIncrementInMs, uint blackTimeInMs, uint blackIncrementInMs)
+        public static ChessTimeSystem CreateIncremental(TimeSpan whiteTimeInMs, TimeSpan whiteIncrementInMs, TimeSpan blackTimeInMs, TimeSpan blackIncrementInMs)
         {
-            return whiteTimeInMs == 0 || blackTimeInMs == 0
+            return whiteTimeInMs <= Zero || blackTimeInMs <= Zero
                 ? throw new ChessException($"Both parameters {nameof(whiteTimeInMs)} and {nameof(blackTimeInMs)} must be positive.")
-                : new(0, whiteTimeInMs, blackTimeInMs, whiteIncrementInMs, blackIncrementInMs, 0);
+                : new(Zero, whiteTimeInMs, blackTimeInMs, whiteIncrementInMs, blackIncrementInMs, 0);
         }
 
-        public static ChessTimeSystem CreateControl(uint whiteTimeInMs, uint blackTimeInMs, uint movesToGo)
+        public static ChessTimeSystem CreateControl(TimeSpan whiteTimeInMs, TimeSpan blackTimeInMs, uint movesToGo)
         {
-            return whiteTimeInMs == 0 || blackTimeInMs == 0 || movesToGo == 0
+            return whiteTimeInMs <= Zero || blackTimeInMs <= Zero || movesToGo == 0
                 ? throw new ChessException($"Parameters {nameof(whiteTimeInMs)}, {nameof(blackTimeInMs)} and {nameof(movesToGo)} must be positive.")
-                : new(0, whiteTimeInMs, blackTimeInMs, 0, 0, movesToGo);
+                : new(Zero, whiteTimeInMs, blackTimeInMs, Zero, Zero, movesToGo);
         }
     }
 }
