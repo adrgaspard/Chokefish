@@ -12,6 +12,19 @@ typedef enum time_system
     TS_CONTROL = 4
 } time_system;
 
+typedef enum game_result
+{
+    GR_NONE = 0x00,
+    GR_PLAYING = 0x01,
+    GR_WHITE_IS_MATED = 0x02,
+    GR_BLACK_IS_MATED = 0x04,
+    GR_STALEMATE = 0x08,
+    GR_REPETITION = 0x10,
+    GR_FIFTY_MOVE_RULE = 0x20,
+    GR_INSUFFICIENT_MATERIAL = 0x40,
+    GR_DRAW = GR_STALEMATE | GR_REPETITION | GR_FIFTY_MOVE_RULE | GR_INSUFFICIENT_MATERIAL
+} game_result;
+
 typedef struct game_data
 {
     move_stack move_stack;

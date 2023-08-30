@@ -1,6 +1,10 @@
 #ifndef CORE_CONSTS_H
 #define CORE_CONSTS_H
 
+// Mutable consts
+
+#define REPETITION_RULE_COUNT 3
+
 // Partially mutable consts
 
 #define PASSIVE_HALF_MOVE_COUNT_MAX 100 // Must be lower or equal to the zobrist_stack size declaration in types.h

@@ -2,6 +2,7 @@
 #include "../core/logging.h"
 #include "../core/piece.h"
 #include "../core/position.h"
+#include "../game_tools/game_result.h"
 #include "../serialization/board_data_serializer.h"
 #include "../serialization/consts.h"
 #include "commands.h"
@@ -9,6 +10,7 @@
 #include "engine_state.h"
 
 static void print_piece(board *board, int8_t x, int8_t y);
+static void print_result(game_result result);
 
 void handle_display_command(char *edit_cmd, engine_state state, board *board)
 {
@@ -49,12 +51,17 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
         board_to_fen_string(board, fen);
         printf("Fen: %s\n", fen);
         printf("Key: " H64 "\n", board->current_game_state.zobrist_key);
+        printf("Result: ");
+        print_result(get_game_result(board));
+        printf("\n");
         fflush(stdout);
     }
     else if (strcmp(edit_cmd, GE_CMD_DISPLAY_OPT_FEN) == 0)
     {
         board_to_fen_string(board, fen);
-        printf(EG_CMD_FEN " %s\n", fen);
+        printf(EG_CMD_FEN " %s " EG_CMD_FEN_OPT_RESULT " ", fen);
+        print_result(get_game_result(board));
+        printf("\n");
         fflush(stdout);
     }
 }
@@ -92,6 +99,37 @@ static void print_piece(board *board, int8_t x, int8_t y)
             break;       
         default:
             printf(" ");
+            break;
+    }
+}
+
+static void print_result(game_result result)
+{
+    switch (result)
+    {
+        case GR_PLAYING:
+            printf(EG_CMD_FEN_OPT_RESULT_OPT_PLAYING);
+            break;
+        case GR_WHITE_IS_MATED:
+            printf(EG_CMD_FEN_OPT_RESULT_OPT_WHITE_MATED);
+            break;
+        case GR_BLACK_IS_MATED:
+            printf(EG_CMD_FEN_OPT_RESULT_OPT_BLACK_MATED);
+            break;
+        case GR_STALEMATE:
+            printf(EG_CMD_FEN_OPT_RESULT_OPT_STALEMATE);
+            break;
+        case GR_REPETITION:
+            printf(EG_CMD_FEN_OPT_RESULT_OPT_REPETITION);
+            break;
+        case GR_FIFTY_MOVE_RULE:
+            printf(EG_CMD_FEN_OPT_RESULT_OPT_FIFTY_MOVE_RULE);
+            break;
+        case GR_INSUFFICIENT_MATERIAL:
+            printf(EG_CMD_FEN_OPT_RESULT_OPT_INSUFFICIENT_MATERIAL);
+            break;
+        default:
+            printf(EG_CMD_FEN_OPT_RESULT_OPT_UNKNOWN);
             break;
     }
 }

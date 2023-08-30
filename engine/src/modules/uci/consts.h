@@ -84,5 +84,15 @@
 #define EG_CMD_OPTION_OPT_MAX "max"
 
 #define EG_CMD_FEN "fen"
+#define EG_CMD_FEN_OPT_RESULT "result"
+
+#define EG_CMD_FEN_OPT_RESULT_OPT_PLAYING "playing"
+#define EG_CMD_FEN_OPT_RESULT_OPT_WHITE_MATED "whitemated"
+#define EG_CMD_FEN_OPT_RESULT_OPT_BLACK_MATED "blackmated"
+#define EG_CMD_FEN_OPT_RESULT_OPT_STALEMATE "stalemate"
+#define EG_CMD_FEN_OPT_RESULT_OPT_REPETITION "repetition"
+#define EG_CMD_FEN_OPT_RESULT_OPT_FIFTY_MOVE_RULE "fiftymoverule"
+#define EG_CMD_FEN_OPT_RESULT_OPT_INSUFFICIENT_MATERIAL "insufficientmaterial"
+#define EG_CMD_FEN_OPT_RESULT_OPT_UNKNOWN "unknown"
 
 #endif // UCI_CONSTS_H
