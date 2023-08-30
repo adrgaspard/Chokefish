@@ -85,7 +85,6 @@
 
 #define EG_CMD_FEN "fen"
 #define EG_CMD_FEN_OPT_RESULT "result"
-
 #define EG_CMD_FEN_OPT_RESULT_OPT_PLAYING "playing"
 #define EG_CMD_FEN_OPT_RESULT_OPT_WHITE_MATED "whitemated"
 #define EG_CMD_FEN_OPT_RESULT_OPT_BLACK_MATED "blackmated"

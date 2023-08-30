@@ -8,7 +8,7 @@ namespace AdrGaspard.ChokefishSuite.Core.GameData
         private readonly ChessCastlingState _whiteCastling;
         private readonly ChessCastlingState _blackCastling;
 
-        public ChessBoard(ChessPiece[,] pieces, ChessColor colorToMove, ChessCastlingState whiteCastling, ChessCastlingState blackCastling, ChessSquare? enPassantSquare, uint silentMoveCount, uint moveCount)
+        public ChessBoard(ChessPiece[,] pieces, ChessColor colorToMove, ChessCastlingState whiteCastling, ChessCastlingState blackCastling, ChessSquare? enPassantSquare, uint silentMoveCount, uint moveCount, ChessGameResult result)
         {
             if (pieces == null || pieces.Rank != 2 || pieces.Length != ChessConsts.SquaresCount)
             {
@@ -22,6 +22,7 @@ namespace AdrGaspard.ChokefishSuite.Core.GameData
             EnPassantSquare = enPassantSquare;
             SilentMoveCount = silentMoveCount;
             MoveCount = moveCount;
+            Result = result;
         }
 
         public ChessPiece this[ChessSquare square] => this[square.File, square.Rank];
@@ -34,6 +35,8 @@ namespace AdrGaspard.ChokefishSuite.Core.GameData
             ChessColor.Black => _blackCastling,
             _ => throw new ChessException($"There is no {nameof(ChessCastlingState)} for {color}!")
         };
+
+        public readonly ChessGameResult Result { get; private init; }
 
         public readonly ChessColor ColorToMove { get; private init; }
 

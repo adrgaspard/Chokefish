@@ -28,5 +28,13 @@
         public const string OptionArgumentMax = "max";
 
         public const string Fen = "fen";
+        public const string FenArgumentResult = "result";
+        public const string FenArgumentResultArgumentPlaying = "playing";
+        public const string FenArgumentResultArgumentWhiteMated = "whitemated";
+        public const string FenArgumentResultArgumentBlackMated = "blackmated";
+        public const string FenArgumentResultArgumentStalemate = "stalemate";
+        public const string FenArgumentResultArgumentRepetition = "repetition";
+        public const string FenArgumentResultArgumentFiftyMoveRule = "fiftymoverule";
+        public const string FenArgumentResultArgumentInsufficientMaterial = "insuffcientmaterial";
     }
 }

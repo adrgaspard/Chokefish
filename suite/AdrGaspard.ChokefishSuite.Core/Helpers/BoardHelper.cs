@@ -1,12 +1,49 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.GameData;
+using AdrGaspard.ChokefishSuite.Core.UCI;
 using AdrGaspard.ChokefishSuite.Core.Utils;
 namespace AdrGaspard.ChokefishSuite.Core.Helpers
 {
-    public static class FenHelper
+    public static class BoardHelper
     {
         public const string StartFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-        public static ChessBoard? ToChessBoard(this string fenString)
+        public static ChessBoard? ToChessBoard(this string str)
+        {
+            string[] splitedArguments = str.Split($" {UciResponses.FenArgumentResult} ");
+            ChessGameResult result = ChessGameResult.None;
+            if (splitedArguments.Length == 2)
+            {
+                switch (splitedArguments[1])
+                {
+                    case UciResponses.FenArgumentResultArgumentPlaying:
+                        result = ChessGameResult.Playing;
+                        break;
+                    case UciResponses.FenArgumentResultArgumentWhiteMated:
+                        result = ChessGameResult.WhiteMated;
+                        break;
+                    case UciResponses.FenArgumentResultArgumentBlackMated:
+                        result = ChessGameResult.BlackMated;
+                        break;
+                    case UciResponses.FenArgumentResultArgumentStalemate:
+                        result = ChessGameResult.Stalemate;
+                        break;
+                    case UciResponses.FenArgumentResultArgumentRepetition:
+                        result = ChessGameResult.Repetition;
+                        break;
+                    case UciResponses.FenArgumentResultArgumentFiftyMoveRule:
+                        result = ChessGameResult.FiftyMoveRule;
+                        break;
+                    case UciResponses.FenArgumentResultArgumentInsufficientMaterial:
+                        result = ChessGameResult.InsufficientMaterial;
+                        break;
+                    default: return null;
+                }
+                return splitedArguments[0].ToChessBoard(result);
+            }
+            return null;
+        }
+
+        private static ChessBoard? ToChessBoard(this string fenString, ChessGameResult result)
         {
             try
             {
@@ -21,7 +58,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
                 ChessSquare? enPassantTarget = GenerateEnPassantTarget(informations[3]);
                 byte fiftyMoveCounter = (byte)GenerateFiftyMoveCounter(informations[4]);
                 uint totalMoveCounter = GenerateTotalMoveCounter(informations[5]);
-                return new(squares, currentPlayer, castlingLegality.Item1, castlingLegality.Item2, enPassantTarget, fiftyMoveCounter, totalMoveCounter);
+                return new(squares, currentPlayer, castlingLegality.Item1, castlingLegality.Item2, enPassantTarget, fiftyMoveCounter, totalMoveCounter, result);
             }
             catch (Exception) { }
             return null;

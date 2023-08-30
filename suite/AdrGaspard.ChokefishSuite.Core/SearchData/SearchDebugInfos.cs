@@ -2,22 +2,22 @@
 {
     public readonly struct SearchDebugInfos : IEquatable<SearchDebugInfos>
     {
-        public readonly int Depth;
-        public readonly TimeSpan Time;
-        public readonly long Nodes;
-        public readonly bool IsMate;
-        public readonly int MateScore;
-        public readonly double CentipawnScore;
+        public readonly int? Depth;
+        public readonly TimeSpan? Time;
+        public readonly long? Nodes;
+        public readonly bool? IsMate;
+        public readonly int? MateScore;
+        public readonly double? CentipawnScore;
 
-        public SearchDebugInfos(int depth, TimeSpan time, long nodes, int mateScore) : this(depth, time, nodes, true, mateScore, 0)
+        public SearchDebugInfos(int? depth, TimeSpan? time, long? nodes, int? mateScore) : this(depth, time, nodes, true, mateScore, 0)
         {
         }
 
-        public SearchDebugInfos(int depth, TimeSpan time, long nodes, double centipawnScore) : this(depth, time, nodes, false, 0, centipawnScore)
+        public SearchDebugInfos(int? depth, TimeSpan? time, long? nodes, double? centipawnScore) : this(depth, time, nodes, false, 0, centipawnScore)
         {
         }
 
-        private SearchDebugInfos(int depth, TimeSpan time, long nodes, bool isMate, int mateScore, double centipawnScore)
+        private SearchDebugInfos(int? depth, TimeSpan? time, long? nodes, bool? isMate, int? mateScore, double? centipawnScore)
         {
             Depth = depth;
             Time = time;

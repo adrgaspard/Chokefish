@@ -4,7 +4,6 @@ using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.SearchData;
 using AdrGaspard.ChokefishSuite.Core.Utils;
 using System.Collections.Immutable;
-using System.Data;
 
 namespace AdrGaspard.ChokefishSuite.Core.UCI
 {
@@ -17,18 +16,25 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             { UciChessGuiState.WaitingForReadyOk,   new List<string>(){ UciResponses.Readyok }.ToImmutableSortedSet() },
             { UciChessGuiState.WaitingForDisplay,   new List<string>(){ UciResponses.Readyok, UciResponses.Fen }.ToImmutableSortedSet() },
             { UciChessGuiState.Idling,              new List<string>(){ UciResponses.Readyok }.ToImmutableSortedSet() },
-            { UciChessGuiState.Pondering,              new List<string>(){ UciResponses.Readyok, UciResponses.Info }.ToImmutableSortedSet() },
-            { UciChessGuiState.Searching,              new List<string>(){ UciResponses.Readyok, UciResponses.Info, UciResponses.Bestmove }.ToImmutableSortedSet() },
+            { UciChessGuiState.Pondering,           new List<string>(){ UciResponses.Readyok, UciResponses.Info }.ToImmutableSortedSet() },
+            { UciChessGuiState.Searching,           new List<string>(){ UciResponses.Readyok, UciResponses.Info, UciResponses.Bestmove }.ToImmutableSortedSet() },
             { UciChessGuiState.Disposed,            Enumerable.Empty<string>().ToImmutableSortedSet() },
         }.ToImmutableSortedDictionary();
 
         private readonly object _lock;
         private readonly IOTransmitter _transmitter;
+        private readonly List<UciOption> _options;
         private bool _initialized;
         private UciChessGuiState _currentState;
         private UciChessGuiState _previousState;
-        private readonly List<UciOption> _options;
         private TaskCompletionSource<bool>? _refreshBoardTaskSource;
+
+        public event EventHandler? Initialized;
+        public event EventHandler? BoardChanged;
+        public event EventHandler? SearchStarted;
+        public event EventHandler? SearchDebugInfosChanged;
+        public event EventHandler? SearchStopped;
+        public event EventHandler? Disposed;
 
         public UciChessEngine(string executablePath)
         {
@@ -59,7 +65,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
 
         public ImmutableList<UciOption> Options { get; private set; }
 
-        public ChessBoard Board { get; private set; }
+        public ChessBoard? Board { get; private set; }
 
         public SearchResult? SearchResult { get; private set; }
 
@@ -106,17 +112,19 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
             {
                 _transmitter.SendInputData(UciCommands.Ucinewgame);
+                Board = null;
+                BoardChanged?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             return false;
         }
 
-        public bool SetPosition(string initialPosition, IEnumerable<string> moves, bool refreshBoard)
+        public bool SetPosition(string initialPosition, IEnumerable<string> moves, bool refreshBoard = true)
         {
             if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
             {
                 bool isStartpos = initialPosition == UciCommands.PositionArgumentStartpos;
-                string fen = isStartpos ? FenHelper.StartFEN : initialPosition;
+                string fen = isStartpos ? BoardHelper.StartFEN : initialPosition;
                 if (fen.ToChessBoard() is ChessBoard)
                 {
                     moves ??= Enumerable.Empty<string>();
@@ -148,6 +156,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
                 SearchResult = null;
                 SearchDebugInfos = null;
                 _transmitter.SendInputData($"{UciCommands.Go}{(ponder ? $" {UciCommands.GoArgumentPonder}" : "")} {uciString}");
+                SearchStarted?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             return false;
@@ -170,6 +179,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             {
                 CurrentState = UciChessGuiState.Idling;
                 _transmitter.SendInputData(UciCommands.Stop);
+                SearchStopped?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             return false;
@@ -198,8 +208,13 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
                     _transmitter.SendInputData(UciCommands.Quit);
                     _transmitter.OutputDataReceived -= OnOutputReceived;
                     _transmitter.ErrorDataReceived -= OnErrorReceived;
+                    if (_previousState is UciChessGuiState.Searching or UciChessGuiState.Pondering)
+                    {
+                        SearchStopped?.Invoke(this, EventArgs.Empty);
+                    }
                 }
                 _transmitter.Dispose();
+                Disposed?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -228,7 +243,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
                         ProcessBestmoveResponse(arguments);
                         break;
                     case UciResponses.Info:
-                        // TODO
+                        ProcessInfoResponse(arguments);
                         break;
                     case UciResponses.Fen:
                         ProcessFenResponse(arguments);
@@ -281,31 +296,26 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             if (CurrentState == UciChessGuiState.WaitingForReadyOk)
             {
                 CurrentState = UciChessGuiState.Idling;
+                Initialized?.Invoke(this, EventArgs.Empty);
             }
         }
 
         private void ProcessBestmoveResponse(string arguments)
         {
-            string[] splitedArguments = arguments.Split(' ');
-            if ((splitedArguments.Length == 1 || (splitedArguments.Length == 3 && splitedArguments[1] == UciResponses.BestmoveArgumentPonder)) && splitedArguments[0].ToChessMove() is ChessMove bestMove)
+            if (arguments.ToSearchResult() is SearchResult searchResult)
             {
-                if (splitedArguments.Length == 3)
-                {
-                    if (splitedArguments[2].ToChessMove() is ChessMove ponderMove)
-                    {
-                        CurrentState = UciChessGuiState.Idling;
-                        SearchResult = new(bestMove, ponderMove);
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-                else
-                {
-                    CurrentState = UciChessGuiState.Idling;
-                    SearchResult = new(bestMove);
-                }
+                CurrentState = UciChessGuiState.Idling;
+                SearchResult = searchResult;
+                SearchStopped?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private void ProcessInfoResponse(string arguments)
+        {
+            if (arguments.ToSearchDebugInfos() is SearchDebugInfos searchDebugInfos)
+            {
+                SearchDebugInfos = searchDebugInfos;
+                SearchDebugInfosChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -316,6 +326,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
                 Board = board;
                 CurrentState = _previousState;
                 _ = (_refreshBoardTaskSource?.TrySetResult(true));
+                BoardChanged?.Invoke(this, EventArgs.Empty);
             }
         }
     }
