@@ -10,7 +10,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
         public static ChessBoard? ToChessBoard(this string str)
         {
             string[] splitedArguments = str.Split($" {UciResponses.FenArgumentResult} ");
-            ChessGameResult result = ChessGameResult.None;
+            ChessGameResult result;
             if (splitedArguments.Length == 2)
             {
                 switch (splitedArguments[1])
