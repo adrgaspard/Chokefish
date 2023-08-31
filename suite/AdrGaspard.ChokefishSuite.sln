@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdrGaspard.ChokefishSuite.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdrGaspard.ChokefishSuite.MVVM", "AdrGaspard.ChokefishSuite.MVVM\AdrGaspard.ChokefishSuite.MVVM.csproj", "{79AEB612-2560-4DDC-B16B-83BEA8290869}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdrGaspard.ChokefishSuite.UI.WPF", "AdrGaspard.ChokefishSuite.UI.WPF\AdrGaspard.ChokefishSuite.UI.WPF.csproj", "{580F6615-B88D-41A0-BE65-6DE9160687F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{79AEB612-2560-4DDC-B16B-83BEA8290869}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79AEB612-2560-4DDC-B16B-83BEA8290869}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79AEB612-2560-4DDC-B16B-83BEA8290869}.Release|Any CPU.Build.0 = Release|Any CPU
+		{580F6615-B88D-41A0-BE65-6DE9160687F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{580F6615-B88D-41A0-BE65-6DE9160687F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{580F6615-B88D-41A0-BE65-6DE9160687F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{580F6615-B88D-41A0-BE65-6DE9160687F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

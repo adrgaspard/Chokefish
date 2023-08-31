@@ -1,0 +1,26 @@
+﻿<mahapps:MetroWindow x:Class="AdrGaspard.ChokefishSuite.UI.WPF.Views.MainWindow"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF"
+                     xmlns:mahapps="http://metro.mahapps.com/winfx/xaml/controls"
+                     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                     xmlns:board="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Board"
+                     mc:Ignorable="d"
+                     Title="{Binding Path=AppName}"
+                     DataContext="{Binding Path=MainVM, Source={StaticResource ResourceKey=Locator}}"
+                     GlowBrush="{Binding Path=AppColor, Converter={StaticResource ResourceKey=colorToBrushConverter}}"
+                     WindowTitleBrush="{Binding Path=AppColor, Converter={StaticResource ResourceKey=colorToBrushConverter}}"
+                     Style="{StaticResource ResourceKey=customWindowStyle}">
+    <mahapps:MetroWindow.Resources>
+    </mahapps:MetroWindow.Resources>
+    <mahapps:MetroWindow.IconTemplate>
+        <DataTemplate>
+            <iconPacks:PackIconFontAwesome Kind="ChessSolid" Width="30" Height="30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}" />
+        </DataTemplate>
+    </mahapps:MetroWindow.IconTemplate>
+    <Grid>
+        <board:BoardUC />
+    </Grid>
+</mahapps:MetroWindow>
