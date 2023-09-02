@@ -9,13 +9,14 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
         private bool _started;
         private bool _exited;
 
-        public IOTransmitter(string pathToExecutable)
+        public IOTransmitter(string pathToExecutable, string arguments = "")
         {
             _process = new()
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = pathToExecutable,
+                    Arguments = arguments,
                     UseShellExecute = false,
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,

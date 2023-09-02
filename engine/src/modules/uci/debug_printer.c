@@ -7,7 +7,7 @@
 #include "consts.h"
 #include "debug_printer.h"
 
-#define LOOP_TIME_IN_MS 2000
+#define LOOP_TIME_IN_MS 100
 
 static pthread_t s_thread;
 static bool s_enabled;

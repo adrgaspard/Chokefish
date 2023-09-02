@@ -21,6 +21,6 @@
         </DataTemplate>
     </mahapps:MetroWindow.IconTemplate>
     <Grid>
-        <board:BoardUC />
+        <board:BoardUC DataContext="{Binding Path=BoardVM, Source={StaticResource ResourceKey=Locator}}" />
     </Grid>
 </mahapps:MetroWindow>
