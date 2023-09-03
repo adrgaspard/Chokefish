@@ -15,7 +15,13 @@ namespace AdrGaspard.ChokefishSuite.Core.GameData
                 throw new ChessException($"The {nameof(pieces)} array must be a 8x8 2D array!");
             }
             _squares = new ChessPiece[ChessConsts.FilesCount, ChessConsts.RanksCount];
-            pieces.CopyTo(_squares, 0);
+            for (int fileIndex = 0; fileIndex < ChessConsts.FilesCount; fileIndex++)
+            {
+                for (int rankIndex = 0; rankIndex < ChessConsts.RanksCount; rankIndex++)
+                {
+                    _squares[fileIndex, rankIndex] = pieces[fileIndex, rankIndex];
+                }
+            }
             ColorToMove = colorToMove;
             _whiteCastling = whiteCastling;
             _blackCastling = blackCastling;

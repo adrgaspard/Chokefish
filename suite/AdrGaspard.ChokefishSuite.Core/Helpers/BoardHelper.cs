@@ -43,6 +43,11 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
             return null;
         }
 
+        public static bool IsValidFen(this string fenString)
+        {
+            return fenString.ToChessBoard(ChessGameResult.None) is ChessBoard;
+        }
+
         private static ChessBoard? ToChessBoard(this string fenString, ChessGameResult result)
         {
             try

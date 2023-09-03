@@ -30,7 +30,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             _whiteEngine = whiteEngine;
             _blackEngine = blackEngine;
             _fen = fen;
-            _timeSystem = ChessTimeSystem.CreateDefined(TimeSpan.FromSeconds(searchTimeInMs));
+            _timeSystem = ChessTimeSystem.CreateDefined(TimeSpan.FromMilliseconds(searchTimeInMs));
             _result = ChessGameResult.None;
             _whiteSearchDebugInfos = null;
             _blackSearchDebugInfos = null;

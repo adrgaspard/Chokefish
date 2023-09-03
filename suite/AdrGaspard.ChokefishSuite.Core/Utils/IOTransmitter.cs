@@ -78,7 +78,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
         {
             if (!string.IsNullOrEmpty(eventArgs.Data))
             {
-                OutputDataReceived?.Invoke(this, eventArgs.Data);
+                ErrorDataReceived?.Invoke(this, eventArgs.Data);
             }
         }
 
@@ -86,7 +86,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
         {
             if (!string.IsNullOrEmpty(eventArgs.Data))
             {
-                ErrorDataReceived?.Invoke(this, eventArgs.Data);
+                OutputDataReceived?.Invoke(this, eventArgs.Data);
             }
         }
 

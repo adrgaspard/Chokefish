@@ -88,7 +88,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
         {
             for (int rankIndex = 0; rankIndex < ChessConsts.RanksCount; rankIndex++)
             {
-                for (int fileIndex = 0; fileIndex <= ChessConsts.FilesCount; fileIndex++)
+                for (int fileIndex = 0; fileIndex < ChessConsts.FilesCount; fileIndex++)
                 {
                     Squares[(rankIndex * ChessConsts.FilesCount) + fileIndex].Piece = board[fileIndex, rankIndex];
                     GameResult = board.Result;
