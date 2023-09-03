@@ -1,4 +1,5 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Contracts;
+using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.UCI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
@@ -11,10 +12,12 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         public MatchSchedulerViewModel()
         {
-            IChessEngine whiteEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Git\ projects/Chokefish/engine/build/Chokefish");
-            IChessEngine blackEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Git\ projects/Chokefish/engine/build/Chokefish");
+            IChessEngine whiteEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Git\ projects/Chokefish/engine/build/Chokefish", "\n");
+            IChessEngine blackEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Git\ projects/Chokefish/engine/build/Chokefish", "\n");
             whiteEngine.Initialize();
             blackEngine.Initialize();
+            _ = whiteEngine.SetOption(OptionHelper.PonderOptionName, false);
+            _ = blackEngine.SetOption(OptionHelper.PonderOptionName, false);
             _matchMakerVM = new(whiteEngine, blackEngine, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 200);
             SubsbribeToMatchMakerPropertyChanged(_matchMakerVM);
         }

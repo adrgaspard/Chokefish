@@ -5,11 +5,12 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
     public class IOTransmitter : IDisposable
     {
         private readonly Process _process;
+        private readonly string _standardInputNewLine;
         private readonly object _lock;
         private bool _started;
         private bool _exited;
 
-        public IOTransmitter(string pathToExecutable, string arguments = "")
+        public IOTransmitter(string pathToExecutable, string arguments = "", string? standardInputNewLine = null)
         {
             _process = new()
             {
@@ -27,6 +28,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
             _process.OutputDataReceived += OnOutputDataReceived;
             _process.ErrorDataReceived += OnErrorDataReceived;
             _process.Exited += OnExited;
+            _standardInputNewLine = standardInputNewLine ?? Environment.NewLine;
             _started = false;
             _exited = false;
             _lock = new();
@@ -46,6 +48,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
                 {
                     _started = true;
                     _ = _process.Start();
+                    _process.StandardInput.NewLine = _standardInputNewLine;
                     _process.BeginOutputReadLine();
                     _process.BeginErrorReadLine();
                 }

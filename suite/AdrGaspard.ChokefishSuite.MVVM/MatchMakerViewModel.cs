@@ -121,7 +121,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         _ = currentEngine.StartSearch(_timeSystem);
                         _searchCompletionSource.Task.Wait();
                         ChessMove bestMove = currentEngine.SearchResult?.BestMove ?? throw new NullReferenceException($"An engine search didn't returned a move!");
-                        _ = moves.Append(bestMove.ToUciString());
+                        moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
                         _ = opponentEngine.SetPosition(_fen, moves);
                         _searchingColor = _searchingColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
                     }
@@ -184,9 +184,11 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         private void OnSearchStopped(object? sender, EventArgs eventArgs)
         {
-            _ = _searchingColor != ChessColor.None
-                ? _searchCompletionSource.TrySetResult(true)
-                : throw new InvalidOperationException($"The engine currently searching is not the right one!");
+            if (_searchingColor == ChessColor.None)
+            {
+                throw new InvalidOperationException($"The engine currently searching is not the right one!");
+            }
+            _searchCompletionSource.SetResult(true);
         }
 
         private void OnSearchDebugInfoChanged(object? sender, EventArgs eventArgs)

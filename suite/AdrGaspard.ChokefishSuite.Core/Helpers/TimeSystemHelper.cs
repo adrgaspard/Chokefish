@@ -12,11 +12,11 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
                 : timeSystem.IsInfinite
                 ? UciCommands.GoArgumentInfinite
                 : timeSystem.IsDefined
-                ? $"{UciCommands.GoArgumentMovetime} {timeSystem.DefinedSearchTimeInMs}"
+                ? $"{UciCommands.GoArgumentMovetime} {timeSystem.DefinedSearchTimeInMs.TotalMilliseconds}"
                 : timeSystem.IsIncremental
-                ? $"{UciCommands.GoArgumentWtime} {timeSystem.WhiteTimeInMs} {UciCommands.GoArgumentBtime} {timeSystem.BlackTimeInMs} {UciCommands.GoArgumentWinc} {timeSystem.WhiteIncrementTimeInMs} {UciCommands.GoArgumentBinc} {timeSystem.BlackIncrementTimeInMs}"
+                ? $"{UciCommands.GoArgumentWtime} {timeSystem.WhiteTimeInMs.TotalMilliseconds} {UciCommands.GoArgumentBtime} {timeSystem.BlackTimeInMs.TotalMilliseconds} {UciCommands.GoArgumentWinc} {timeSystem.WhiteIncrementTimeInMs.TotalMilliseconds} {UciCommands.GoArgumentBinc} {timeSystem.BlackIncrementTimeInMs.TotalMilliseconds}"
                 : timeSystem.IsControl
-                ? $"{UciCommands.GoArgumentWtime} {timeSystem.WhiteTimeInMs} {UciCommands.GoArgumentBtime} {timeSystem.BlackTimeInMs} {UciCommands.GoArgumentMovestogo} {timeSystem.MovesToGo}"
+                ? $"{UciCommands.GoArgumentWtime} {timeSystem.WhiteTimeInMs.TotalMilliseconds} {UciCommands.GoArgumentBtime} {timeSystem.BlackTimeInMs.TotalMilliseconds} {UciCommands.GoArgumentMovestogo} {timeSystem.MovesToGo}"
                 : null;
         }
     }

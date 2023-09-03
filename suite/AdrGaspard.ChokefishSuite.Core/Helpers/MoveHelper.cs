@@ -6,7 +6,10 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
     {
         public static string? ToUciString(this ChessMove move)
         {
-            return $"{move.OldSquare.ToUciString()}{move.NewSquare.ToUciString()}{(move.PromotionType != ChessPieceType.None ? $"={PieceTypeHelper.SymbolsToPieceType.First(pair => pair.Value == move.PromotionType).Key}" : "")}";
+            string? oldSquare = move.OldSquare.ToUciString();
+            string? newSquare = move.NewSquare.ToUciString();
+            string promotion = move.PromotionType != ChessPieceType.None ? $"={PieceTypeHelper.SymbolsToPieceType.First(pair => pair.Value == move.PromotionType).Key}" : "";
+            return $"{oldSquare}{newSquare}{promotion}";
         }
 
         public static ChessMove? ToChessMove(this string str)
