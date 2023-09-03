@@ -4,12 +4,12 @@
     {
         public MainViewModel MainVM { get; init; }
 
-        public BoardViewModel BoardVM { get; init; }
+        public WpfMatchSchedulerViewModel MatchSchedulerVM { get; init; }
 
         public ViewModelLocator()
         {
             MainVM = new();
-            BoardVM = new();
+            MatchSchedulerVM = new();
         }
     }
 }

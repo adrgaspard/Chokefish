@@ -7,6 +7,7 @@
                      xmlns:mahapps="http://metro.mahapps.com/winfx/xaml/controls"
                      xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                      xmlns:board="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Board"
+                     xmlns:commonconverter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Common"
                      mc:Ignorable="d"
                      Title="{Binding Path=AppName}"
                      DataContext="{Binding Path=MainVM, Source={StaticResource ResourceKey=Locator}}"
@@ -21,6 +22,14 @@
         </DataTemplate>
     </mahapps:MetroWindow.IconTemplate>
     <Grid>
-        <board:BoardUC DataContext="{Binding Path=BoardVM, Source={StaticResource ResourceKey=Locator}}" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0" DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" Command="{Binding Path=MatchMakerVM.StartMatchCommand}"
+                Content="Start something" />
+        <Viewbox Grid.Row="1">
+            <board:BoardUC DataContext="{Binding Path=MatchSchedulerVM.BoardVM, Source={StaticResource ResourceKey=Locator}}" Width="100" Height="100" />
+        </Viewbox>
     </Grid>
 </mahapps:MetroWindow>

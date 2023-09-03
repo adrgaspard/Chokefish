@@ -10,7 +10,58 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Sprites\Pieces\bishopBlack.png" />
+    <None Remove="Resources\Sprites\Pieces\bishopWhite.png" />
+    <None Remove="Resources\Sprites\Pieces\kingBlack.png" />
+    <None Remove="Resources\Sprites\Pieces\kingWhite.png" />
+    <None Remove="Resources\Sprites\Pieces\knightBlack.png" />
+    <None Remove="Resources\Sprites\Pieces\knightWhite.png" />
+    <None Remove="Resources\Sprites\Pieces\pawnBlack.png" />
+    <None Remove="Resources\Sprites\Pieces\pawnWhite.png" />
+    <None Remove="Resources\Sprites\Pieces\queenBlack.png" />
+    <None Remove="Resources\Sprites\Pieces\queenWhite.png" />
+    <None Remove="Resources\Sprites\Pieces\rookBlack.png" />
+    <None Remove="Resources\Sprites\Pieces\rookWhite.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Resources\icon.ico" />
+    <Content Include="Resources\Sprites\Pieces\bishopBlack.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\bishopWhite.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\kingBlack.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\kingWhite.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\knightBlack.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\knightWhite.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\pawnBlack.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\pawnWhite.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\queenBlack.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\queenWhite.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\rookBlack.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Sprites\Pieces\rookWhite.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

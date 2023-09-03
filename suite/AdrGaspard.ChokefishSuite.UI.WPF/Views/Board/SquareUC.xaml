@@ -4,12 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Board"
+             xmlns:converter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Board"
              mc:Ignorable="d">
-    <Border BorderThickness="1" BorderBrush="White">
-        <Grid>
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="{Binding Path=IsBlackSquare}" Foreground="White" />
-            </StackPanel>
-        </Grid>
-    </Border>
+    <UserControl.Resources>
+        <converter:BoolsToBrushConverter x:Key="boolsToBrushConverter" />
+        <converter:PieceToImageSourceConverter x:Key="pieceToImageSourceConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.Background>
+            <MultiBinding Converter="{StaticResource ResourceKey=boolsToBrushConverter}">
+                <Binding Path="IsBlackSquare" />
+                <Binding Path="IsSelected" />
+                <Binding Path="IsLastMove" />
+            </MultiBinding>
+        </Grid.Background>
+        <Image Source="{Binding Path=Piece, Converter={StaticResource ResourceKey=pieceToImageSourceConverter}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+    </Grid>
 </UserControl>
