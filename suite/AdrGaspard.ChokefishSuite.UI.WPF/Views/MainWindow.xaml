@@ -13,7 +13,7 @@
                      DataContext="{Binding Path=MainVM, Source={StaticResource ResourceKey=Locator}}"
                      GlowBrush="{Binding Path=AppColor, Converter={StaticResource ResourceKey=colorToBrushConverter}}"
                      WindowTitleBrush="{Binding Path=AppColor, Converter={StaticResource ResourceKey=colorToBrushConverter}}"
-                     Style="{StaticResource ResourceKey=customWindowStyle}">
+                     Style="{StaticResource ResourceKey=windowStyle}">
     <mahapps:MetroWindow.Resources>
     </mahapps:MetroWindow.Resources>
     <mahapps:MetroWindow.IconTemplate>
@@ -27,9 +27,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Button Grid.Row="0" DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" Command="{Binding Path=MatchMakerVM.StartMatchCommand}"
-                Content="Start something" />
-        <Viewbox Grid.Row="1">
-            <board:BoardUC DataContext="{Binding Path=MatchSchedulerVM.BoardVM, Source={StaticResource ResourceKey=Locator}}" Width="100" Height="100" />
-        </Viewbox>
+                Content="Start something" Style="{StaticResource ResourceKey=buttonStyle}" />
+        <board:GameUC Grid.Row="1" DataContext="{Binding Path=MatchSchedulerVM.BoardVM, Source={StaticResource ResourceKey=Locator}}" />
     </Grid>
 </mahapps:MetroWindow>

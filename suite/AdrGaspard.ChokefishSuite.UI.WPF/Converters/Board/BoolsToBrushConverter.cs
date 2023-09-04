@@ -9,10 +9,11 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.Converters.Board
     {
         public object? Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
+            bool inverted = parameter is true;
             return values.Length == 3 && values[0] is bool blackSquare && values[1] is bool selected && values[2] is bool lastMove
                 ? selected || lastMove
-                    ? blackSquare ? Brushes.HighlightedDarkColorBrush : Brushes.HighlightedLightColorBrush
-                    : (object)(blackSquare ? Brushes.DarkColorBrush : Brushes.LightColorBrush)
+                    ? ((blackSquare ^ inverted) ? Brushes.HighlightedDarkColorBrush : Brushes.HighlightedLightColorBrush)
+                    : ((blackSquare ^ inverted) ? Brushes.DarkColorBrush : Brushes.LightColorBrush)
                 : null;
         }
 

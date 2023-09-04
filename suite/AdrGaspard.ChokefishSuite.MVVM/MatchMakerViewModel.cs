@@ -103,20 +103,10 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                     _searchingColor = _whiteEngine.Board?.ColorToMove ?? ChessColor.None;
                     Result = _whiteEngine.Board?.Result ?? ChessGameResult.None;
                     List<string> moves = new();
+                    IChessEngine currentEngine = GetCurrentEngine(false);
+                    IChessEngine opponentEngine = GetCurrentEngine(true);
                     while (Result == ChessGameResult.Playing && !token.IsCancellationRequested)
                     {
-                        IChessEngine currentEngine = _searchingColor switch
-                        {
-                            ChessColor.White => _whiteEngine,
-                            ChessColor.Black => _blackEngine,
-                            _ => throw new InvalidOperationException($"The engine currently searching is not the right one!")
-                        };
-                        IChessEngine opponentEngine = _searchingColor switch
-                        {
-                            ChessColor.White => _blackEngine,
-                            ChessColor.Black => _whiteEngine,
-                            _ => throw new InvalidOperationException($"The engine currently searching is not the right one!")
-                        };
                         _searchCompletionSource = new();
                         _ = currentEngine.StartSearch(_timeSystem);
                         _searchCompletionSource.Task.Wait();
@@ -124,7 +114,10 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
                         _ = opponentEngine.SetPosition(_fen, moves);
                         _searchingColor = _searchingColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
+                        currentEngine = GetCurrentEngine(false);
+                        opponentEngine = GetCurrentEngine(true);
                     }
+                    opponentEngine.SetPosition(_fen, moves);
                     lock (_lock)
                     {
                         if (!token.IsCancellationRequested)
@@ -224,6 +217,16 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         private void OnEngineDisposed(object? sender, EventArgs eventArgs)
         {
             throw new ObjectDisposedException($"One of the chess engines used was disposed.");
+        }
+
+        private IChessEngine GetCurrentEngine(bool opponentInsteadOfCurrent)
+        {
+            return _searchingColor switch
+            {
+                ChessColor.White => opponentInsteadOfCurrent ? _blackEngine : _whiteEngine,
+                ChessColor.Black => opponentInsteadOfCurrent ? _whiteEngine : _blackEngine,
+                _ => throw new InvalidOperationException($"The engine currently searching is not the right one!")
+            };
         }
     }
 }

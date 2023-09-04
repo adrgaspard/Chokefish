@@ -4,11 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Board"
+             xmlns:commonconverter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Common"
              xmlns:converter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Board"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d">
     <UserControl.Resources>
+        <commonconverter:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
         <converter:BoolsToBrushConverter x:Key="boolsToBrushConverter" />
         <converter:PieceToImageSourceConverter x:Key="pieceToImageSourceConverter" />
+        <converter:FileIndexToStringConverter x:Key="fileToStringConverter" />
+        <converter:RankIndexToStringConverter x:Key="rankToStringConverter" />
+        <sys:Boolean x:Key="inverted">true</sys:Boolean>
     </UserControl.Resources>
     <Grid>
         <Grid.Background>
@@ -19,5 +25,27 @@
             </MultiBinding>
         </Grid.Background>
         <Image Source="{Binding Path=Piece, Converter={StaticResource ResourceKey=pieceToImageSourceConverter}, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Text="{Binding Path=FileIndex, Converter={StaticResource ResourceKey=fileToStringConverter}}"
+                   Visibility="{Binding Path=HasFileAnnotation, Converter={StaticResource ResourceKey=boolToVisibilityConverter}}"
+                   Style="{StaticResource ResourceKey=textblockStyle}" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="2,0,0,1">
+            <TextBlock.Foreground>
+                <MultiBinding Converter="{StaticResource ResourceKey=boolsToBrushConverter}" ConverterParameter="{StaticResource ResourceKey=inverted}">
+                    <Binding Path="IsBlackSquare" />
+                    <Binding Path="IsSelected" />
+                    <Binding Path="IsLastMove" />
+                </MultiBinding>
+            </TextBlock.Foreground>
+        </TextBlock>
+        <TextBlock Text="{Binding Path=RankIndex, Converter={StaticResource ResourceKey=rankToStringConverter}}"
+                   Visibility="{Binding Path=HasRankAnnotation, Converter={StaticResource ResourceKey=boolToVisibilityConverter}}"
+                   Style="{StaticResource ResourceKey=textblockStyle}" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,-3,2,0">
+            <TextBlock.Foreground>
+                <MultiBinding Converter="{StaticResource ResourceKey=boolsToBrushConverter}" ConverterParameter="{StaticResource ResourceKey=inverted}">
+                    <Binding Path="IsBlackSquare" />
+                    <Binding Path="IsSelected" />
+                    <Binding Path="IsLastMove" />
+                </MultiBinding>
+            </TextBlock.Foreground>
+        </TextBlock>
     </Grid>
 </UserControl>

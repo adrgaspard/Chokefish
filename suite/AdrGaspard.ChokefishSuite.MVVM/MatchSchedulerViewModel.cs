@@ -12,8 +12,8 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         public MatchSchedulerViewModel()
         {
-            IChessEngine whiteEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Git\ projects/Chokefish/engine/build/Chokefish", "\n");
-            IChessEngine blackEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Git\ projects/Chokefish/engine/build/Chokefish", "\n");
+            IChessEngine whiteEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/White/Chokefish", "\n");
+            IChessEngine blackEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/Black/Chokefish", "\n");
             whiteEngine.Initialize();
             blackEngine.Initialize();
             _ = whiteEngine.SetOption(OptionHelper.PonderOptionName, false);
