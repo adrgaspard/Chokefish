@@ -23,11 +23,15 @@
     </mahapps:MetroWindow.IconTemplate>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Button Grid.Row="0" DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" Command="{Binding Path=MatchMakerVM.StartMatchCommand}"
-                Content="Start something" Style="{StaticResource ResourceKey=buttonStyle}" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <Button DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" Command="{Binding Path=MatchMakerVM.StartMatchCommand}"
+                    Content="Start" Style="{StaticResource ResourceKey=buttonStyle}" />
+            <Button DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" Command="{Binding Path=ResetMatchMakerCommand}"
+                    Content="Reset" Style="{StaticResource ResourceKey=buttonStyle}" />
+        </StackPanel>
         <board:GameUC Grid.Row="1" DataContext="{Binding Path=MatchSchedulerVM.BoardVM, Source={StaticResource ResourceKey=Locator}}" />
     </Grid>
 </mahapps:MetroWindow>

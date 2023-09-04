@@ -42,6 +42,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             ImmutableRanks = ranks.ToImmutableArray();
             _ranksFromPerspective = ImmutableRanks;
             SetBoardCommand = new RelayCommand<ChessBoard>(SetBoard);
+            ResetBoardCommand = new RelayCommand(ResetBoard);
             RefreshAnnotations();
             RefreshRanksPerspective();
         }
@@ -84,6 +85,8 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 
         public ICommand SetBoardCommand { get; private init; }
 
+        public ICommand ResetBoardCommand { get; private init; }
+
         private void SetBoard(ChessBoard board)
         {
             for (int rankIndex = 0; rankIndex < ChessConsts.RanksCount; rankIndex++)
@@ -93,6 +96,19 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
                     Squares[(rankIndex * ChessConsts.FilesCount) + fileIndex].Piece = board[fileIndex, rankIndex];
                     GameResult = board.Result;
                     MoveCount = board.MoveCount;
+                }
+            }
+        }
+
+        private void ResetBoard()
+        {
+            for (int rankIndex = 0; rankIndex < ChessConsts.RanksCount; rankIndex++)
+            {
+                for (int fileIndex = 0; fileIndex < ChessConsts.FilesCount; fileIndex++)
+                {
+                    Squares[(rankIndex * ChessConsts.FilesCount) + fileIndex].Piece = ChessPiece.NoPiece;
+                    GameResult = ChessGameResult.None;
+                    MoveCount = 0;
                 }
             }
         }

@@ -12,6 +12,12 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 
         public BoardViewModel BoardVM { get; private init; }
 
+        protected override void ResetMatchMaker()
+        {
+            base.ResetMatchMaker();
+            BoardVM.ResetBoardCommand.Execute(null);
+        }
+
         protected override void OnMatchMakerPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
         {
             base.OnMatchMakerPropertyChanged(sender, eventArgs);

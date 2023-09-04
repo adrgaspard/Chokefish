@@ -2,25 +2,32 @@
 using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.UCI;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.ComponentModel;
+using System.Windows.Input;
 
 namespace AdrGaspard.ChokefishSuite.MVVM
 {
     public class MatchSchedulerViewModel : ObservableObject
     {
+        private readonly IChessEngine _whiteEngine;
+        private readonly IChessEngine _blackEngine;
         private MatchMakerViewModel _matchMakerVM;
 
         public MatchSchedulerViewModel()
         {
-            IChessEngine whiteEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/White/Chokefish", "\n");
-            IChessEngine blackEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/Black/Chokefish", "\n");
-            whiteEngine.Initialize();
-            blackEngine.Initialize();
-            _ = whiteEngine.SetOption(OptionHelper.PonderOptionName, false);
-            _ = blackEngine.SetOption(OptionHelper.PonderOptionName, false);
-            _matchMakerVM = new(whiteEngine, blackEngine, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 200);
+            _whiteEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/White/Chokefish", "\n");
+            _blackEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/Black/Chokefish", "\n");
+            _whiteEngine.Initialize();
+            _blackEngine.Initialize();
+            _ = _whiteEngine.SetOption(OptionHelper.PonderOptionName, false);
+            _ = _blackEngine.SetOption(OptionHelper.PonderOptionName, false);
+            _matchMakerVM = new(_whiteEngine, _blackEngine, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 200);
+            ResetMatchMakerCommand = new RelayCommand(ResetMatchMaker);
             SubsbribeToMatchMakerPropertyChanged(_matchMakerVM);
         }
+
+        public ICommand ResetMatchMakerCommand { get; private init; }
 
         public MatchMakerViewModel MatchMakerVM
         {
@@ -44,6 +51,12 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         private void UnsubsbribeFromMatchMakerPropertyChanged(MatchMakerViewModel matchMaker)
         {
             matchMaker.PropertyChanged -= OnMatchMakerPropertyChanged;
+        }
+
+        protected virtual void ResetMatchMaker()
+        {
+            MatchMakerVM.StopMatchCommand.Execute(null);
+            MatchMakerVM = new(_whiteEngine, _blackEngine, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 200);
         }
 
         protected virtual void OnMatchMakerPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
