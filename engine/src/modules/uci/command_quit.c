@@ -6,6 +6,7 @@
 
 void handle_quit_command(engine_state state, search_token *token)
 {
+    assert(token != NULL);
     if (is_working(state))
     {
         cancel_search(token, true);

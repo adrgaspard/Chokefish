@@ -24,13 +24,13 @@ board_data board_data_from_fen_string(char *fen_string)
     piece piece;
     castling castling[PLAYERS_COUNT];
     position pos;
-    assert(fen_string);
+    assert(fen_string != NULL);
     board_data.silent_move_count = 0;
     board_data.last_en_passant_file = NO_FILE;
     board_data.ply_count = 0;
     strncpy(fen_copy, fen_string, FEN_LENGTH_UPPER_BOUND - 1);
     fen_ptr = strtok(fen_copy, _FEN_DELIMITER);
-    assert(fen_ptr);
+    assert(fen_ptr != NULL);
     first_part_len = strlen(fen_ptr);
     current_file = 0;
     current_rank = RANKS_COUNT - 1;
@@ -82,10 +82,10 @@ board_data board_data_from_fen_string(char *fen_string)
         current_file++;
     }
     fen_ptr = strtok(NULL, _FEN_DELIMITER);
-    assert(fen_ptr);
+    assert(fen_ptr != NULL);
     board_data.color_to_move = strcmp(fen_ptr, WHITE_TO_MOVE_STR) == 0 ? COLOR_WHITE : COLOR_BLACK;
     fen_ptr = strtok(NULL, _FEN_DELIMITER);
-    assert(fen_ptr);
+    assert(fen_ptr != NULL);
     third_part_len = strlen(fen_ptr);
     castling[COLOR_WHITE] = CASTLING_NONE;
     castling[COLOR_BLACK] = CASTLING_NONE;
@@ -132,7 +132,8 @@ void board_to_fen_string(board *board, char *result)
     color piece_color;
     char piece_char, en_passant_str[POSITION_STR_LEN];
     bool no_castling;
-    assert(result);
+    assert(board != NULL);
+    assert(result != NULL);
     write_index = 0;
     
     // Pieces on the board
@@ -256,7 +257,7 @@ void load_board_from_board_data(board *board, board_data board_data)
     color piece_color;
     piece_type piece_type;
     zobrist_key key;
-    assert(board);
+    assert(board != NULL);
     for (pos = 0; pos < POSITIONS_COUNT; pos++)
     {
         piece = board_data.position[pos];

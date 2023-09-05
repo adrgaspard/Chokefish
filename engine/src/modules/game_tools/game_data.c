@@ -20,6 +20,8 @@ void reset_game_data(game_data *data, char *fen_string)
 
 void copy_game_data(game_data *destination, game_data *source)
 {
+    assert(destination != NULL);
+    assert(source != NULL);
     *destination = *source;
     destination->board.game_state_history = &(destination->game_state_stack);
     destination->board.move_history = &(destination->move_stack);

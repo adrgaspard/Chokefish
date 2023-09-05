@@ -5,6 +5,8 @@
 
 void handle_stop_command(engine_state *state, search_token *token)
 {
+    assert(state != NULL);
+    assert(token != NULL);
     disable_debug_printing(&(token->result), false);
     if (is_working(*state))
     {

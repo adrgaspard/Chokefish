@@ -1,5 +1,4 @@
 #include "bitboard.h"
-#include "position.h"
 #include "precomputed_board_data.h"
 #include "precomputed_magics.h"
 #include "static_collections.h"
@@ -112,6 +111,7 @@ bitboard compute_moves_mask(position start_pos, bool ortho_instead_of_diag)
     vector2 start_pos_vector, current_pos_vector, next_pos_vector;
     int8_t vector_index, distance;
     index_validation_result pos_result;
+    assert(is_position_valid(start_pos) && start_pos != NO_POSITION);
     mask = 0;
     vectors = ortho_instead_of_diag ? s_orthogonal_vectors : s_diagonal_vectors;
     start_pos_vector = to_position_vector(start_pos);
@@ -146,6 +146,7 @@ bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard
     vector2 start_pos_vector, current_pos_vector;
     int8_t vector_index, distance;
     index_validation_result pos_result;
+    assert(is_position_valid(start_pos) && start_pos != NO_POSITION);
     mask = 0;
     vectors = ortho_instead_of_diag ? s_orthogonal_vectors : s_diagonal_vectors;
     start_pos_vector = to_position_vector(start_pos);
@@ -386,6 +387,7 @@ static void initialize_magic_data(position position, bool ortho_instead_of_diag)
     bitboard moves_mask, legal_moves_mask, key;
     bitboard_dynamic_array blockers_combinations;
     uint32_t combination_index;
+    assert(is_position_valid(position) && position != NO_POSITION);
     magic = ortho_instead_of_diag ? &(g_orthogonal_magic_data[position]) : &(g_diagonal_magic_data[position]);
     moves_mask = ortho_instead_of_diag ? g_orthogonal_moves_mask[position] : g_diagonal_moves_mask[position];
     blockers_combinations = compute_blockers_bitboards(moves_mask);
@@ -423,12 +425,14 @@ static position_array64 compute_blockers_indices(bitboard moves_mask, uint32_t *
 static void compute_blockers_combinations(bitboard *combinations, uint32_t combinations_capacity, position_array64 indices, uint32_t indices_count)
 {
     uint32_t combination_index, bit, bit_index;
+    assert(combinations != NULL);
     for (combination_index = 0; combination_index < combinations_capacity; combination_index++)
     {
         combinations[combination_index] = 0;
         for (bit_index = 0; bit_index < indices_count; bit_index++)
         {
             bit = (combination_index >> bit_index) & 1;
+            assert(combinations_capacity > combination_index);
             combinations[combination_index] |= ((bitboard)bit) << indices.items[bit_index];
         }
     }

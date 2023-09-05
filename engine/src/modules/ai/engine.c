@@ -11,6 +11,9 @@ void search(board *board, search_result *search_result, bool *cancellation_reque
 {
     move_generation_result generation_result;
     move_generation_options generation_options;
+    assert(board != NULL);
+    assert(search_result != NULL);
+    assert(cancellation_requested != NULL);
 
     reset_search_result(search_result, true);
     reset_move_generation_result(&generation_result);

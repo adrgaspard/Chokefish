@@ -19,6 +19,7 @@ static inline search_result create_search_result()
 
 static inline void reset_search_result(search_result *result, bool start_now)
 {
+    assert(result != NULL);
     pthread_rwlock_wrlock(&(result->lock));
     result->valid = false;
     result->finished = false;

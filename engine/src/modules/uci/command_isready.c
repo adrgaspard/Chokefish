@@ -5,6 +5,7 @@
 
 void handle_isready_command(engine_state *state)
 {
+    assert(state != NULL);
     if (!is_waiting_for_setup(*state))
     {
         on_sending_readyok(state);

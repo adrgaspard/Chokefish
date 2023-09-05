@@ -27,6 +27,10 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
     int64_t convertion_value, wtime, btime, winc, binc, movestogo, movetime;
     uint64_t search_time;
     char *convertion_ptr;
+    assert(edit_cmd != NULL);
+    assert(state != NULL);
+    assert(game_data != NULL);
+    assert(search_token != NULL);
     if (!is_idling(*state))
     {
         return;

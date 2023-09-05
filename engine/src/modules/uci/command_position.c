@@ -21,6 +21,13 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     move_generation_result generation_result;
     move current_move;
     bool is_new_game;
+    assert(cmd != NULL);
+    assert(edit_cmd != NULL);
+    assert(state != NULL);
+    assert(game_data != NULL);
+    assert(token != NULL);
+    assert(current_fen != NULL);
+    assert(current_moves != NULL);
     if (is_waiting_for_setup(*state) || is_waiting_for_ready(*state))
     {
         return;
@@ -126,7 +133,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
         {
             generate_moves(&(game_data->board), &(generation_result), s_all_moves);
             current_move = move_data_to_existing_moves(move_data_from_string(current_move_ptr), generation_result.moves, generation_result.moves_count);
-            if (is_movement_empty(current_move))
+            if (!is_movement_valid(current_move) || is_movement_empty(current_move))
             {
                 fprintf(stderr, "Error: unknown move '%s' provided in input!", current_move_ptr);
                 return;

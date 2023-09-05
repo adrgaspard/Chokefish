@@ -1,3 +1,4 @@
+#include "../core/position.h"
 #include "../core/shared_random.h"
 #include "magic_generator.h"
 
@@ -28,6 +29,8 @@ magic_result compute_magic(magic_generation_data *data, position start_pos, bool
     position_generation_data lookup;
     uint8_t min_size_found, current_size;
     uint32_t entries_count, i, j;
+    assert(data != NULL);
+    assert(is_position_valid(start_pos) && start_pos != NO_POSITION);
     lookup = ortho_instead_of_diag ? data->orthogonal_lookups[start_pos] : data->diagonal_lookups[start_pos];
     best_magic = 0;
     min_size_found = (uint8_t)(max_bit_size + 1);
@@ -67,6 +70,7 @@ static position_generation_data compute_position_generation_data(position start_
     bitboard moves_mask, legal_moves_mask;
     bitboard_dynamic_array blocker_bitboards, legal_moves_bitboards;
     uint32_t bitboard_index;
+    assert(is_position_valid(start_pos) && start_pos != NO_POSITION);
     moves_mask = compute_moves_mask(start_pos, ortho_instead_of_diag);
     blocker_bitboards = compute_blockers_bitboards(moves_mask);
     legal_moves_bitboards = create_bitboard_dynamic_array(blocker_bitboards.capacity);
@@ -84,6 +88,7 @@ static bool is_magic_valid(position_generation_data *lookup, bitboard_dynamic_ar
 {
     uint32_t bitboard_index, key;
     bitboard blockers, moves;
+    assert(lookup != NULL);
     for (bitboard_index = 0; bitboard_index < lookup->blockers_combinations.capacity; bitboard_index++)
     {
         blockers = lookup->blockers_combinations.items[bitboard_index];

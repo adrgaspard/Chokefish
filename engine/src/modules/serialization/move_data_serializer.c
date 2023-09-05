@@ -19,7 +19,7 @@ void move_to_string(move move, char *result)
 void move_data_to_string(move_data move_data, char *result)
 {
     char promotion_char;
-    assert(result);
+    assert(result != NULL);
     position_to_string(move_data.start_pos, result);
     position_to_string(move_data.dest_pos, result + POSITION_STR_LEN - 1);
     promotion_char = promotion_type_to_char(move_data.promotion_type);
@@ -38,7 +38,7 @@ move_data move_data_from_string(char *string)
     size_t string_len;
     promotion_type promotion_type;
     string_len = strlen(string);
-    assert(string);
+    assert(string != NULL);
     promotion_type = PROMOTION_NONE;
     strncpy(first_pos_str, string, POSITION_STR_LEN - 1);
     first_pos_str[POSITION_STR_LEN - 1] = '\0';

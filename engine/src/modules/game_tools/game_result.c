@@ -11,6 +11,8 @@ game_result get_game_result(board *board)
     uint32_t repetition_count, i;
     zobrist_key current_key;
     move_generation_result generation_result;
+    assert(board != NULL);
+    assert(board->game_state_history->count > 0);
     reset_move_generation_result(&generation_result);
     generate_moves(board, &generation_result, s_all_moves);
     if (generation_result.moves_count == 0)
@@ -25,16 +27,19 @@ game_result get_game_result(board *board)
     {
         return GR_FIFTY_MOVE_RULE;
     }
-    current_key = peek_from_zobrist_stack(board->position_repetition_history);
+    current_key = peek_from_game_state_stack(board->game_state_history).zobrist_key;
     repetition_count = 1;
-    for (i = 0; i < board->position_repetition_history->count - 1; i++)
+    if (board->position_repetition_history->count > 0)
     {
-        if (board->position_repetition_history->items[i] == current_key)
+        for (i = 0; i < board->position_repetition_history->count - 1; i++)
         {
-            repetition_count++;
-            if (repetition_count >= REPETITION_RULE_COUNT)
+            if (board->position_repetition_history->items[i] == current_key)
             {
-                return GR_REPETITION;
+                repetition_count++;
+                if (repetition_count >= REPETITION_RULE_COUNT)
+                {
+                    return GR_REPETITION;
+                }
             }
         }
     }
@@ -44,6 +49,7 @@ game_result get_game_result(board *board)
 static bool is_insufficient_material(board *board)
 {
     uint8_t white_bishops_count, white_knights_count, black_bishops_count, black_knights_count, white_minors_count, black_minors_count;
+    assert(board != NULL);
     if (board->piece_masks[COLOR_WHITE][PIECE_PAWN] != 0 || board->piece_masks[COLOR_BLACK][PIECE_PAWN] != 0 || board->orthogonal_sliders_mask[COLOR_WHITE] != 0 || board->orthogonal_sliders_mask[COLOR_BLACK])
     {
         return false;

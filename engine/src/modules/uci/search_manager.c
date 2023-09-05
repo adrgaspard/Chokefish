@@ -17,6 +17,9 @@ static void *search_cancellation_threaded(void *arg);
 search_token create_empty_token(engine_state *engine_state_ptr, engine_options *engine_options_ptr, bool *debug_ptr)
 {
     search_token token;
+    assert(engine_state_ptr != NULL);
+    assert(engine_options_ptr != NULL);
+    assert(debug_ptr != NULL);
     reset_token(&token);
     token.engine_state_ptr = engine_state_ptr;
     token.engine_options_ptr = engine_options_ptr;
@@ -26,6 +29,7 @@ search_token create_empty_token(engine_state *engine_state_ptr, engine_options *
 
 void reset_token(search_token *token)
 {
+    assert(token != NULL);
     token->is_empty = true;
     token->has_ponder = false;
     token->currently_pondering = false;
@@ -60,6 +64,7 @@ void stop_pondering_timed(search_token *token, uint64_t new_search_time)
 
 void cancel_search(search_token *token, bool skip_bestmove_response)
 {
+    assert(token != NULL);
     assert(!token->is_empty);
     if (skip_bestmove_response)
     {
@@ -74,7 +79,9 @@ void cancel_search(search_token *token, bool skip_bestmove_response)
 
 static void start_search(search_token *token_ptr, game_data *data_to_be_copied, bool ponder, uint64_t initial_search_time)
 {
-    assert(token_ptr != NULL && token_ptr->is_empty && data_to_be_copied != NULL);
+    assert(token_ptr != NULL);
+    assert(token_ptr->is_empty);
+    assert(data_to_be_copied != NULL);
     token_ptr->is_empty = false;
     token_ptr->has_ponder = ponder;
     token_ptr->currently_pondering = ponder;
@@ -93,7 +100,11 @@ static void start_search(search_token *token_ptr, game_data *data_to_be_copied, 
 
 static void stop_pondering(search_token *token_ptr, uint64_t new_search_time)
 {
-    assert(token_ptr != NULL && !token_ptr->is_empty && token_ptr->infinite_time == (new_search_time == 0) && token_ptr->has_ponder && token_ptr->currently_pondering);
+    assert(token_ptr != NULL);
+    assert(!token_ptr->is_empty);
+    assert(token_ptr->infinite_time == (new_search_time == 0));
+    assert(token_ptr->has_ponder);
+    assert(token_ptr->currently_pondering);
     token_ptr->currently_pondering = false;
     if (new_search_time != 0)
     {

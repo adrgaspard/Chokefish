@@ -5,6 +5,7 @@
 #include "castling.h"
 #include "color.h"
 #include "move.h"
+#include "move_generation_result.h"
 #include "piece.h"
 #include "precomputed_board_data.h"
 #include "types.h"
@@ -44,9 +45,11 @@ static inline bool _is_check_after_en_passant(board *board, move_generation_data
 static inline void generate_moves(board *board, move_generation_result *result, move_generation_options options)
 {
 	move_generation_data data;
+	assert(board != NULL);
+	assert(result != NULL);
 
 	// Initialization
-	result->moves_count = 0;
+	reset_move_generation_result(result);
 	data.is_currently_check = false;
 	data.is_currently_double_check = false;
 	data.check_ray_mask = 0;
@@ -86,6 +89,9 @@ static inline void _compute_attack_data(board *board, move_generation_data *data
 	position pos, current_knight_pos, opponent_king_pos;
 	piece piece;
 	piece_type piece_type;
+	assert(board != NULL);
+	assert(data != NULL);
+
 	// Compute orthogonal & diagonal attacks
 	_compute_sliding_attacks(board, data, board->orthogonal_sliders_mask[data->opponent_color], true);
 	_compute_sliding_attacks(board, data, board->diagonal_sliders_mask[data->opponent_color], false);
@@ -206,8 +212,10 @@ static inline void _compute_attack_data(board *board, move_generation_data *data
 static inline void _compute_sliding_attacks(board *board, move_generation_data *data, bitboard pieces_mask, bool ortho_instead_of_diag)
 {
 	bitboard blockers, moves;
-	blockers = board->all_pieces_mask & ~(1ULL << data->current_king_pos);
 	position position;
+	assert(board != NULL);
+	assert(data != NULL);
+	blockers = board->all_pieces_mask & ~(1ULL << data->current_king_pos);
 	while (pieces_mask != 0)
 	{
 		position = pop_least_significant_bit(&pieces_mask);
@@ -227,6 +235,9 @@ static inline void _generate_king_moves(board *board, move_generation_data *data
 	position dest_pos;
 	bool is_capture;
 	castling castling_right;
+	assert(board != NULL);
+	assert(data != NULL);
+	assert(result != NULL);
 	legal_mask = ~(data->opponent_all_attacks_mask | data->friendly_pieces_mask);
 	moves_mask = g_king_moves[data->current_king_pos] & legal_mask & data->allowed_destinations_mask;
 	while (moves_mask != 0)
@@ -234,6 +245,7 @@ static inline void _generate_king_moves(board *board, move_generation_data *data
 		dest_pos = pop_least_significant_bit(&moves_mask);
 		is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
 		result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
+		assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 	}
 	
 	// Castling
@@ -243,6 +255,7 @@ static inline void _generate_king_moves(board *board, move_generation_data *data
 		castling_right = data->current_color == COLOR_WHITE
 			? get_white_castling_right(board->current_game_state.castling_data)
 			: get_black_castling_right(board->current_game_state.castling_data);
+		assert(is_castling_valid(castling_right));
 		if ((castling_right & CASTLING_KING) != 0)
 		{
 			castling_mask = data->current_color == COLOR_WHITE ? WHITE_KING_SIDE_CASTLE_MASK : BLACK_KING_SIDE_CASTLE_MASK;
@@ -250,6 +263,7 @@ static inline void _generate_king_moves(board *board, move_generation_data *data
 			{
 				dest_pos = data->current_color == COLOR_WHITE ? POS_G1 : POS_G8;
 				result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, MOVE_KING_CASTLE);
+				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 			}
 		}
 		if ((castling_right & CASTLING_QUEEN) != 0)
@@ -260,6 +274,7 @@ static inline void _generate_king_moves(board *board, move_generation_data *data
 			{
 				dest_pos = data->current_color == COLOR_WHITE ? POS_C1 : POS_C8;
 				result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, MOVE_QUEEN_CASTLE);
+				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 			}
 		}
 	}
@@ -270,6 +285,9 @@ static inline void _generate_sliding_moves(board *board, move_generation_data *d
 	bitboard moves_mask, orthogonal_sliders_mask, diagonal_sliders_mask, orthogonal_moves_mask, diagonal_moves_mask;
 	position start_pos, dest_pos;
 	bool is_capture;
+	assert(board != NULL);
+	assert(data != NULL);
+	assert(result != NULL);
 
 	// Initialization
 	moves_mask = data->empty_pos_or_enemy_pieces_mask & data->check_ray_mask & data->allowed_destinations_mask;
@@ -296,6 +314,7 @@ static inline void _generate_sliding_moves(board *board, move_generation_data *d
 			dest_pos = pop_least_significant_bit(&orthogonal_moves_mask);
 			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
+			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 		}
 	}
 
@@ -313,6 +332,7 @@ static inline void _generate_sliding_moves(board *board, move_generation_data *d
 			dest_pos = pop_least_significant_bit(&diagonal_moves_mask);
 			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
+			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 		}
 	}
 }
@@ -322,6 +342,9 @@ static inline void _generate_knight_moves(board *board, move_generation_data *da
 	bitboard knights_mask, moves_mask, current_knight_moves_mask;
 	position start_pos, dest_pos;
 	bool is_capture;
+	assert(board != NULL);
+	assert(data != NULL);
+	assert(result != NULL);
 	knights_mask = board->piece_masks[data->current_color][PIECE_KNIGHT] & data->not_pin_ray_mask;
 	moves_mask = data->empty_pos_or_enemy_pieces_mask & data->check_ray_mask & data->allowed_destinations_mask;
 	while (knights_mask != 0)
@@ -333,6 +356,7 @@ static inline void _generate_knight_moves(board *board, move_generation_data *da
 			dest_pos = pop_least_significant_bit(&current_knight_moves_mask);
 			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
+			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 		}
 	}
 }
@@ -344,6 +368,9 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 		first_capture_mask, second_capture_mask, no_promotion_single_pushes_mask, first_promotion_capture_mask, second_promotion_capture_mask,
 		double_push_dest_rank_mask, double_pushes_mask, en_passant_potential_attackers_mask;
 	position start_pos, dest_pos, en_passant_capture_pos;
+	assert(board != NULL);
+	assert(data != NULL);
+	assert(result != NULL);
 
 	// Initialization
 	push_direction = data->current_color == COLOR_WHITE ? 1 : -1;
@@ -374,6 +401,7 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 				|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
 			{
 				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_QUIET);
+				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 			}
 		}
 		// Double pushes
@@ -387,6 +415,7 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 				|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
 			{
 				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_DOUBLE_PAWN_PUSH);
+				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 			}
 		}
 	}
@@ -400,6 +429,7 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 			|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
 		{
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_CAPTURE);
+			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 		}
 	}
 	while (second_capture_mask != 0)
@@ -410,6 +440,7 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 			|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
 		{
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_CAPTURE);
+			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 		}
 	}
 
@@ -462,6 +493,7 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 					if (!_is_check_after_en_passant(board, data, start_pos, dest_pos, en_passant_capture_pos))
 					{
 						result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_EN_PASSANT_CAPTURE);
+						assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 					}
 				}
 			}
@@ -471,17 +503,24 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 
 static inline void _generate_pawn_promotions(position start_pos, position dest_pos, move_generation_result *result, move_generation_options options, bool is_capture)
 {
+	assert(is_position_valid(start_pos) && start_pos != NO_POSITION);
+	assert(is_position_valid(dest_pos) && dest_pos != NO_POSITION);
+	assert(result != NULL);
 	result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_QUEEN_PROMOTION_CAPTURE : MOVE_QUEEN_PROMOTION);
+	assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 	// Only include one variation (queen) when quiet moves are disabled
 	if (options.include_quiet_moves)
 	{
 		if ((options.promotion_types_to_include & PROMOTION_KIGHT) != 0)
 		{
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_KNIGHT_PROMOTION_CAPTURE : MOVE_KNIGHT_PROMOTION);
+			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 			if (options.promotion_types_to_include == PROMOTION_ALL)
 			{
 				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_ROOK_PROMOTION_CAPTURE : MOVE_ROOK_PROMOTION);
+				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_BISHOP_PROMOTION_CAPTURE : MOVE_BISHOP_PROMOTION);
+				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
 			}
 		}
 	}
@@ -490,6 +529,11 @@ static inline void _generate_pawn_promotions(position start_pos, position dest_p
 static inline bool _is_check_after_en_passant(board *board, move_generation_data *data, position start_pos, position dest_pos, position capture_pos)
 {
 	bitboard opponent_ortho_sliders_mask, previous_blockers_mask, orthogonal_attacks_mask;
+	assert(board != NULL);
+	assert(data != NULL);
+	assert(is_position_valid(start_pos) && start_pos != NO_POSITION);
+	assert(is_position_valid(dest_pos) && dest_pos != NO_POSITION);
+	assert(is_position_valid(capture_pos) && capture_pos != NO_POSITION);
 	opponent_ortho_sliders_mask = board->orthogonal_sliders_mask[data->opponent_color];
 	if (opponent_ortho_sliders_mask != 0)
 	{

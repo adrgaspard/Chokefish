@@ -9,6 +9,7 @@
 void print_bestmove_response(search_result *result, bool ponder)
 {
     char best_move_str[MOVE_DATA_STR_LEN], ponder_move_str[MOVE_DATA_STR_LEN];
+    assert(result != NULL);
     pthread_rwlock_rdlock(&(result->lock));
     if (result->valid && !is_movement_empty(result->best_move))
     {

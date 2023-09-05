@@ -7,6 +7,8 @@
 void handle_ponderhit_command(engine_state *state, search_token *token)
 {
     uint64_t new_search_time;
+    assert(state != NULL);
+    assert(token != NULL);
     if (is_pondering(*state))
     {
         on_switching_from_ponder_to_search(state);

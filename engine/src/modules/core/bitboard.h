@@ -15,21 +15,25 @@ static inline bitboard get_pawn_attacks_mask(bitboard pawn_bitboard, color color
 
 static inline void set_position_to_zero(bitboard *bitboard, position position)
 {
+    assert(bitboard != NULL);
     *bitboard &= ~(1ULL << position);
 }
 
 static inline void set_position_to_one(bitboard *bitboard, position position)
 {
+    assert(bitboard != NULL);
     *bitboard |= (1ULL << position);
 }
 
 static inline void toggle_position(bitboard *bitboard, position position)
 {
+    assert(bitboard != NULL);
     *bitboard ^= (1ULL << position);
 }
 
 static inline void toggle_positions(bitboard *bitboard, position first, position second)
 {
+    assert(bitboard != NULL);
     *bitboard ^= (1ULL << first | 1ULL << second);
 }
 
@@ -41,6 +45,7 @@ static inline bool contains_position(bitboard bitboard, position position)
 static inline int8_t pop_least_significant_bit(bitboard *bitboard)
 {
     int8_t count;
+    assert(bitboard != NULL);
     count = (int8_t)__builtin_ctzll(*bitboard);
     *bitboard = *bitboard & (*bitboard - 1);
     return count;

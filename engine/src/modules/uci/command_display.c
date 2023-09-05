@@ -16,6 +16,8 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
 {
     char fen[FEN_LENGTH_UPPER_BOUND + 1];
     int8_t x, y;
+    assert(edit_cmd != NULL);
+    assert(board != NULL);
     if (is_waiting_for_setup(state) || is_waiting_for_ready(state))
     {
         return;
@@ -72,11 +74,13 @@ static void print_piece(board *board, int8_t x, int8_t y)
     piece piece;
     piece_type piece_type;
     bool is_white;
+    assert(board != NULL);
     result = compute_index_if_valid(x, y);
     assert(result.valid);
     piece = board->position[result.index];
     piece_type = get_type(piece);
     is_white = get_color(piece) == COLOR_WHITE;
+    assert(is_piece_valid(piece));
     switch (piece_type)
     {
         case PIECE_PAWN:

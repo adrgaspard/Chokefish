@@ -31,6 +31,9 @@ void run_node_exploration_batch(char *position_name, char *fen_string, node_expl
 {
     uint32_t case_index;
     node_exploration_case current_case;
+    assert(position_name != NULL);
+    assert(fen_string != NULL);
+    assert(cases != NULL);
     printf(EXPLORATION_NODE_TEST_PREFIX FG_GRAY "Starting batch " FG_CYAN "%s" FG_GRAY ", with FEN = " FG_CYAN "%s" FG_GRAY " ..." COLOR_RESET "\n",
         position_name, fen_string);
     fflush(stdout);
@@ -49,6 +52,7 @@ uint64_t run_performance_test(char *fen_string, int32_t depth)
     uint64_t total_nodes_count, current_move_nodes_count, start_time, total_uptime;
     board *board;
     char move_str[MOVE_DATA_STR_LEN];
+    assert(fen_string != NULL);
     reset_game_data(&(s_game_data), fen_string);
     board = &(s_game_data.board);
     total_nodes_count = 0;
@@ -84,6 +88,7 @@ uint64_t run_performance_test(char *fen_string, int32_t depth)
 static void run_node_exploration_case(char *fen_string, int32_t depth, uint64_t expected_nodes_count)
 {
     uint64_t found_nodes_count, start_time, end_time;
+    assert(fen_string != NULL);
     reset_game_data(&(s_game_data), fen_string);
     start_time = get_current_uptime();
     found_nodes_count = search_nodes(&(s_game_data.board), depth);
@@ -109,6 +114,7 @@ static uint64_t search_nodes(board *board, int32_t depth)
     move current_move;
     uint32_t move_index;
     uint64_t nodes_count;
+    assert(board != NULL);
     if (depth <= 0)
     {
         return depth == 0 ? 1ULL : 0;

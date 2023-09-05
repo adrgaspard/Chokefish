@@ -5,7 +5,10 @@
 #include "engine_state.h"
 
 void handle_debug_command(char *edit_cmd, bool *debug, engine_state state, search_result *result)
-{  
+{
+    assert(edit_cmd != NULL);
+    assert(debug != NULL);
+    assert(result != NULL);
     edit_cmd = strtok(NULL, UCI_DELIMITER);
     if (edit_cmd != NULL)
     {

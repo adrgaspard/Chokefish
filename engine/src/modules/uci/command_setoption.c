@@ -6,6 +6,8 @@ void handle_setoption_command(char *edit_cmd, engine_options *options)
 {
     char name[OPT_NAME_MAX_LENGTH + 1], value[OPT_VALUE_MAX_LENGHT + 1];
     uint64_t value_len;
+    assert(edit_cmd != NULL);
+    assert(options != NULL);
     value[0] = '\0';
     edit_cmd = strtok(NULL, UCI_DELIMITER);
     if (edit_cmd == NULL || strcmp(edit_cmd, GE_CMD_SETOPTION_OPT_NAME) != 0)

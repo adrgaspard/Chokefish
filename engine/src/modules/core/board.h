@@ -33,6 +33,9 @@ static inline board create_board(game_state_stack *game_state_stack, move_stack 
     color color;
     piece_type type;
     board board;
+    assert(game_state_stack != NULL && game_state_stack->count == 0);
+    assert(move_stack != NULL && move_stack->count == 0);
+    assert(zobrist_stack != NULL && zobrist_stack->count == 0);
     board.all_pieces_mask = 0ULL;
     game_state.captured_piece = create_empty_piece();
     game_state.castling_data = create_castling_data(CASTLING_NONE, CASTLING_NONE);
@@ -69,6 +72,7 @@ static inline board create_board(game_state_stack *game_state_stack, move_stack 
 
 static inline bool is_check(board *board)
 {
+    assert(board != NULL);
     if (!board->is_check_state_cached)
     {
         board->check_state = compute_check_state(board);
@@ -82,8 +86,9 @@ static inline bool compute_check_state(board *board)
     color current_color, opponent_color;
     position king_position;
     bitboard blockers;
+    assert(board != NULL);
     current_color = board->color_to_move;
-    opponent_color =get_opponent(current_color);
+    opponent_color = get_opponent(current_color);
     king_position = board->king_position[current_color];
     blockers = board->all_pieces_mask;
     if (board->orthogonal_sliders_mask[opponent_color] != 0)
@@ -113,6 +118,13 @@ static inline bool compute_check_state(board *board)
 
 static inline void move_piece(board *board, color color, piece piece, piece_type piece_type, position start_pos, position dest_pos)
 {
+    assert(board != NULL);
+    assert(color == COLOR_WHITE || color == COLOR_BLACK);
+    assert(piece != create_empty_piece() && is_piece_valid(piece));
+    assert(piece_type != PIECE_NONE && is_piece_type_valid(piece_type));
+    assert(piece_type == get_type(piece));
+    assert(is_position_valid(start_pos));
+    assert(is_position_valid(dest_pos));
     toggle_positions(&(board->color_mask[color]), start_pos, dest_pos);
     if (piece_type == PIECE_KING)
     {
@@ -129,6 +141,7 @@ static inline void move_piece(board *board, color color, piece piece, piece_type
 
 static inline void update_sliders(board *board)
 {
+    assert(board != NULL);
     board->diagonal_sliders_mask[COLOR_WHITE] = board->piece_masks[COLOR_WHITE][PIECE_BISHOP] | board->piece_masks[COLOR_WHITE][PIECE_QUEEN];
     board->orthogonal_sliders_mask[COLOR_WHITE] = board->piece_masks[COLOR_WHITE][PIECE_ROOK] | board->piece_masks[COLOR_WHITE][PIECE_QUEEN];
     board->diagonal_sliders_mask[COLOR_BLACK] = board->piece_masks[COLOR_BLACK][PIECE_BISHOP] | board->piece_masks[COLOR_BLACK][PIECE_QUEEN];
@@ -149,6 +162,11 @@ static inline void do_move(board *board, move move, bool is_search)
     uint8_t move_counter;
     zobrist_key new_key;
     game_state new_game_state;
+    assert(board != NULL);
+    assert(is_movement_valid(move));
+    assert(board->move_history->count < board->move_history->capacity);
+    assert(board->game_state_history->count < board->game_state_history->capacity);
+    assert(board->position_repetition_history->count < board->position_repetition_history->capacity);
 
     // Variables initializations
     current_color = board->color_to_move;
@@ -166,6 +184,9 @@ static inline void do_move(board *board, move move, bool is_search)
     old_en_passant_file = board->current_game_state.last_en_passant_file;
     new_en_passant_file = NO_FILE;
     new_key = board->current_game_state.zobrist_key;
+    assert(current_color == COLOR_WHITE || COLOR_BLACK);
+    assert(is_piece_valid(moved_piece));
+    assert(is_castling_data_valid(old_castling_data));
 
     // Handle normal cases : update bitboards and piece groups
     move_piece(board, current_color, moved_piece, moved_piece_type, start_pos, dest_pos);
@@ -174,6 +195,7 @@ static inline void do_move(board *board, move move, bool is_search)
     if (is_capture(flags))
     {
         assert(captured_piece_type != PIECE_NONE);
+        assert(is_piece_valid(captured_piece));
         capture_pos = dest_pos;
         if (en_passant)
         {
@@ -301,11 +323,16 @@ static inline void undo_move(board *board, move move, bool is_search)
     bool promotion, king_side_castling;
     piece moved_piece, captured_piece, castling_rook, promoted_piece;
     piece_type moved_piece_type, captured_piece_type, promoted_piece_type;
+    assert(board != NULL);
+    assert(is_movement_valid(move));
+    assert(board->move_history->count > 0);
+    assert(board->game_state_history->count > 0);
 
     // Change current player & color variables initializations
     opponent_color = board->color_to_move;
     current_color = get_opponent(opponent_color);
     board->color_to_move = current_color;
+    assert(current_color == COLOR_WHITE || COLOR_BLACK);
 
     // Other variables initializations
     start_pos = get_start_pos(move);
@@ -314,6 +341,7 @@ static inline void undo_move(board *board, move move, bool is_search)
     promotion = is_promotion(flags);
     moved_piece = promotion ? create_piece(current_color, PIECE_PAWN) : board->position[dest_pos];
     moved_piece_type = get_type(moved_piece);
+    assert(is_piece_valid(moved_piece));
 
     // Handle promotion
     if (promotion)
@@ -337,6 +365,8 @@ static inline void undo_move(board *board, move move, bool is_search)
         capture_pos = dest_pos;
         captured_piece = board->current_game_state.captured_piece;
         captured_piece_type = get_type(captured_piece);
+        assert(captured_piece_type != PIECE_NONE);
+        assert(is_piece_valid(captured_piece));
         if (is_en_passant(flags))
         {
             capture_pos = (position)(dest_pos + (current_color == COLOR_WHITE ? _WHITE_EN_PASSANT_CAPTURE_GAP : _BLACK_EN_PASSANT_CAPTURE_GAP));
@@ -391,6 +421,8 @@ static inline void do_null_move(board *board)
 {
     zobrist_key new_key;
     game_state current_game_state, new_game_state;
+    assert(board != NULL);
+    assert(board->game_state_history->count < board->game_state_history->capacity);
     current_game_state = board->current_game_state;
     board->color_to_move = get_opponent(board->color_to_move);
     new_key = current_game_state.zobrist_key;
@@ -407,6 +439,8 @@ static inline void do_null_move(board *board)
 
 static inline void undo_null_move(board *board)
 {
+    assert(board != NULL);
+    assert(board->game_state_history->count > 0);
     board->color_to_move = get_opponent(board->color_to_move);
     pop_from_game_state_stack(board->game_state_history);
     board->current_game_state = peek_from_game_state_stack(board->game_state_history);

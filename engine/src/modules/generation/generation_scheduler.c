@@ -2,6 +2,7 @@
 #include <string.h>
 #include <time.h>
 #include "../core/logging.h"
+#include "../core/position.h"
 #include "../core/shared_random.h"
 #include "consts.h"
 #include "magic_generator.h"
@@ -60,6 +61,8 @@ static void load_search_results(char *path, magic_result *orthogonal_best_magics
     position pos;
     FILE *buffer;
     magic_result result;
+    assert(orthogonal_best_magics != NULL);
+    assert(diagonal_best_magics != NULL);
     if (path == NULL)
     {
         return;
@@ -101,6 +104,8 @@ static void save_search_results(char *path, magic_result *orthogonal_best_magics
 {
     position pos;
     FILE *buffer;
+    assert(orthogonal_best_magics != NULL);
+    assert(diagonal_best_magics != NULL);
     if (path == NULL)
     {
         return;
@@ -126,6 +131,7 @@ static void print_search_informations(bool ortho_instead_of_diag, magic_result *
     position pos;
     uint8_t magics_found_count, min_bit_size, max_bit_size;
     double total_kb_size;
+    assert(best_magics != NULL);
     magics_found_count = 0;
     min_bit_size = UINT8_MAX;
     max_bit_size = 0;
@@ -163,6 +169,9 @@ static void run_search(magic_generation_data *data, magic_result *orthogonal_bes
     position pos, iterator, worst_pos, current_index, current_pos;
     bool searching_worst_pos;
     bool orthogonal_search;
+    assert(data != NULL);
+    assert(orthogonal_best_magics != NULL);
+    assert(diagonal_best_magics != NULL);
     searching_worst_pos = get_rand_u64() % 10 < 8;
     if (searching_worst_pos)
     {
@@ -200,6 +209,9 @@ static void run_search_iterations(magic_generation_data *data, position start_po
 {
     uint8_t max_bit_size;
     magic_result new_magic;
+    assert(data != NULL);
+    assert(is_position_valid(start_pos) && start_pos != NO_POSITION);
+    assert(best_magics != NULL);
     max_bit_size = (uint8_t)(best_magics[start_pos].valid ? best_magics[start_pos].bit_size - 1 : DEFAULT_MAX_BIT_SIZE);
     new_magic = compute_magic(data, start_pos, ortho_instead_of_diag, iterations_count, max_bit_size);
     if (is_new_magic_result_better(best_magics[start_pos], new_magic))

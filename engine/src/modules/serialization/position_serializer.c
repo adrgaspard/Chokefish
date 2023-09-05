@@ -8,7 +8,8 @@ static char s_rank_names[] = RANK_NAMES;
 
 void position_to_string(position position, char *result)
 {
-    assert(result);
+    assert(is_position_valid(position));
+    assert(result != NULL);
     if (position == NO_POSITION)
     {
         strcpy(result, NO_POSITION_STR);
@@ -23,7 +24,7 @@ void position_to_string(position position, char *result)
 
 position position_from_string(char *string)
 {
-    assert(string);
+    assert(string != NULL);
     return string[0] >= FIRST_FILE_NAME && string[0] <= LAST_FILE_NAME && string[1] >= FIRST_RANK_NAME && string[1] <= LAST_RANK_NAME
         ? (position)((string[1] - FIRST_RANK_NAME) * RANKS_COUNT + (string[0] - FIRST_FILE_NAME))
         : NO_POSITION;

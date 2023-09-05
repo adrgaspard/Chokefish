@@ -28,12 +28,14 @@ static inline struct name create_##name()                           \
                                                                     \
 static inline void push_on_##name(name *stack_ptr, type element)    \
 {                                                                   \
+    assert(stack_ptr != NULL);                                      \
     assert(stack_ptr->count < stack_ptr->capacity);                 \
     stack_ptr->items[stack_ptr->count++] = element;                 \
 }                                                                   \
                                                                     \
 static inline type pop_from_##name(name *stack_ptr)                 \
 {                                                                   \
+    assert(stack_ptr != NULL);                                      \
     assert(stack_ptr->count > 0);                                   \
     stack_ptr->count--;                                             \
     return stack_ptr->items[stack_ptr->count];                      \
@@ -41,12 +43,14 @@ static inline type pop_from_##name(name *stack_ptr)                 \
                                                                     \
 static inline type peek_from_##name(name *stack_ptr)                \
 {                                                                   \
+    assert(stack_ptr != NULL);                                      \
     assert(stack_ptr->count > 0);                                   \
     return stack_ptr->items[stack_ptr->count - 1];                  \
 }                                                                   \
                                                                     \
 static inline void clear_##name(name *stack_ptr)                    \
 {                                                                   \
+    assert(stack_ptr != NULL);                                      \
     stack_ptr->count = 0;                                           \
 }
 

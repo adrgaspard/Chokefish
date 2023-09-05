@@ -6,6 +6,7 @@
 
 void handle_uci_command(engine_state *state, engine_options options)
 {
+    assert(state != NULL);
     if (is_waiting_for_setup(*state))
     {
         // Identifying engine

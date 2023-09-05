@@ -24,6 +24,7 @@ void initialize_debug_printer()
 
 void enable_debug_printing(search_result *result)
 {
+    assert(result != NULL);
     pthread_mutex_lock(&s_mutex);
     if (!s_enabled)
     {
@@ -35,6 +36,7 @@ void enable_debug_printing(search_result *result)
 
 void disable_debug_printing(search_result *result, bool print_one_last_time)
 {
+    assert(result != NULL);
     pthread_mutex_lock(&s_mutex);
     if (s_enabled)
     {
@@ -44,7 +46,6 @@ void disable_debug_printing(search_result *result, bool print_one_last_time)
     pthread_mutex_unlock(&s_mutex);
     if (print_one_last_time)
     {
-        assert(result != NULL);
         print_search_result_info(result);
     }
 }
@@ -52,6 +53,7 @@ void disable_debug_printing(search_result *result, bool print_one_last_time)
 static void *debug_print_loop(void *arg)
 {
     search_result *result;
+    assert(arg != NULL);
     result = (search_result *)arg;
     if (result != NULL)
     {
@@ -69,6 +71,7 @@ static void *debug_print_loop(void *arg)
 static void print_search_result_info(search_result *result)
 {
     uint64_t time;
+    assert(result != NULL);
     pthread_rwlock_rdlock(&(result->lock));
     time = get_current_uptime() - result->start_time;
     if (result->valid)

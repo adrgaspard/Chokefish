@@ -45,6 +45,7 @@ zobrist_key compute_zobrist_key(board *board)
     position position;
     piece piece;
     key = 0;
+    assert(board != NULL);
     for (position = 0; position < POSITIONS_COUNT; position++)
     {
         piece = board->position[position];

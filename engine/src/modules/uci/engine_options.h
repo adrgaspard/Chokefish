@@ -86,7 +86,9 @@ static inline void print_options(engine_options options)
 
 static inline void setoption(engine_options *options, char *option_name, char *option_value)
 {
-    assert(options && option_name && option_value);
+    assert(options != NULL);
+    assert(option_name != NULL);
+    assert(option_value != NULL);
     if (strcmp(option_name, UCI_OPTION_PONDER) == 0)
     {
         _setoption_bool(&(options->ponder), option_value);
@@ -103,6 +105,8 @@ static inline void setoption(engine_options *options, char *option_name, char *o
 
 static inline void _setoption_bool(bool *option_ptr, char *value)
 {
+    assert(option_ptr != NULL);
+    assert(value != NULL);
     if (strcmp(value, OPT_BOOL_TRUE_STR) == 0)
     {
         *option_ptr = true;
@@ -117,6 +121,9 @@ static inline void _setoption_int64(int64_t *option_ptr, char *value, int64_t mi
 {
     char *convertion_ptr;
     int64_t converted_value;
+    assert(option_ptr != NULL);
+    assert(value != NULL);
+    assert(max >= min);
     converted_value = strtol(value, &convertion_ptr, 10);
     if (*convertion_ptr == '\0' && converted_value >= min && converted_value <= max)
     {
