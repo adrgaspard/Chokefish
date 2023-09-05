@@ -245,7 +245,8 @@ static inline void _generate_king_moves(board *board, move_generation_data *data
 		dest_pos = pop_least_significant_bit(&moves_mask);
 		is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
 		result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
-		assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+		assert(is_movement_valid(result->moves[result->moves_count - 1]));
+		assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 	}
 	
 	// Castling
@@ -263,7 +264,8 @@ static inline void _generate_king_moves(board *board, move_generation_data *data
 			{
 				dest_pos = data->current_color == COLOR_WHITE ? POS_G1 : POS_G8;
 				result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, MOVE_KING_CASTLE);
-				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+				assert(is_movement_valid(result->moves[result->moves_count - 1]));
+				assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 			}
 		}
 		if ((castling_right & CASTLING_QUEEN) != 0)
@@ -274,7 +276,8 @@ static inline void _generate_king_moves(board *board, move_generation_data *data
 			{
 				dest_pos = data->current_color == COLOR_WHITE ? POS_C1 : POS_C8;
 				result->moves[result->moves_count++] = create_movement(data->current_king_pos, dest_pos, MOVE_QUEEN_CASTLE);
-				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+				assert(is_movement_valid(result->moves[result->moves_count - 1]));
+				assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 			}
 		}
 	}
@@ -314,7 +317,8 @@ static inline void _generate_sliding_moves(board *board, move_generation_data *d
 			dest_pos = pop_least_significant_bit(&orthogonal_moves_mask);
 			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
-			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+			assert(is_movement_valid(result->moves[result->moves_count - 1]));
+			assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 		}
 	}
 
@@ -332,7 +336,8 @@ static inline void _generate_sliding_moves(board *board, move_generation_data *d
 			dest_pos = pop_least_significant_bit(&diagonal_moves_mask);
 			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
-			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+			assert(is_movement_valid(result->moves[result->moves_count - 1]));
+			assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 		}
 	}
 }
@@ -356,7 +361,8 @@ static inline void _generate_knight_moves(board *board, move_generation_data *da
 			dest_pos = pop_least_significant_bit(&current_knight_moves_mask);
 			is_capture = (data->enemy_pieces_mask & (1ULL << dest_pos)) != 0;
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_CAPTURE : MOVE_QUIET);
-			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+			assert(is_movement_valid(result->moves[result->moves_count - 1]));
+			assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 		}
 	}
 }
@@ -401,7 +407,8 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 				|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
 			{
 				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_QUIET);
-				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+				assert(is_movement_valid(result->moves[result->moves_count - 1]));
+				assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 			}
 		}
 		// Double pushes
@@ -415,7 +422,8 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 				|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
 			{
 				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_DOUBLE_PAWN_PUSH);
-				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+				assert(is_movement_valid(result->moves[result->moves_count - 1]));
+				assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 			}
 		}
 	}
@@ -429,7 +437,8 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 			|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
 		{
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_CAPTURE);
-			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+			assert(is_movement_valid(result->moves[result->moves_count - 1]));
+			assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 		}
 	}
 	while (second_capture_mask != 0)
@@ -440,7 +449,8 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 			|| g_align_mask[start_pos][data->current_king_pos] == g_align_mask[dest_pos][data->current_king_pos])
 		{
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_CAPTURE);
-			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+			assert(is_movement_valid(result->moves[result->moves_count - 1]));
+			assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 		}
 	}
 
@@ -493,7 +503,8 @@ static inline void _generate_pawn_moves(board *board, move_generation_data *data
 					if (!_is_check_after_en_passant(board, data, start_pos, dest_pos, en_passant_capture_pos))
 					{
 						result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, MOVE_EN_PASSANT_CAPTURE);
-						assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+						assert(is_movement_valid(result->moves[result->moves_count - 1]));
+						assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 					}
 				}
 			}
@@ -507,20 +518,24 @@ static inline void _generate_pawn_promotions(position start_pos, position dest_p
 	assert(is_position_valid(dest_pos) && dest_pos != NO_POSITION);
 	assert(result != NULL);
 	result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_QUEEN_PROMOTION_CAPTURE : MOVE_QUEEN_PROMOTION);
-	assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+	assert(is_movement_valid(result->moves[result->moves_count - 1]));
+	assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 	// Only include one variation (queen) when quiet moves are disabled
 	if (options.include_quiet_moves)
 	{
 		if ((options.promotion_types_to_include & PROMOTION_KIGHT) != 0)
 		{
 			result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_KNIGHT_PROMOTION_CAPTURE : MOVE_KNIGHT_PROMOTION);
-			assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+			assert(is_movement_valid(result->moves[result->moves_count - 1]));
+			assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 			if (options.promotion_types_to_include == PROMOTION_ALL)
 			{
 				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_ROOK_PROMOTION_CAPTURE : MOVE_ROOK_PROMOTION);
-				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+				assert(is_movement_valid(result->moves[result->moves_count - 1]));
+				assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 				result->moves[result->moves_count++] = create_movement(start_pos, dest_pos, is_capture ? MOVE_BISHOP_PROMOTION_CAPTURE : MOVE_BISHOP_PROMOTION);
-				assert(is_movement_valid(result->moves[result->moves_count]) && !is_movement_empty(result->moves[result->moves_count]));
+				assert(is_movement_valid(result->moves[result->moves_count - 1]));
+				assert(!is_movement_empty(result->moves[result->moves_count - 1]));
 			}
 		}
 	}

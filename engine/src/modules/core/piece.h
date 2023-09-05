@@ -8,6 +8,8 @@
 #define _PIECE_TYPE_MASK 0x07
 #define _PIECE_COLOR_MASK 0x08
 #define _PIECE_COLOR_BIT_INDEX 3
+#define _GET_PIECE_COLOR(piece) ((piece & _PIECE_COLOR_MASK) >> _PIECE_COLOR_BIT_INDEX)
+#define _GET_PIECE_TYPE(piece) ((piece_type)(piece & _PIECE_TYPE_MASK))
 
 static inline bool is_piece_type_valid(piece_type type);
 static inline bool is_piece_valid(piece piece);
@@ -19,12 +21,14 @@ static inline bool is_piece_empty(piece piece);
 
 static inline bool is_piece_type_valid(piece_type type)
 {
-    return type >= PIECE_NONE && type <= PIECE_QUEEN;
+    return type >= PIECE_PAWN && type <= PIECE_NONE;
 }
 
 static inline bool is_piece_valid(piece piece)
 {
-    return is_piece_type_valid(get_type(piece)) && is_color_valid(get_color(piece));
+    color color;
+    color = _GET_PIECE_COLOR(piece);
+    return is_piece_type_valid(_GET_PIECE_TYPE(piece)) && is_color_valid(color) && color != COLOR_NONE;
 }
 
 static inline piece create_piece(color color, piece_type type)
@@ -42,19 +46,19 @@ static inline piece create_empty_piece()
 static inline color get_color(piece piece)
 {
     assert(is_piece_valid(piece));
-    return (color)((piece & _PIECE_COLOR_MASK) >> _PIECE_COLOR_BIT_INDEX);
+    return _GET_PIECE_COLOR(piece);
 }
 
 static inline piece_type get_type(piece piece)
 {
     assert(is_piece_valid(piece));
-    return (piece_type)(piece & _PIECE_TYPE_MASK);
+    return _GET_PIECE_TYPE(piece);
 }
 
 static inline bool is_piece_empty(piece piece)
 {
     assert(is_piece_valid(piece));
-    return get_type(piece) == PIECE_NONE;
+    return _GET_PIECE_TYPE(piece) == PIECE_NONE;
 }
 
 #endif // PIECE_H

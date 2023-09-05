@@ -8,7 +8,7 @@ static inline color get_opponent(color color);
 
 static inline bool is_color_valid(color color)
 {
-    return color >= COLOR_NONE && color <= COLOR_BLACK;
+    return color >= COLOR_WHITE && color <= COLOR_NONE;
 }
 
 static inline color get_opponent(color color)
