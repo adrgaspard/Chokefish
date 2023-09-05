@@ -2,14 +2,14 @@
 #include "../ai/engine.h"
 #include "../ai/search_result.h"
 #include "../core/enhanced_time.h"
-#include "../game_tools/game_data.h"
+#include "../game_tools/board_utils.h"
 #include "bestmove_cmd_printer.h"
 #include "consts.h"
 #include "debug_printer.h"
 #include "engine_state.h"
 #include "search_manager.h"
 
-static void start_search(search_token *token_ptr, game_data *data_to_be_copied, bool ponder, uint64_t initial_search_time);
+static void start_search(search_token *token_ptr, board *board_to_be_copied, bool ponder, uint64_t initial_search_time);
 static void stop_pondering(search_token *token_ptr, uint64_t new_search_time);
 static void *search_threaded(void *arg);
 static void *search_cancellation_threaded(void *arg);
@@ -41,14 +41,14 @@ void reset_token(search_token *token)
     reset_search_result(&(token->result), false);
 }
 
-void start_search_infinite(search_token *empty_token, game_data *data_to_be_copied, bool ponder)
+void start_search_infinite(search_token *empty_token, board *board_to_be_copied, bool ponder)
 {
-    start_search(empty_token, data_to_be_copied, ponder, 0);
+    start_search(empty_token, board_to_be_copied, ponder, 0);
 }
 
-void start_search_timed(search_token *empty_token, game_data *data_to_be_copied, bool ponder, uint64_t initial_search_time)
+void start_search_timed(search_token *empty_token, board *board_to_be_copied, bool ponder, uint64_t initial_search_time)
 {
-    start_search(empty_token, data_to_be_copied, ponder, initial_search_time);
+    start_search(empty_token, board_to_be_copied, ponder, initial_search_time);
 }
 
 void stop_pondering_infinite(search_token *token)
@@ -77,11 +77,11 @@ void cancel_search(search_token *token, bool skip_bestmove_response)
     }
 }
 
-static void start_search(search_token *token_ptr, game_data *data_to_be_copied, bool ponder, uint64_t initial_search_time)
+static void start_search(search_token *token_ptr, board *board_to_be_copied, bool ponder, uint64_t initial_search_time)
 {
     assert(token_ptr != NULL);
     assert(token_ptr->is_empty);
-    assert(data_to_be_copied != NULL);
+    assert(board_to_be_copied != NULL);
     token_ptr->is_empty = false;
     token_ptr->has_ponder = ponder;
     token_ptr->currently_pondering = ponder;
@@ -89,7 +89,7 @@ static void start_search(search_token *token_ptr, game_data *data_to_be_copied, 
     token_ptr->cancellation_requested = false;
     token_ptr->response_requested = true;
     token_ptr->search_time = initial_search_time;
-    copy_game_data(&(token_ptr->game_data), data_to_be_copied);
+    copy_board(board_to_be_copied, &(token_ptr->board));
     token_ptr->ponder_start_time = ponder ? get_current_uptime() : 0;
     pthread_create(&(token_ptr->search_thread), NULL, search_threaded, token_ptr);
     if (!ponder && initial_search_time != 0)
@@ -118,7 +118,7 @@ static void *search_threaded(void *arg)
     search_token *token;
     token = (search_token *)arg;
     assert(token != NULL);
-    search(&(token->game_data.board), &(token->result), &(token->cancellation_requested));
+    search(&(token->board), &(token->result), &(token->cancellation_requested));
     while(!token->cancellation_requested && token->currently_pondering)
     {
         usleep(PONDER_FINISHED_CHECK_TIME_IN_MS * 1000);

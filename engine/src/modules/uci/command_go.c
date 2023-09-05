@@ -19,7 +19,7 @@ typedef enum go_cmd_edition
     GO_MOVETIME
 } go_cmd_edition;
 
-void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data, search_token *search_token, bool debug)
+void handle_go_command(char *edit_cmd, engine_state *state, board *board, search_token *search_token, bool debug)
 {
     bool expecting_keyword, ponder;
     time_system time_system;
@@ -29,7 +29,7 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
     char *convertion_ptr;
     assert(edit_cmd != NULL);
     assert(state != NULL);
-    assert(game_data != NULL);
+    assert(board != NULL);
     assert(search_token != NULL);
     if (!is_idling(*state))
     {
@@ -199,13 +199,13 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
         case TS_INCREMENTAL:
             if (wtime != GO_OPT_NO_VALUE && btime != GO_OPT_NO_VALUE && winc != GO_OPT_NO_VALUE && binc != GO_OPT_NO_VALUE)
             {
-                search_time = get_search_time_from_incremental(&(game_data->board), (uint64_t)wtime, (uint64_t)winc, (uint64_t)btime, (uint64_t)binc);
+                search_time = get_search_time_from_incremental(board, (uint64_t)wtime, (uint64_t)winc, (uint64_t)btime, (uint64_t)binc);
             }
             break;
         case TS_CONTROL:
             if (wtime != GO_OPT_NO_VALUE && btime != GO_OPT_NO_VALUE && movestogo != GO_OPT_NO_VALUE)
             {
-                search_time = get_search_time_from_control(&(game_data->board), (uint64_t)wtime, (uint64_t)btime, (uint64_t)movestogo);
+                search_time = get_search_time_from_control(board, (uint64_t)wtime, (uint64_t)btime, (uint64_t)movestogo);
             }
             break;
         default:
@@ -221,11 +221,11 @@ void handle_go_command(char *edit_cmd, engine_state *state, game_data *game_data
         reset_token(search_token);
         if (time_system == TS_INFINITE)
         {
-            start_search_infinite(search_token, game_data, ponder);
+            start_search_infinite(search_token, board, ponder);
         }
         else
         {
-            start_search_timed(search_token, game_data, ponder, search_time);
+            start_search_timed(search_token, board, ponder, search_time);
         }
     }
 }

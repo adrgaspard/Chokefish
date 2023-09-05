@@ -4,7 +4,7 @@
 #include "../core/move_generation_result.h"
 #include "../core/move_generator.h"
 #include "../core/logging.h"
-#include "../game_tools/game_data.h"
+#include "../game_tools/board_utils.h"
 #include "../serialization/board_data_serializer.h"
 #include "../serialization/consts.h"
 #include "../serialization/move_data_serializer.h"
@@ -22,7 +22,7 @@ static move_generation_options s_move_generation_options =
     .promotion_types_to_include = PROMOTION_ALL
 };
 
-static game_data s_game_data;
+static board s_board;
 
 static void run_node_exploration_case(char *fen_string, int32_t depth, uint64_t expected_nodes_count);
 static uint64_t search_nodes(board *board, int32_t depth);
@@ -50,11 +50,9 @@ uint64_t run_performance_test(char *fen_string, int32_t depth)
     move current_move;
     uint32_t move_index;
     uint64_t total_nodes_count, current_move_nodes_count, start_time, total_uptime;
-    board *board;
     char move_str[MOVE_DATA_STR_LEN];
     assert(fen_string != NULL);
-    reset_game_data(&(s_game_data), fen_string);
-    board = &(s_game_data.board);
+    reset_board(&s_board, fen_string);
     total_nodes_count = 0;
     total_uptime = 0;
     if (depth <= 0)
@@ -62,7 +60,7 @@ uint64_t run_performance_test(char *fen_string, int32_t depth)
         return depth == 0 ? 1ULL : 0;
     }
     move_generation_result = create_move_generation_result();    
-    generate_moves(board, &move_generation_result, s_move_generation_options);
+    generate_moves(&s_board, &move_generation_result, s_move_generation_options);
     printf(PERFT_TEST_PREFIX FG_GRAY "Starting with a depth of " FG_CYAN I32 FG_GRAY ", with FEN = " FG_CYAN "%s" FG_GRAY " ..."
         COLOR_RESET "\n", depth, fen_string);
     fflush(stdout);
@@ -71,9 +69,9 @@ uint64_t run_performance_test(char *fen_string, int32_t depth)
         current_move = move_generation_result.moves[move_index];
         move_to_string(current_move, move_str);
         start_time = get_current_uptime();
-        do_move(board, current_move, false);
-        current_move_nodes_count = search_nodes(board, depth - 1);
-        undo_move(board, current_move, false);
+        do_move(&s_board, current_move, false);
+        current_move_nodes_count = search_nodes(&s_board, depth - 1);
+        undo_move(&s_board, current_move, false);
         total_uptime += get_current_uptime() - start_time;
         total_nodes_count += current_move_nodes_count;
         printf(FG_GRAY "    - %s: " FG_YELLOW U64 COLOR_RESET "\n", move_str, current_move_nodes_count);
@@ -89,9 +87,9 @@ static void run_node_exploration_case(char *fen_string, int32_t depth, uint64_t 
 {
     uint64_t found_nodes_count, start_time, end_time;
     assert(fen_string != NULL);
-    reset_game_data(&(s_game_data), fen_string);
+    reset_board(&s_board, fen_string);
     start_time = get_current_uptime();
-    found_nodes_count = search_nodes(&(s_game_data.board), depth);
+    found_nodes_count = search_nodes(&s_board, depth);
     end_time = get_current_uptime();
     printf("    ");
     if (expected_nodes_count == found_nodes_count)

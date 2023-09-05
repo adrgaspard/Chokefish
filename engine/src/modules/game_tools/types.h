@@ -25,11 +25,4 @@ typedef enum game_result
     GR_DRAW = GR_STALEMATE | GR_REPETITION | GR_FIFTY_MOVE_RULE | GR_INSUFFICIENT_MATERIAL
 } game_result;
 
-typedef struct game_data
-{
-    move_stack move_stack;
-    game_state_stack game_state_stack;
-    board board;
-} game_data;
-
 #endif // GAME_TOOLS_TYPES_H

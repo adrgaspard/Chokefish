@@ -289,7 +289,7 @@ void load_board_from_board_data(board *board, board_data board_data)
     board->current_game_state = create_game_state(board_data.castling_data, board_data.last_en_passant_file, board_data.silent_move_count, create_empty_piece(), 0);
     key = compute_zobrist_key(board);
     board->current_game_state = create_game_state(board_data.castling_data, board_data.last_en_passant_file, board_data.silent_move_count, create_empty_piece(), key);
-    push_on_game_state_stack(board->game_state_history, board->current_game_state);
+    push_on_game_state_stack(&(board->game_state_history), board->current_game_state);
 }
 
 static bool en_passant_can_be_captured(board *board, int8_t en_passant_file, int8_t en_passant_rank)

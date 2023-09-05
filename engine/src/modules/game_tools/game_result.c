@@ -12,7 +12,7 @@ game_result get_game_result(board *board)
     zobrist_key current_key;
     move_generation_result generation_result;
     assert(board != NULL);
-    assert(board->game_state_history->count > 0);
+    assert(board->game_state_history.count > 0);
     reset_move_generation_result(&generation_result);
     generate_moves(board, &generation_result, s_all_moves);
     if (generation_result.moves_count == 0)
@@ -27,11 +27,11 @@ game_result get_game_result(board *board)
     {
         return GR_FIFTY_MOVE_RULE;
     }
-    current_key = peek_from_game_state_stack(board->game_state_history).zobrist_key;
+    current_key = peek_from_game_state_stack(&(board->game_state_history)).zobrist_key;
     repetition_count = 1;
-        for (i = board->game_state_history->count - board->current_game_state.silent_move_count; i < board->game_state_history->count - 1; i++)
+        for (i = board->game_state_history.count - board->current_game_state.silent_move_count; i < board->game_state_history.count - 1; i++)
         {
-        if (board->game_state_history->items[i].zobrist_key == current_key)
+        if (board->game_state_history.items[i].zobrist_key == current_key)
         {
             repetition_count++;
             if (repetition_count >= REPETITION_RULE_COUNT)

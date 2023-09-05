@@ -122,8 +122,8 @@ typedef struct board
     color color_to_move;
     uint8_t special_piece_count;
     uint32_t ply_count;
-    game_state_stack *game_state_history;
-    move_stack *move_history;
+    game_state_stack game_state_history;
+    move_stack move_history;
     bool check_state;
     bool is_check_state_cached;
 } board;

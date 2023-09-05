@@ -1,7 +1,7 @@
 #include <string.h>
 #include "../ai/search_result.h"
 #include "../ai/types.h"
-#include "../game_tools/game_data.h"
+#include "../game_tools/board_utils.h"
 #include "../serialization/consts.h"
 #include "commands.h"
 #include "uci.h"
@@ -20,7 +20,7 @@ static char s_edit_command_str[COMMAND_STR_LEN + 1];
 static char s_current_fen[FEN_LENGTH_UPPER_BOUND + 1];
 static char s_current_moves[COMMAND_STR_LEN + 1];
 
-static game_data s_game_data;
+static board s_board;
 
 static search_token s_search_token;
 
@@ -71,12 +71,12 @@ void handle_commands()
             }
             else if (strcmp(current_cmd, GE_CMD_POSITION) == 0)
             {
-                handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_game_data, &s_search_token, s_current_fen, s_current_moves);
+                handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_board, &s_search_token, s_current_fen, s_current_moves);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_GO) == 0)
             {
-                handle_go_command(current_cmd, &s_state, &s_game_data, &s_search_token, s_debug);
+                handle_go_command(current_cmd, &s_state, &s_board, &s_search_token, s_debug);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_STOP) == 0)
@@ -96,7 +96,7 @@ void handle_commands()
             }
             else if (strcmp(current_cmd, GE_CMD_DISPLAY) == 0)
             {
-                handle_display_command(current_cmd, s_state, &(s_game_data.board));
+                handle_display_command(current_cmd, s_state, &s_board);
                 break;
             }
             else
@@ -124,6 +124,6 @@ static void reset_internal_data()
     {
         s_current_fen[i] = '\0';
     }
-    reset_game_data(&s_game_data, START_FEN_STR);
+    reset_board(&s_board, START_FEN_STR);
     s_search_token = create_empty_token(&s_state, &s_options, &s_debug);
 }

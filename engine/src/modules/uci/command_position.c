@@ -3,7 +3,7 @@
 #include "../core/board.h"
 #include "../core/move_generation_result.h"
 #include "../core/move_generator.h"
-#include "../game_tools/game_data.h"
+#include "../game_tools/board_utils.h"
 #include "../serialization/consts.h"
 #include "../serialization/move_data_serializer.h"
 #include "commands.h"
@@ -14,7 +14,7 @@
 
 move_generation_options s_all_moves = { .include_quiet_moves = true, .promotion_types_to_include = PROMOTION_ALL };
 
-void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, engine_state *state, game_data *game_data, search_token *token, char *current_fen, char *current_moves)
+void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, engine_state *state, board *board, search_token *token, char *current_fen, char *current_moves)
 {
     char fen[FEN_LENGTH_UPPER_BOUND + 1], *command_args, *moves_ptr, *fen_ptr, *new_moves_ptr, *current_move_ptr;
     uint64_t moves_opt_len, fen_part_len, fen_opt_static_len, uci_delimiter_static_len, new_moves_index;
@@ -24,7 +24,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     assert(cmd != NULL);
     assert(edit_cmd != NULL);
     assert(state != NULL);
-    assert(game_data != NULL);
+    assert(board != NULL);
     assert(token != NULL);
     assert(current_fen != NULL);
     assert(current_moves != NULL);
@@ -115,13 +115,13 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     if (is_new_game)
     {
         handle_ucinewgame_command(state, token);
-        reset_game_data(game_data, fen);
+        reset_board(board, fen);
     }
     if (new_moves_ptr == NULL)
     {
-        while (game_data->move_stack.count > 0)
+        while (board->move_history.count > 0)
         {
-            undo_move(&(game_data->board), peek_from_move_stack(&(game_data->move_stack)), false);
+            undo_move(board, peek_from_move_stack(&(board->move_history)), false);
         }
         new_moves_ptr = moves_ptr;
     }
@@ -131,14 +131,14 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
         reset_move_generation_result(&(generation_result));
         while (current_move_ptr != NULL)
         {
-            generate_moves(&(game_data->board), &(generation_result), s_all_moves);
+            generate_moves(board, &(generation_result), s_all_moves);
             current_move = move_data_to_existing_moves(move_data_from_string(current_move_ptr), generation_result.moves, generation_result.moves_count);
             if (!is_movement_valid(current_move) || is_movement_empty(current_move))
             {
                 fprintf(stderr, "Error: unknown move '%s' provided in input!", current_move_ptr);
                 return;
             }
-            do_move(&(game_data->board), current_move, false);
+            do_move(board, current_move, false);
             current_move_ptr = strtok(NULL, UCI_DELIMITER);
         }
     }
