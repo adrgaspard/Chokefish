@@ -29,17 +29,14 @@ game_result get_game_result(board *board)
     }
     current_key = peek_from_game_state_stack(board->game_state_history).zobrist_key;
     repetition_count = 1;
-    if (board->position_repetition_history->count > 0)
-    {
-        for (i = 0; i < board->position_repetition_history->count - 1; i++)
+        for (i = board->game_state_history->count - board->current_game_state.silent_move_count; i < board->game_state_history->count - 1; i++)
         {
-            if (board->position_repetition_history->items[i] == current_key)
+        if (board->game_state_history->items[i].zobrist_key == current_key)
+        {
+            repetition_count++;
+            if (repetition_count >= REPETITION_RULE_COUNT)
             {
-                repetition_count++;
-                if (repetition_count >= REPETITION_RULE_COUNT)
-                {
-                    return GR_REPETITION;
-                }
+                return GR_REPETITION;
             }
         }
     }

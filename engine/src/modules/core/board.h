@@ -16,7 +16,7 @@
 #define _CASTLING_KING_SIDE_ROOK_DEST(dest_pos) dest_pos - 1
 #define _CASTLING_QUEEN_SIDE_ROOK_DEST(dest_pos) dest_pos + 1
 
-static inline board create_board(game_state_stack *game_state_stack, move_stack *move_stack, zobrist_stack *zobrist_stack);
+static inline board create_board(game_state_stack *game_state_stack, move_stack *move_stack);
 static inline bool is_check(board *board);
 static inline bool compute_check_state(board *board);
 static inline void update_sliders(board *board);
@@ -26,7 +26,7 @@ static inline void undo_move(board *board, move move, bool is_search);
 static inline void do_null_move(board *board);
 static inline void undo_null_move(board *board);
 
-static inline board create_board(game_state_stack *game_state_stack, move_stack *move_stack, zobrist_stack *zobrist_stack)
+static inline board create_board(game_state_stack *game_state_stack, move_stack *move_stack)
 {
     position position;
     game_state game_state;
@@ -35,7 +35,6 @@ static inline board create_board(game_state_stack *game_state_stack, move_stack 
     board board;
     assert(game_state_stack != NULL && game_state_stack->count == 0);
     assert(move_stack != NULL && move_stack->count == 0);
-    assert(zobrist_stack != NULL && zobrist_stack->count == 0);
     board.all_pieces_mask = 0ULL;
     game_state.captured_piece = create_empty_piece();
     game_state.castling_data = create_castling_data(CASTLING_NONE, CASTLING_NONE);
@@ -48,7 +47,6 @@ static inline board create_board(game_state_stack *game_state_stack, move_stack 
     board.ply_count = 0;
     board.game_state_history = game_state_stack;
     board.move_history = move_stack;
-    board.position_repetition_history = zobrist_stack;
     board.check_state = false;
     board.is_check_state_cached = false;
     for (position = 0; position < POSITIONS_COUNT; position++)
@@ -166,7 +164,6 @@ static inline void do_move(board *board, move move, bool is_search)
     assert(is_movement_valid(move));
     assert(board->move_history->count < board->move_history->capacity);
     assert(board->game_state_history->count < board->game_state_history->capacity);
-    assert(board->position_repetition_history->count < board->position_repetition_history->capacity);
 
     // Variables initializations
     current_color = board->color_to_move;
@@ -299,7 +296,6 @@ static inline void do_move(board *board, move move, bool is_search)
     // Update board game state and stacks
     if (!is_search && (moved_piece_type == PIECE_PAWN || captured_piece_type != PIECE_NONE))
     {
-        clear_zobrist_stack(board->position_repetition_history);
         move_counter = 0;
     }
     new_game_state = create_game_state(new_castling_data, new_en_passant_file, move_counter, captured_piece, new_key);
@@ -308,7 +304,6 @@ static inline void do_move(board *board, move move, bool is_search)
     board->is_check_state_cached = false;
     if (!is_search)
     {
-        push_on_zobrist_stack(board->position_repetition_history, new_key);
         push_on_move_stack(board->move_history, move);
     }
     board->ply_count++;
@@ -405,10 +400,6 @@ static inline void undo_move(board *board, move move, bool is_search)
     if (!is_search)
     {
         pop_from_move_stack(board->move_history);
-        if (board->position_repetition_history->count > 0)
-        {
-            pop_from_zobrist_stack(board->position_repetition_history);
-        }
     }
     pop_from_game_state_stack(board->game_state_history);
     board->current_game_state = peek_from_game_state_stack(board->game_state_history);

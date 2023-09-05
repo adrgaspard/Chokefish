@@ -107,7 +107,6 @@ typedef struct game_state
 
 DECLARE_STATIC_STACK_TYPE(game_state, 10000, game_state_stack)
 DECLARE_STATIC_STACK_TYPE(move, 10000, move_stack)
-DECLARE_STATIC_STACK_TYPE(zobrist_key, 100, zobrist_stack)
 
 typedef struct board
 {
@@ -125,7 +124,6 @@ typedef struct board
     uint32_t ply_count;
     game_state_stack *game_state_history;
     move_stack *move_history;
-    zobrist_stack *position_repetition_history;
     bool check_state;
     bool is_check_state_cached;
 } board;

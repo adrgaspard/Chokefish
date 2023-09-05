@@ -28,7 +28,6 @@ typedef enum game_result
 typedef struct game_data
 {
     move_stack move_stack;
-    zobrist_stack zobrist_stack;
     game_state_stack game_state_stack;
     board board;
 } game_data;
