@@ -164,6 +164,7 @@ static inline void do_move(board *board, move move, bool is_search)
     assert(!is_movement_empty(move));
     assert(board->move_history.count < board->move_history.capacity);
     assert(board->game_state_history.count < board->game_state_history.capacity);
+    assert((board->ply_count % 2) == board->color_to_move);
 
     // Variables initializations
     current_color = board->color_to_move;
@@ -308,6 +309,8 @@ static inline void do_move(board *board, move move, bool is_search)
         push_on_move_stack(&(board->move_history), move);
     }
     board->ply_count++;
+    assert(board->color_to_move != current_color);
+    assert((board->ply_count % 2) == board->color_to_move);
 }
 
 static inline void undo_move(board *board, move move, bool is_search)
@@ -324,6 +327,7 @@ static inline void undo_move(board *board, move move, bool is_search)
     assert(!is_movement_empty(move));
     assert(board->move_history.count > 0);
     assert(board->game_state_history.count > 0);
+    assert((board->ply_count % 2) == board->color_to_move);
 
     // Change current player & color variables initializations
     opponent_color = board->color_to_move;
@@ -408,6 +412,8 @@ static inline void undo_move(board *board, move move, bool is_search)
     board->current_game_state = peek_from_game_state_stack(&(board->game_state_history));
     board->is_check_state_cached = false;
     board->ply_count--;
+    assert(board->color_to_move != opponent_color);
+    assert((board->ply_count % 2) == board->color_to_move);
 }
 
 // Do not call it when in check
@@ -417,6 +423,7 @@ static inline void do_null_move(board *board)
     game_state current_game_state, new_game_state;
     assert(board != NULL);
     assert(board->game_state_history.count < board->game_state_history.capacity);
+    assert((board->ply_count % 2) == board->color_to_move);
     current_game_state = board->current_game_state;
     board->color_to_move = get_opponent(board->color_to_move);
     new_key = current_game_state.zobrist_key;
@@ -429,12 +436,14 @@ static inline void do_null_move(board *board)
     board->is_check_state_cached = true;
     board->check_state = false;
     board->ply_count++;
+    assert((board->ply_count % 2) == board->color_to_move);
 }
 
 static inline void undo_null_move(board *board)
 {
     assert(board != NULL);
     assert(board->game_state_history.count > 0);
+    assert((board->ply_count % 2) == board->color_to_move);
     board->color_to_move = get_opponent(board->color_to_move);
     pop_from_game_state_stack(&(board->game_state_history));
     board->current_game_state = peek_from_game_state_stack(&(board->game_state_history));
@@ -442,6 +451,7 @@ static inline void undo_null_move(board *board)
     board->is_check_state_cached = true;
     board->check_state = false;
     board->ply_count--;
+    assert((board->ply_count % 2) == board->color_to_move);
 }
 
 #endif // BOARD_H
