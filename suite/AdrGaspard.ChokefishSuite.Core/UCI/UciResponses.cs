@@ -35,6 +35,6 @@
         public const string FenArgumentResultArgumentStalemate = "stalemate";
         public const string FenArgumentResultArgumentRepetition = "repetition";
         public const string FenArgumentResultArgumentFiftyMoveRule = "fiftymoverule";
-        public const string FenArgumentResultArgumentInsufficientMaterial = "insuffcientmaterial";
+        public const string FenArgumentResultArgumentInsufficientMaterial = "insufficientmaterial";
     }
 }
