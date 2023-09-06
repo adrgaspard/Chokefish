@@ -116,7 +116,8 @@ static inline void move_piece(board *board, color color, piece piece, piece_type
 {
     assert(board != NULL);
     assert(color == COLOR_WHITE || color == COLOR_BLACK);
-    assert(piece != create_empty_piece() && is_piece_valid(piece));
+    assert(is_piece_valid(piece));
+    assert(!is_piece_empty(piece));
     assert(piece_type != PIECE_NONE && is_piece_type_valid(piece_type));
     assert(piece_type == get_type(piece));
     assert(is_position_valid(start_pos));
@@ -160,6 +161,7 @@ static inline void do_move(board *board, move move, bool is_search)
     game_state new_game_state;
     assert(board != NULL);
     assert(is_movement_valid(move));
+    assert(!is_movement_empty(move));
     assert(board->move_history.count < board->move_history.capacity);
     assert(board->game_state_history.count < board->game_state_history.capacity);
 
@@ -181,6 +183,7 @@ static inline void do_move(board *board, move move, bool is_search)
     new_key = board->current_game_state.zobrist_key;
     assert(current_color == COLOR_WHITE || COLOR_BLACK);
     assert(is_piece_valid(moved_piece));
+    assert(!is_piece_empty(moved_piece));
     assert(is_castling_data_valid(old_castling_data));
 
     // Handle normal cases : update bitboards and piece groups
@@ -318,6 +321,7 @@ static inline void undo_move(board *board, move move, bool is_search)
     piece_type moved_piece_type, captured_piece_type, promoted_piece_type;
     assert(board != NULL);
     assert(is_movement_valid(move));
+    assert(!is_movement_empty(move));
     assert(board->move_history.count > 0);
     assert(board->game_state_history.count > 0);
 
@@ -360,6 +364,7 @@ static inline void undo_move(board *board, move move, bool is_search)
         captured_piece_type = get_type(captured_piece);
         assert(captured_piece_type != PIECE_NONE);
         assert(is_piece_valid(captured_piece));
+        assert(!is_piece_empty(captured_piece));
         if (is_en_passant(flags))
         {
             capture_pos = (position)(dest_pos + (current_color == COLOR_WHITE ? _WHITE_EN_PASSANT_CAPTURE_GAP : _BLACK_EN_PASSANT_CAPTURE_GAP));

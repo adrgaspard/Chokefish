@@ -44,20 +44,22 @@ static inline bool is_movement_valid(move move)
 
 static inline bool is_movement_empty(move move)
 {
-    return _GET_START_POS(move) == NO_POSITION || _GET_DEST_POS(move) == NO_POSITION;
+    return _GET_START_POS(move) == 0 && _GET_DEST_POS(move) == 0 && _GET_FLAGS(move) == MOVE_QUIET;
 }
 
 static inline move create_movement(position start_pos, position dest_pos, move_flags flags)
 {
     assert(is_position_valid(start_pos));
+    assert(start_pos != NO_POSITION);
     assert(is_position_valid(dest_pos));
+    assert(dest_pos != NO_POSITION);
     assert(is_movement_flags_valid(flags));
     return (move)((((uint8_t)flags & _FLAGS_MASK) << _FLAGS_BIT_INDEX) | ((start_pos & _POSITION_MASK) << _START_POS_BIT_INDEX) | (dest_pos & _POSITION_MASK));
 }
 
 static inline move create_empty_movement()
 {
-    return create_movement(NO_POSITION, NO_POSITION, MOVE_QUIET);
+    return create_movement(0, 0, MOVE_QUIET);
 }
 
 static inline position get_start_pos(move move)

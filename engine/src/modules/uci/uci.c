@@ -66,7 +66,7 @@ void handle_commands()
             }
             else if (strcmp(current_cmd, GE_CMD_UCINEWGAME) == 0)
             {
-                handle_ucinewgame_command(&s_state, &s_search_token);
+                handle_ucinewgame_command(&s_state, &s_search_token, &s_board);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_POSITION) == 0)

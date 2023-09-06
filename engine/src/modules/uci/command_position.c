@@ -20,6 +20,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     uint64_t moves_opt_len, fen_part_len, fen_opt_static_len, uci_delimiter_static_len, new_moves_index;
     move_generation_result generation_result;
     move current_move;
+    move_data move_data;
     bool is_new_game;
     assert(cmd != NULL);
     assert(edit_cmd != NULL);
@@ -114,7 +115,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     }
     if (is_new_game)
     {
-        handle_ucinewgame_command(state, token);
+        handle_ucinewgame_command(state, token, board);
         reset_board(board, fen);
     }
     if (new_moves_ptr == NULL)
@@ -132,7 +133,8 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
         while (current_move_ptr != NULL)
         {
             generate_moves(board, &(generation_result), s_all_moves);
-            current_move = move_data_to_existing_moves(move_data_from_string(current_move_ptr), generation_result.moves, generation_result.moves_count);
+            move_data = move_data_from_string(current_move_ptr);
+            current_move = move_data_to_existing_moves(move_data, generation_result.moves, generation_result.moves_count);
             if (!is_movement_valid(current_move) || is_movement_empty(current_move))
             {
                 fprintf(stderr, "Error: unknown move '%s' provided in input!", current_move_ptr);

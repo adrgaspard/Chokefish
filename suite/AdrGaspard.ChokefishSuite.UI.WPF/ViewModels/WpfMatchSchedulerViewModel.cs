@@ -24,7 +24,10 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             switch (eventArgs.PropertyName)
             {
                 case nameof(MatchMakerViewModel.Board):
-                    BoardVM.SetBoardCommand.Execute(MatchMakerVM.Board);
+                    if (MatchMakerVM.Board is not null)
+                    {
+                        BoardVM.SetBoardCommand.Execute(MatchMakerVM.Board);
+                    }
                     break;
                 //case nameof(MatchMakerViewModel.Result):
                 //    break;
