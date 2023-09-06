@@ -20,6 +20,7 @@ search_token create_empty_token(pthread_mutex_t *global_mutex_ptr, engine_state 
     assert(engine_state_ptr != NULL);
     assert(engine_options_ptr != NULL);
     assert(debug_ptr != NULL);
+    token.result = create_search_result();
     reset_token(&token);
     token.global_mutex_ptr = global_mutex_ptr;
     token.engine_state_ptr = engine_state_ptr;
