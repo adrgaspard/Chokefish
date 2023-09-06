@@ -19,7 +19,7 @@ typedef enum go_cmd_edition
     GO_MOVETIME
 } go_cmd_edition;
 
-void handle_go_command(char *edit_cmd, engine_state *state, board *board, search_token *search_token, bool debug)
+void handle_go_command(char *edit_cmd, engine_state *state, board *board, con_search_token *search_token, bool debug)
 {
     bool expecting_keyword, ponder;
     time_system time_system;
@@ -216,9 +216,9 @@ void handle_go_command(char *edit_cmd, engine_state *state, board *board, search
         on_starting_work(state, ponder);
         if (debug)
         {
-            enable_debug_printing(&(search_token->result));
+            enable_debug_printing(&(search_token->value.result));
         }
-        reset_token(search_token);
+        reset_token(&(search_token->value));
         if (time_system == TS_INFINITE)
         {
             start_search_infinite(search_token, board, ponder);

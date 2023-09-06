@@ -132,8 +132,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
             {
                 bool isStartpos = initialPosition == UciCommands.PositionArgumentStartpos;
-                string fen = isStartpos ? BoardHelper.StartFEN : initialPosition;
-                if (fen.IsValidFen())
+                if (isStartpos || initialPosition.IsValidFen())
                 {
                     moves ??= Enumerable.Empty<string>();
                     CurrentState = UciChessGuiState.Idling;

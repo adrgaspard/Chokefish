@@ -1,7 +1,9 @@
 #ifndef UCI_TYPES_H
 #define UCI_TYPES_H
 
-#include <pthread.h>
+#include "../core/concurrency.h"
+
+DECLARE_CONCURRENT_TYPE(bool, con_bool)
 
 typedef enum engine_state
 {
@@ -11,6 +13,7 @@ typedef enum engine_state
     SEARCHING = 0x08,
     PONDERING = 0x10
 } engine_state;
+DECLARE_CONCURRENT_TYPE(engine_state, con_engine_state)
 
 typedef struct engine_options
 {
@@ -20,6 +23,7 @@ typedef struct engine_options
     int64_t threads_count_min;
     int64_t threads_count_max;
 } engine_options;
+DECLARE_CONCURRENT_TYPE(engine_options, con_engine_options)
 
 typedef struct search_token
 {
@@ -35,9 +39,10 @@ typedef struct search_token
     pthread_t search_cancellation_thread;
     search_result result;
     board board;
-    engine_state *engine_state_ptr;
-    engine_options *engine_options_ptr;
-    bool *debug_ptr;
+    con_engine_state *engine_state_ptr;
+    con_engine_options *engine_options_ptr;
+    con_bool *debug_ptr;
 } search_token;
+DECLARE_CONCURRENT_TYPE(search_token, con_search_token)
 
 #endif // UCI_TYPES_H

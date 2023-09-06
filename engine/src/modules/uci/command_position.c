@@ -70,6 +70,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
         strncpy(fen, fen_ptr, fen_part_len - fen_opt_static_len);
         fen[fen_part_len - fen_opt_static_len] = '\0';
     }
+    reset_board(board, fen);
     if (moves_ptr != NULL)
     {
         current_move_ptr = strtok(moves_ptr, UCI_DELIMITER);

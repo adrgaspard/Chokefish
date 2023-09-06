@@ -22,7 +22,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             _blackEngine.Initialize();
             _ = _whiteEngine.SetOption(OptionHelper.PonderOptionName, false);
             _ = _blackEngine.SetOption(OptionHelper.PonderOptionName, false);
-            _matchMakerVM = new(_whiteEngine, _blackEngine, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 200);
+            _matchMakerVM = new(_whiteEngine, _blackEngine, "startpos", 200);
             ResetMatchMakerCommand = new RelayCommand(ResetMatchMaker);
             SubsbribeToMatchMakerPropertyChanged(_matchMakerVM);
         }
@@ -56,7 +56,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         protected virtual void ResetMatchMaker()
         {
             MatchMakerVM.StopMatchCommand.Execute(null);
-            MatchMakerVM = new(_whiteEngine, _blackEngine, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 200);
+            MatchMakerVM = new(_whiteEngine, _blackEngine, "startpos", 200);
         }
 
         protected virtual void OnMatchMakerPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)

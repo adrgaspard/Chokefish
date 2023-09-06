@@ -9,11 +9,11 @@
 #include "engine_state.h"
 #include "search_manager.h"
 
-static engine_options s_options;
+static con_engine_options s_options;
 
-static bool s_debug;
+static con_bool s_debug;
 
-static engine_state s_state;
+static con_engine_state s_state;
 
 static char s_command_str[COMMAND_STR_LEN + 1];
 static char s_edit_command_str[COMMAND_STR_LEN + 1];
@@ -22,7 +22,7 @@ static char s_current_moves[COMMAND_STR_LEN + 1];
 
 static board s_board;
 
-static search_token s_search_token;
+static con_search_token s_search_token;
 
 static void reset_internal_data();
 
@@ -30,6 +30,7 @@ void handle_commands()
 {
     char *current_cmd;
     uint64_t start_index;
+    // FILE *buffer = fopen("../inputswhite", "r");
     reset_internal_data();
     while (true)
     {
@@ -46,57 +47,99 @@ void handle_commands()
         {
             if (strcmp(current_cmd, GE_CMD_UCI) == 0)
             {
-                handle_uci_command(&s_state, s_options);
+                wrlock_con_engine_state(&s_state);
+                rdlock_con_engine_options(&s_options);
+                handle_uci_command(&(s_state.value), s_options.value);
+                unlock_con_engine_options(&s_options);
+                unlock_con_engine_state(&s_state);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_DEBUG) == 0)
             {
-                handle_debug_command(current_cmd, &s_debug, s_state, &(s_search_token.result));
+                wrlock_con_bool(&s_debug);
+                rdlock_con_engine_state(&s_state);
+                rdlock_con_search_token(&s_search_token);
+                handle_debug_command(current_cmd, &(s_debug.value), s_state.value, &(s_search_token.value.result));
+                unlock_con_search_token(&s_search_token);
+                unlock_con_engine_state(&s_state);
+                unlock_con_bool(&s_debug);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_ISREADY) == 0)
             {
-                handle_isready_command(&s_state);
+                wrlock_con_engine_state(&s_state);
+                handle_isready_command(&(s_state.value));
+                unlock_con_engine_state(&s_state);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_SETOPTION) == 0)
             {
-                handle_setoption_command(current_cmd, &s_options);
+                wrlock_con_engine_options(&s_options);
+                handle_setoption_command(current_cmd, &(s_options.value));
+                unlock_con_engine_options(&s_options);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_UCINEWGAME) == 0)
             {
-                handle_ucinewgame_command(&s_state, &s_search_token, &s_board);
+                wrlock_con_engine_state(&s_state);
+                wrlock_con_search_token(&s_search_token);
+                handle_ucinewgame_command(&(s_state.value), &(s_search_token.value), &s_board);
+                unlock_con_search_token(&s_search_token);
+                unlock_con_engine_state(&s_state);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_POSITION) == 0)
             {
-                handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_board, &s_search_token, s_current_fen, s_current_moves);
+                wrlock_con_engine_state(&s_state);
+                wrlock_con_search_token(&s_search_token);
+                handle_position_command(s_command_str, current_cmd, start_index, &(s_state.value), &s_board, &(s_search_token.value), s_current_fen, s_current_moves);
+                unlock_con_search_token(&s_search_token);
+                unlock_con_engine_state(&s_state);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_GO) == 0)
             {
-                handle_go_command(current_cmd, &s_state, &s_board, &s_search_token, s_debug);
+                wrlock_con_engine_state(&s_state);
+                wrlock_con_search_token(&s_search_token);
+                rdlock_con_bool(&s_debug);
+                handle_go_command(current_cmd, &(s_state.value), &s_board, &s_search_token, s_debug.value);
+                unlock_con_bool(&s_debug);
+                unlock_con_search_token(&s_search_token);
+                unlock_con_engine_state(&s_state);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_STOP) == 0)
             {
-                handle_stop_command(&s_state, &s_search_token);
+                wrlock_con_engine_state(&s_state);
+                wrlock_con_search_token(&s_search_token);
+                handle_stop_command(&(s_state.value), &(s_search_token.value));
+                unlock_con_search_token(&s_search_token);
+                unlock_con_engine_state(&s_state);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_PONDERHIT) == 0)
             {
-                handle_ponderhit_command(&s_state, &s_search_token);
+                wrlock_con_engine_state(&s_state);
+                wrlock_con_search_token(&s_search_token);
+                handle_ponderhit_command(&(s_state.value), &s_search_token);
+                unlock_con_search_token(&s_search_token);
+                unlock_con_engine_state(&s_state);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_QUIT) == 0)
             {
-                handle_quit_command(s_state, &s_search_token);
+                wrlock_con_search_token(&s_search_token);
+                rdlock_con_engine_state(&s_state);
+                handle_quit_command(s_state.value, &(s_search_token.value));
+                unlock_con_engine_state(&s_state);
+                unlock_con_search_token(&s_search_token);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_DISPLAY) == 0)
             {
-                handle_display_command(current_cmd, s_state, &s_board);
+                rdlock_con_engine_state(&s_state);
+                handle_display_command(current_cmd, s_state.value, &s_board);
+                unlock_con_engine_state(&s_state);
                 break;
             }
             else
@@ -106,14 +149,15 @@ void handle_commands()
             }
         }
     }
+    // fclose(buffer);
 }
 
 static void reset_internal_data()
 {
     uint64_t i;
-    s_options = get_default_options();
-    s_debug = false;
-    s_state = get_default_state();
+    s_options = create_con_engine_options(get_default_options());
+    s_debug = create_con_bool(false);
+    s_state = create_con_engine_state(get_default_state());
     for (i = 0; i <= COMMAND_STR_LEN; i++)
     {
         s_command_str[i] = '\0';
@@ -125,5 +169,5 @@ static void reset_internal_data()
         s_current_fen[i] = '\0';
     }
     reset_board(&s_board, START_FEN_STR);
-    s_search_token = create_empty_token(&s_state, &s_options, &s_debug);
+    s_search_token = create_con_search_token(create_empty_token(&s_state, &s_options, &s_debug));
 }
