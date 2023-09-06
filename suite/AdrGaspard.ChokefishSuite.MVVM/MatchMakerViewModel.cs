@@ -105,7 +105,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                     List<string> moves = new();
                     IChessEngine currentEngine = GetCurrentEngine(false);
                     IChessEngine opponentEngine = GetCurrentEngine(true);
-                    while (Result == ChessGameResult.Playing && !token.IsCancellationRequested)
+                    while (!token.IsCancellationRequested)
                     {
                         _searchCompletionSource = new();
                         _ = currentEngine.StartSearch(_timeSystem);
@@ -113,11 +113,17 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         ChessMove bestMove = currentEngine.SearchResult?.BestMove ?? throw new NullReferenceException($"An engine search didn't returned a move!");
                         moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
                         _ = opponentEngine.SetPosition(_fen, moves);
+                        ChessGameResult result = opponentEngine.Board?.Result ?? ChessGameResult.None;
+                        if (result != ChessGameResult.Playing)
+                        {
+                            Result = result;
+                            break;
+                        }
                         _searchingColor = _searchingColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
                         currentEngine = GetCurrentEngine(false);
                         opponentEngine = GetCurrentEngine(true);
+                        
                     }
-                    opponentEngine.SetPosition(_fen, moves);
                     lock (_lock)
                     {
                         if (!token.IsCancellationRequested)
