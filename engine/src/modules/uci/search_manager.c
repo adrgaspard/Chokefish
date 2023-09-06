@@ -91,10 +91,14 @@ static void start_search(con_search_token *token_ptr, board *board_to_be_copied,
     token_ptr->value.search_time = initial_search_time;
     copy_board(board_to_be_copied, &(token_ptr->value.board));
     token_ptr->value.ponder_start_time = ponder ? get_current_uptime() : 0;
-    pthread_create(&(token_ptr->value.search_thread), NULL, search_threaded, token_ptr);
+    pthread_attr_init(&(token_ptr->value.search_thread_attribute));
+    pthread_attr_setdetachstate(&(token_ptr->value.search_thread_attribute), PTHREAD_CREATE_DETACHED);
+    pthread_create(&(token_ptr->value.search_thread), &(token_ptr->value.search_thread_attribute), search_threaded, token_ptr);
     if (!ponder && initial_search_time != 0)
     {
-        pthread_create(&(token_ptr->value.search_cancellation_thread), NULL, search_cancellation_threaded, token_ptr);
+        pthread_attr_init(&(token_ptr->value.search_cancellation_thread_attribute));
+        pthread_attr_setdetachstate(&(token_ptr->value.search_cancellation_thread_attribute), PTHREAD_CREATE_DETACHED);
+        pthread_create(&(token_ptr->value.search_cancellation_thread), &(token_ptr->value.search_cancellation_thread_attribute), search_cancellation_threaded, token_ptr);
     }
 }
 
@@ -109,7 +113,9 @@ static void stop_pondering(con_search_token *token_ptr, uint64_t new_search_time
     if (new_search_time != 0)
     {
         token_ptr->value.search_time = new_search_time;
-        pthread_create(&(token_ptr->value.search_cancellation_thread), NULL, search_cancellation_threaded, token_ptr);
+        pthread_attr_init(&(token_ptr->value.search_cancellation_thread_attribute));
+        pthread_attr_setdetachstate(&(token_ptr->value.search_cancellation_thread_attribute), PTHREAD_CREATE_DETACHED);
+        pthread_create(&(token_ptr->value.search_cancellation_thread), &(token_ptr->value.search_cancellation_thread_attribute), search_cancellation_threaded, token_ptr);
     }
 }
 

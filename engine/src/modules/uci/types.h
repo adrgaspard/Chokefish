@@ -36,7 +36,9 @@ typedef struct search_token
     uint64_t search_time;
     uint64_t ponder_start_time;
     pthread_t search_thread;
+    pthread_attr_t search_thread_attribute;
     pthread_t search_cancellation_thread;
+    pthread_attr_t search_cancellation_thread_attribute;
     search_result result;
     board board;
     con_engine_state *engine_state_ptr;
