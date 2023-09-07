@@ -26,4 +26,13 @@
         <Setter Property="FontFamily" Value="Malgun Gothic" />
         <Setter Property="Padding" Value="10,1,10,1" />
     </Style>
+    
+    <Color x:Key="winColor">#32DB4F</Color>
+    <Color x:Key="drawColor">#C3C3C3</Color>
+    <Color x:Key="lossColor">#F72F2F</Color>
+
+    <SolidColorBrush x:Key="winColorBrush" Color="{StaticResource ResourceKey=winColor}" />
+    <SolidColorBrush x:Key="drawColorBrush" Color="{StaticResource ResourceKey=drawColor}" />
+    <SolidColorBrush x:Key="lossColorBrush" Color="{StaticResource ResourceKey=lossColor}" />
+
 </ResourceDictionary>

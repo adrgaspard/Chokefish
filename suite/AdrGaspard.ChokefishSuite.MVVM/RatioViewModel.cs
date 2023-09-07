@@ -71,10 +71,9 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         private void Reset()
         {
-            _victoryCount = 0;
-            _drawCount = 0;
-            _defeatCount = 0;
-            TotalCount = 0;
+            VictoryCount = 0;
+            DrawCount = 0;
+            DefeatCount = 0;
             OnRatioChanged();
         }
 

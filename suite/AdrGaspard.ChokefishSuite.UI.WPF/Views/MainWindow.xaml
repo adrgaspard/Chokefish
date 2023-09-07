@@ -32,7 +32,7 @@
                     Content="Start" Style="{StaticResource ResourceKey=buttonStyle}" Margin="0,0,5,0" />
             <Button DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" Command="{Binding Path=StopMatchScheduleCommand}"
                     Content="Stop" Style="{StaticResource ResourceKey=buttonStyle}" Margin="5,0,5,0" />
-            <match:RatioBarUC DataContext="{Binding Path=MatchSchedulerVM.RatioVM, Source={StaticResource ResourceKey=Locator}}" Margin="5,0,0,0" />
+            <match:RatioBarWithInfosUC DataContext="{Binding Path=MatchSchedulerVM.RatioVM, Source={StaticResource ResourceKey=Locator}}" Margin="5,0,0,0" />
         </DockPanel>
         <board:GameUC Grid.Row="1" DataContext="{Binding Path=MatchSchedulerVM.BoardVM, Source={StaticResource ResourceKey=Locator}}" />
     </Grid>

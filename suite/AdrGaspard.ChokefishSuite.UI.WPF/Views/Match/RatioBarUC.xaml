@@ -12,7 +12,7 @@
     <Grid>
         <Rectangle Fill="Gray" />
         <StackPanel Orientation="Horizontal">
-            <Rectangle Fill="#32DB4F">
+            <Rectangle Fill="{StaticResource ResourceKey=winColorBrush}">
                 <Rectangle.Width>
                     <MultiBinding Converter="{StaticResource ResourceKey=ratioToWidthConverter}">
                         <Binding Path="VictoryRatio"/>
@@ -20,7 +20,7 @@
                     </MultiBinding>
                 </Rectangle.Width>
             </Rectangle>
-            <Rectangle Fill="#D3D3D3">
+            <Rectangle Fill="{StaticResource ResourceKey=drawColorBrush}">
                 <Rectangle.Width>
                     <MultiBinding Converter="{StaticResource ResourceKey=ratioToWidthConverter}">
                         <Binding Path="DrawRatio"/>
@@ -28,7 +28,7 @@
                     </MultiBinding>
                 </Rectangle.Width>
             </Rectangle>
-            <Rectangle Fill="#F72F2F">
+            <Rectangle Fill="{StaticResource ResourceKey=lossColorBrush}">
                 <Rectangle.Width>
                     <MultiBinding Converter="{StaticResource ResourceKey=ratioToWidthConverter}">
                         <Binding Path="DefeatRatio"/>
