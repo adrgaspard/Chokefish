@@ -1,4 +1,5 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Contracts;
+using AdrGaspard.ChokefishSuite.Core.GameData;
 using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.UCI;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,24 +11,33 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 {
     public class MatchSchedulerViewModel : ObservableObject
     {
-        private readonly IChessEngine _whiteEngine;
-        private readonly IChessEngine _blackEngine;
+        private readonly object _lock;
+        private readonly IChessEngine _firstEngine;
+        private readonly IChessEngine _secondEngine;
+        private RatioViewModel _ratioVM;
         private MatchMakerViewModel _matchMakerVM;
+        private bool _running;
+        private CancellationTokenSource _cancellationTokenSource;
+        private TaskCompletionSource<bool> _matchCompletionSource;
 
         public MatchSchedulerViewModel()
         {
-            _whiteEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/White/Chokefish", "\n");
-            _blackEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/Black/Chokefish", "\n");
-            _whiteEngine.Initialize();
-            _blackEngine.Initialize();
-            _ = _whiteEngine.SetOption(OptionHelper.PonderOptionName, false);
-            _ = _blackEngine.SetOption(OptionHelper.PonderOptionName, false);
-            _matchMakerVM = new(_whiteEngine, _blackEngine, UciCommands.PositionArgumentStartpos, 200);
-            ResetMatchMakerCommand = new RelayCommand(ResetMatchMaker);
+            _lock = new();
+            _firstEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/White/Chokefish", "\n");
+            _secondEngine = new UciChessEngine("wsl", @"/mnt/c/Users/Gaspard/Desktop/Black/Chokefish", "\n");
+            _firstEngine.Initialize();
+            _secondEngine.Initialize();
+            _ = _firstEngine.SetOption(OptionHelper.PonderOptionName, false);
+            _ = _secondEngine.SetOption(OptionHelper.PonderOptionName, false);
+            _ratioVM = new();
+            _matchMakerVM = new(_firstEngine, _secondEngine, UciCommands.PositionArgumentStartpos, 200);
+            _running = false;
+            _cancellationTokenSource = new();
+            _matchCompletionSource = new();
             SubsbribeToMatchMakerPropertyChanged(_matchMakerVM);
+            StartMatchScheduleCommand = new RelayCommand(StartMatchSchedule);
+            StopMatchScheduleCommand = new RelayCommand(StopMatchSchedule);
         }
-
-        public ICommand ResetMatchMakerCommand { get; private init; }
 
         public MatchMakerViewModel MatchMakerVM
         {
@@ -43,6 +53,109 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             }
         }
 
+        public RatioViewModel RatioVM
+        {
+            get => _ratioVM;
+            private set => SetProperty(ref _ratioVM, value);
+        }
+
+        public ICommand StartMatchScheduleCommand { get; private init; }
+
+        public ICommand StopMatchScheduleCommand { get; private init; }
+
+        private void StartMatchSchedule()
+        {
+            bool startMatch = false;
+            CancellationToken token = CancellationToken.None;
+            lock (_lock)
+            {
+                if (!_running)
+                {
+                    _running = true;
+                    if (!_cancellationTokenSource.IsCancellationRequested)
+                    {
+                        _cancellationTokenSource.Cancel();
+                    }
+                    _cancellationTokenSource = new();
+                    token = _cancellationTokenSource.Token;
+                    startMatch = true;
+                    RatioVM.ResetCommand.Execute(null);
+                }
+            }
+            if (startMatch)
+            {
+                _ = Task.Run(() =>
+                {
+                    int i = 0;
+                    while (!token.IsCancellationRequested)
+                    {
+                        ResetMatchMaker();
+                        MatchMakerVM.MatchCompleted += OnMatchCompletedOrCancelled;
+                        MatchMakerVM.MatchCanceled += OnMatchCompletedOrCancelled;
+                        _matchCompletionSource = new();
+                        MatchMakerVM.StartMatchCommand.Execute(null);
+                        _matchCompletionSource.Task.Wait();
+                        UpdateRatio(MatchMakerVM.Result);
+                        MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
+                        MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
+                        if (i++ > 1000)
+                        {
+                            break;
+                        }
+                    }
+                    lock (_lock)
+                    {
+                        if (!token.IsCancellationRequested)
+                        {
+                            _running = false;
+                        }
+                    }
+                });
+            }
+        }
+
+        private void StopMatchSchedule()
+        {
+            lock (_lock)
+            {
+                if (_running)
+                {
+                    _running = false;
+                    MatchMakerVM.StopMatchCommand.Execute(null);
+                    _cancellationTokenSource.Cancel();
+                }
+            }
+        }
+
+        protected virtual void ResetMatchMaker()
+        {
+            MatchMakerVM.StopMatchCommand.Execute(null);
+            MatchMakerVM = new(_firstEngine, _secondEngine, UciCommands.PositionArgumentStartpos, 200);
+        }
+
+        private void UpdateRatio(ChessGameResult result)
+        {
+            switch (result)
+            {
+                case ChessGameResult.WhiteMated:
+                    RatioVM.DefeatCount++;
+                    break;
+                case ChessGameResult.BlackMated:
+                    RatioVM.VictoryCount++;
+                    break;
+                case ChessGameResult.Stalemate:
+                case ChessGameResult.Repetition:
+                case ChessGameResult.FiftyMoveRule:
+                case ChessGameResult.InsufficientMaterial:
+                    RatioVM.DrawCount++;
+                    break;
+                case ChessGameResult.Playing:
+                case ChessGameResult.None:
+                default:
+                    break;
+            }
+        }
+
         private void SubsbribeToMatchMakerPropertyChanged(MatchMakerViewModel matchMaker)
         {
             matchMaker.PropertyChanged += OnMatchMakerPropertyChanged;
@@ -53,10 +166,9 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             matchMaker.PropertyChanged -= OnMatchMakerPropertyChanged;
         }
 
-        protected virtual void ResetMatchMaker()
+        private void OnMatchCompletedOrCancelled(object? sender, EventArgs eventArgs)
         {
-            MatchMakerVM.StopMatchCommand.Execute(null);
-            MatchMakerVM = new(_whiteEngine, _blackEngine, UciCommands.PositionArgumentStartpos, 200);
+            _matchCompletionSource.SetResult(true);
         }
 
         protected virtual void OnMatchMakerPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)

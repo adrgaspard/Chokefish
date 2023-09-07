@@ -70,6 +70,10 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         public ICommand StopMatchCommand { get; private init; }
 
+        public event EventHandler? MatchCompleted;
+
+        public event EventHandler? MatchCanceled;
+
         private void StartMatch()
         {
             bool startMatch = false;
@@ -122,13 +126,15 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         _searchingColor = _searchingColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
                         currentEngine = GetCurrentEngine(false);
                         opponentEngine = GetCurrentEngine(true);
-                        
+
                     }
                     lock (_lock)
                     {
                         if (!token.IsCancellationRequested)
                         {
                             UnsubscribeFromAllEngineEvents();
+                            _running = false;
+                            MatchCompleted?.Invoke(this, EventArgs.Empty);
                         }
                     }
                 });
@@ -139,9 +145,14 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         {
             lock (_lock)
             {
-                UnsubscribeFromAllEngineEvents();
-                _cancellationTokenSource.Cancel();
-                Result = ChessGameResult.None;
+                if (_running)
+                {
+                    _running = false;
+                    UnsubscribeFromAllEngineEvents();
+                    _cancellationTokenSource.Cancel();
+                    Result = ChessGameResult.None;
+                    MatchCanceled?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
 

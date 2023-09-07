@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.WPF.Views.Match.RatioBarUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
+             xmlns:converter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Match"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <converter:RatioToWidthConverter x:Key="ratioToWidthConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Rectangle Fill="Gray" />
+        <StackPanel Orientation="Horizontal">
+            <Rectangle Fill="#32DB4F">
+                <Rectangle.Width>
+                    <MultiBinding Converter="{StaticResource ResourceKey=ratioToWidthConverter}">
+                        <Binding Path="VictoryRatio"/>
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=Grid}}" Path="ActualWidth" />
+                    </MultiBinding>
+                </Rectangle.Width>
+            </Rectangle>
+            <Rectangle Fill="#D3D3D3">
+                <Rectangle.Width>
+                    <MultiBinding Converter="{StaticResource ResourceKey=ratioToWidthConverter}">
+                        <Binding Path="DrawRatio"/>
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=Grid}}" Path="ActualWidth" />
+                    </MultiBinding>
+                </Rectangle.Width>
+            </Rectangle>
+            <Rectangle Fill="#F72F2F">
+                <Rectangle.Width>
+                    <MultiBinding Converter="{StaticResource ResourceKey=ratioToWidthConverter}">
+                        <Binding Path="DefeatRatio"/>
+                        <Binding RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=Grid}}" Path="ActualWidth" />
+                    </MultiBinding>
+                </Rectangle.Width>
+            </Rectangle>
+        </StackPanel>
+    </Grid>
+</UserControl>

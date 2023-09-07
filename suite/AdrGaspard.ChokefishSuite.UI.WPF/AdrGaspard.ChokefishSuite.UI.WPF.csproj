@@ -75,8 +75,4 @@
     <ProjectReference Include="..\AdrGaspard.ChokefishSuite.MVVM\AdrGaspard.ChokefishSuite.MVVM.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Views\Match\" />
-  </ItemGroup>
-
 </Project>
