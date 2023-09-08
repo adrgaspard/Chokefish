@@ -50,7 +50,7 @@
             <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Second engine" />
             <local:EngineSelectionUC DockPanel.Dock="Left" DataContext="{Binding Path=SecondEngineSelectorVM}"  Margin="0,0,0,10" />
             <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Think time (ms)" />
-            <TextBox Style="{StaticResource ResourceKey=textboxStyle}" Text="{Binding Path=ThinkTimeInMs, Mode=TwoWay}" HorizontalAlignment="Left" Width="200"  />
+            <TextBox Style="{StaticResource ResourceKey=textboxStyle}" Text="{Binding Path=SchedulingRulesVM.ThinkTimeInMs, Mode=TwoWay}" HorizontalAlignment="Left" Width="200"  />
         </StackPanel>
     </StackPanel>
 </UserControl>

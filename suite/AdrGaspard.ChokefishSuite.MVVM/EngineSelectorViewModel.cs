@@ -22,7 +22,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             {
                 if (value == "" || File.Exists(value))
                 {
-                    _ = SetProperty(ref _enginePath, value);
+                    SetProperty(ref _enginePath, value);
                     EngineName = Path.GetFileName(value);
                     OnPropertyChanged(nameof(IsEnginePathValid));
                 }

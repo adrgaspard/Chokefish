@@ -16,13 +16,9 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         private bool _initializing;
         private bool _running;
         private bool _errorEncountered;
-        private ulong _thinkTimeInMs;
         private string? _whiteEngineName;
         private string? _blackEngineName;
-        private RatioViewModel _ratioVM;
         private MatchMakerViewModel? _matchMakerVM;
-        private EngineSelectorViewModel _firstEngineSelectorVM;
-        private EngineSelectorViewModel _secondEngineSelectorVM;
         private CancellationTokenSource _cancellationTokenSource;
         private TaskCompletionSource<bool> _matchCompletionSource;
 
@@ -32,13 +28,13 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             _initializing = false;
             _running = false;
             _errorEncountered = false;
-            _thinkTimeInMs = 200;
-            _ratioVM = new();
             _matchMakerVM = null;
-            _firstEngineSelectorVM = new();
-            _secondEngineSelectorVM = new();
             _cancellationTokenSource = new();
             _matchCompletionSource = new();
+            SchedulingRulesVM = new();
+            RatioVM = new();
+            FirstEngineSelectorVM = new();
+            SecondEngineSelectorVM = new();
             StartMatchScheduleCommand = new RelayCommand(StartMatchSchedule);
             StopMatchScheduleCommand = new RelayCommand(StopMatchSchedule);
             ResetCommand = new RelayCommand(Reset);
@@ -55,7 +51,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                     {
                         UnsubsbribeFromMatchMakerPropertyChanged(_matchMakerVM);
                     }
-                    _ = SetProperty(ref _matchMakerVM, value);
+                    SetProperty(ref _matchMakerVM, value);
                     if (_matchMakerVM is not null)
                     {
                         SubsbribeToMatchMakerPropertyChanged(_matchMakerVM);
@@ -64,23 +60,13 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             }
         }
 
-        public RatioViewModel RatioVM
-        {
-            get => _ratioVM;
-            private set => SetProperty(ref _ratioVM, value);
-        }
+        public SchedulingRulesViewModel SchedulingRulesVM { get; private init; }
 
-        public EngineSelectorViewModel FirstEngineSelectorVM
-        {
-            get => _firstEngineSelectorVM;
-            private set => SetProperty(ref _firstEngineSelectorVM, value);
-        }
+        public RatioViewModel RatioVM { get; private init; }
 
-        public EngineSelectorViewModel SecondEngineSelectorVM
-        {
-            get => _secondEngineSelectorVM;
-            private set => SetProperty(ref _secondEngineSelectorVM, value);
-        }
+        public EngineSelectorViewModel FirstEngineSelectorVM { get; private init; }
+
+        public EngineSelectorViewModel SecondEngineSelectorVM { get; private init; }
 
         public bool Initializing
         {
@@ -98,18 +84,6 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         {
             get => _errorEncountered;
             private set => SetProperty(ref _errorEncountered, value);
-        }
-
-        public ulong ThinkTimeInMs
-        {
-            get => _thinkTimeInMs;
-            set
-            {
-                if (!Running && value > 0)
-                {
-                    _ = SetProperty(ref _thinkTimeInMs, value);
-                }
-            }
         }
 
         public string? WhiteEngineName
@@ -132,7 +106,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         private void StartMatchSchedule()
         {
-            _ = Task.Run(() =>
+            Task.Run(() =>
             {
                 lock (_lock)
                 {
@@ -153,7 +127,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         CancellationToken token = _cancellationTokenSource.Token;
                         RatioVM.ResetCommand.Execute(null);
                         TaskCompletionSource<bool> _startupCompletionSource = new();
-                        _ = Task.Run(() =>
+                        Task.Run(() =>
                         {
                             int i = 0;
                             try
@@ -168,7 +142,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                                 while (!token.IsCancellationRequested)
                                 {
                                     MatchMakerVM?.StopMatchCommand.Execute(null);
-                                    MatchMakerVM = new(firstEngine, secondEngine, UciCommands.PositionArgumentStartpos, ThinkTimeInMs);
+                                    MatchMakerVM = new(firstEngine, secondEngine, UciCommands.PositionArgumentStartpos, SchedulingRulesVM.ThinkTimeInMs);
                                     MatchMakerVM.MatchCompleted += OnMatchCompletedOrCancelled;
                                     MatchMakerVM.MatchCanceled += OnMatchCompletedOrCancelled;
                                     _matchCompletionSource = new();
@@ -229,13 +203,13 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             }
         }
 
-        private IChessEngine CreateAndInitializeEngine(EngineSelectorViewModel engineSelectorVM)
+        private static IChessEngine CreateAndInitializeEngine(EngineSelectorViewModel engineSelectorVM)
         {
             IChessEngine engine = new UciChessEngine(engineSelectorVM.UseWsl
                 ? new IOTransmitter("wsl", engineSelectorVM.EnginePath.ToWslPath(), "\n")
                 : new IOTransmitter(engineSelectorVM.EnginePath));
             engine.Initialize();
-            _ = engine.SetOption(OptionHelper.PonderOptionName, false);
+            engine.SetOption(OptionHelper.PonderOptionName, false);
             return engine;
         }
 

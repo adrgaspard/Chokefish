@@ -2,13 +2,6 @@
 {
     public static class Statistics
     {
-        public enum Hypothesis
-        {
-            H0,
-            H1,
-            Inconclusive
-        }
-
         private static double GetLikelihood(this double rating)
         {
             return 1 / (1 + Math.Pow(10, -rating / 400));
@@ -35,12 +28,12 @@
             return (likelihood1 - likelihood0) * ((2 * averagePerformance) - likelihood0 - likelihood1) / (scaledVariance * 2);
         }
 
-        public static Hypothesis SequentialProbabilityRatioTest(uint wins, uint draws, uint losses, double elo0, double elo1, double falsePositiveRisk, double falseNegativeRisk)
+        public static HypothesisResult SequentialProbabilityRatioTest(uint wins, uint draws, uint losses, double elo0, double elo1, double falsePositiveRisk, double falseNegativeRisk)
         {
             double logAlpha = Math.Log(falseNegativeRisk / (1 - falsePositiveRisk));
             double logBeta = Math.Log((1 - falseNegativeRisk) / falsePositiveRisk);
             double likelihoodRatio = ComputeLogLikelihoodRatio(wins, draws, losses, elo0, elo1);
-            return likelihoodRatio > logBeta ? Hypothesis.H1 : likelihoodRatio < logAlpha ? Hypothesis.H0 : Hypothesis.Inconclusive;
+            return likelihoodRatio > logBeta ? HypothesisResult.H1 : likelihoodRatio < logAlpha ? HypothesisResult.H0 : HypothesisResult.Inconclusive;
         }
     }
 }

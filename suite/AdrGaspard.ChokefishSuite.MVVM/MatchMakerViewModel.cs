@@ -94,16 +94,16 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             }
             if (startMatch)
             {
-                _ = Task.Run(() =>
+                Task.Run(() =>
                 {
                     lock (_lock)
                     {
                         SubscribeToAllEngineEvents();
                     }
-                    _ = _whiteEngine.ResetGame();
-                    _ = _blackEngine.ResetGame();
-                    _ = _whiteEngine.SetPosition(_fen, Enumerable.Empty<string>());
-                    _ = _blackEngine.SetPosition(_fen, Enumerable.Empty<string>());
+                    _whiteEngine.ResetGame();
+                    _blackEngine.ResetGame();
+                    _whiteEngine.SetPosition(_fen, Enumerable.Empty<string>());
+                    _blackEngine.SetPosition(_fen, Enumerable.Empty<string>());
                     _searchingColor = _whiteEngine.Board?.ColorToMove ?? ChessColor.None;
                     Result = _whiteEngine.Board?.Result ?? ChessGameResult.None;
                     List<string> moves = new();
@@ -112,11 +112,11 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                     while (!token.IsCancellationRequested)
                     {
                         _searchCompletionSource = new();
-                        _ = currentEngine.StartSearch(_timeSystem);
+                        currentEngine.StartSearch(_timeSystem);
                         _searchCompletionSource.Task.Wait();
                         ChessMove bestMove = currentEngine.SearchResult?.BestMove ?? throw new NullReferenceException($"An engine search didn't returned a move!");
                         moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
-                        _ = opponentEngine.SetPosition(_fen, moves);
+                        opponentEngine.SetPosition(_fen, moves);
                         ChessGameResult result = opponentEngine.Board?.Result ?? ChessGameResult.None;
                         if (result != ChessGameResult.Playing)
                         {

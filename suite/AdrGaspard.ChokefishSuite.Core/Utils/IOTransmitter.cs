@@ -47,7 +47,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
                 if (!_started)
                 {
                     _started = true;
-                    _ = _process.Start();
+                    _process.Start();
                     _process.StandardInput.NewLine = _standardInputNewLine;
                     _process.BeginOutputReadLine();
                     _process.BeginErrorReadLine();

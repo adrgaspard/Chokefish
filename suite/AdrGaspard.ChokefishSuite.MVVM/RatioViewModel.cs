@@ -27,7 +27,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 if (_victoryCount != value)
                 {
                     TotalCount += value - _victoryCount;
-                    _ = SetProperty(ref _victoryCount, value);
+                    SetProperty(ref _victoryCount, value);
                     OnRatioChanged();
                 }
             }
@@ -41,7 +41,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 if (_drawCount != value)
                 {
                     TotalCount += value - _drawCount;
-                    _ = SetProperty(ref _drawCount, value);
+                    SetProperty(ref _drawCount, value);
                     OnRatioChanged();
                 }
             }
@@ -55,7 +55,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 if (_defeatCount != value)
                 {
                     TotalCount += value - _defeatCount;
-                    _ = SetProperty(ref _defeatCount, value);
+                    SetProperty(ref _defeatCount, value);
                     OnRatioChanged();
                 }
             }

@@ -58,7 +58,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             {
                 if (_perspective != value && value != ChessColor.None)
                 {
-                    _ = SetProperty(ref _perspective, value);
+                    SetProperty(ref _perspective, value);
                     RefreshAnnotations();
                     RefreshRanksPerspective();
                 }

@@ -9,7 +9,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF
         {
             App application = new();
             application.InitializeComponent();
-            _ = application.Run();
+            application.Run();
         }
     }
 }
