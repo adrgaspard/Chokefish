@@ -38,10 +38,10 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
         public event EventHandler? SearchStopped;
         public event EventHandler? Disposed;
 
-        public UciChessEngine(string executablePath, string arguments = "", string? standardInputNewLine = null)
+        public UciChessEngine(IOTransmitter transmitter)
         {
             _lock = new object();
-            _transmitter = new(executablePath, arguments, standardInputNewLine);
+            _transmitter = transmitter;
             _currentState = UciChessGuiState.None;
             _previousState = UciChessGuiState.None;
             _options = new List<UciOption>();

@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
-using System.Windows;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace AdrGaspard.ChokefishSuite.UI.WPF.Converters.Common
 {
-    public class BoolToVisibilityConverter : IValueConverter
+    public class StringToSanitizedStringConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return value is true ? Visibility.Visible : Visibility.Collapsed;
+            return value is string str
+                ? (string.IsNullOrWhiteSpace(str) ? "---" : str.Trim())
+                : (value is null ? "---" : "CONVERTION ERROR");
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

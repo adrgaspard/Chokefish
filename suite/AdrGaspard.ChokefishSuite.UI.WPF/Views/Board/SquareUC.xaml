@@ -9,7 +9,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <commonconverter:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToVisibilityConverter" />
         <converter:BoolsToBrushConverter x:Key="boolsToBrushConverter" />
         <converter:PieceToImageSourceConverter x:Key="pieceToImageSourceConverter" />
         <converter:FileIndexToStringConverter x:Key="fileToStringConverter" />

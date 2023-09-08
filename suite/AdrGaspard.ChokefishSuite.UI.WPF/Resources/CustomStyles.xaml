@@ -12,6 +12,13 @@
         <Setter Property="FontFamily" Value="Malgun Gothic" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
+    <Style TargetType="TextBox" x:Key="textboxStyle">
+        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="Background" Value="LightGray" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="FontFamily" Value="Malgun Gothic" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
     <Style TargetType="Label" x:Key="labelStyle">
         <Setter Property="Foreground" Value="#F4F4F4" />
         <Setter Property="FontWeight" Value="Normal" />
@@ -26,7 +33,16 @@
         <Setter Property="FontFamily" Value="Malgun Gothic" />
         <Setter Property="Padding" Value="10,1,10,1" />
     </Style>
-    
+    <Style TargetType="CheckBox" x:Key="checkboxStyle">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="LayoutTransform">
+            <Setter.Value>
+                <ScaleTransform ScaleX="1.7" ScaleY="1.7" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Color x:Key="winColor">#32DB4F</Color>
     <Color x:Key="drawColor">#C3C3C3</Color>
     <Color x:Key="lossColor">#F72F2F</Color>

@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.WPF.Views.Match.EngineSelectionUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
+             xmlns:mahapps="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d">
+    <DockPanel VerticalAlignment="Top">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0">
+            <Button Style="{StaticResource ResourceKey=buttonStyle}" Content="Select executable" Click="OnExecutableSelectionRequested" />
+            <CheckBox Style="{StaticResource ResourceKey=checkboxStyle}" IsChecked="{Binding Path=UseWsl, Mode=TwoWay}" Margin="10,0,5,0" />
+            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Use wsl" />
+        </StackPanel>
+        <TextBox IsReadOnly="True" Style="{StaticResource ResourceKey=textboxStyle}" Text="{Binding Path=EnginePath, Mode=OneWay}" FontSize="15" VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
+    </DockPanel>
+</UserControl>

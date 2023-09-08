@@ -12,10 +12,14 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 
         public BoardViewModel BoardVM { get; private init; }
 
-        protected override void ResetMatchMaker()
+        public override MatchMakerViewModel? MatchMakerVM
         {
-            base.ResetMatchMaker();
-            BoardVM.ResetBoardCommand.Execute(null);
+            get => base.MatchMakerVM;
+            protected set
+            {
+                base.MatchMakerVM = value;
+                BoardVM.ResetBoardCommand.Execute(null);
+            }
         }
 
         protected override void OnMatchMakerPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
@@ -24,15 +28,11 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             switch (eventArgs.PropertyName)
             {
                 case nameof(MatchMakerViewModel.Board):
-                    if (MatchMakerVM.Board is not null)
+                    if (MatchMakerVM!.Board is not null)
                     {
                         BoardVM.SetBoardCommand.Execute(MatchMakerVM.Board);
                     }
                     break;
-                //case nameof(MatchMakerViewModel.Result):
-                //    break;
-                //case nameof(MatchMakerViewModel.BlackSearchDebugInfos):
-                //    break;
                 default: break;
             }
         }
