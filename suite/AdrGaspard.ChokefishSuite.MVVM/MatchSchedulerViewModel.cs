@@ -158,8 +158,8 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                             int i = 0;
                             try
                             {
-                                IChessEngine firstEngine = CreateAndInitializeEngine(FirstEngineSelectorVM);
-                                IChessEngine secondEngine = CreateAndInitializeEngine(SecondEngineSelectorVM);
+                                using IChessEngine firstEngine = CreateAndInitializeEngine(FirstEngineSelectorVM);
+                                using IChessEngine secondEngine = CreateAndInitializeEngine(SecondEngineSelectorVM);
                                 WhiteEngineName = FirstEngineSelectorVM.EngineName;
                                 BlackEngineName = SecondEngineSelectorVM.EngineName;
                                 Running = true;
