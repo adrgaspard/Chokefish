@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AdrGaspard.ChokefishSuite.Core.Utils
+﻿namespace AdrGaspard.ChokefishSuite.Core.Utils
 {
     public static class Statistics
     {
@@ -32,13 +26,13 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
             double totalGames = wins + draws + losses;
             double winProbability = wins / totalGames;
             double drawProbability = draws / totalGames;
-            double averagePerformance = winProbability + drawProbability / 2;
-            double squaresAverage = winProbability + drawProbability / 4;
+            double averagePerformance = winProbability + (drawProbability / 2);
+            double squaresAverage = winProbability + (drawProbability / 4);
             double variance = squaresAverage - Math.Pow(averagePerformance, 2);
             double scaledVariance = variance / totalGames;
             double likelihood0 = elo0.GetLikelihood();
             double likelihood1 = elo1.GetLikelihood();
-            return (likelihood1 - likelihood0) * (2 * averagePerformance - likelihood0 - likelihood1) / (scaledVariance * 2);
+            return (likelihood1 - likelihood0) * ((2 * averagePerformance) - likelihood0 - likelihood1) / (scaledVariance * 2);
         }
 
         public static Hypothesis SequentialProbabilityRatioTest(uint wins, uint draws, uint losses, double elo0, double elo1, double falsePositiveRisk, double falseNegativeRisk)
@@ -46,18 +40,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
             double logAlpha = Math.Log(falseNegativeRisk / (1 - falsePositiveRisk));
             double logBeta = Math.Log((1 - falseNegativeRisk) / falsePositiveRisk);
             double likelihoodRatio = ComputeLogLikelihoodRatio(wins, draws, losses, elo0, elo1);
-            if (likelihoodRatio > logBeta)
-            {
-                return Hypothesis.H1;
-            }
-            else if (likelihoodRatio < logAlpha)
-            {
-                return Hypothesis.H0;
-            }
-            else
-            {
-                return Hypothesis.Inconclusive;
-            }
+            return likelihoodRatio > logBeta ? Hypothesis.H1 : likelihoodRatio < logAlpha ? Hypothesis.H0 : Hypothesis.Inconclusive;
         }
     }
 }

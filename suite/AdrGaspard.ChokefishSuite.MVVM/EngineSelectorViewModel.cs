@@ -1,10 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdrGaspard.ChokefishSuite.MVVM
 {
@@ -28,7 +22,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             {
                 if (value == "" || File.Exists(value))
                 {
-                    SetProperty(ref _enginePath, value);
+                    _ = SetProperty(ref _enginePath, value);
                     EngineName = Path.GetFileName(value);
                     OnPropertyChanged(nameof(IsEnginePathValid));
                 }

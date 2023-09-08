@@ -107,7 +107,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             {
                 if (!Running && value > 0)
                 {
-                    SetProperty(ref _thinkTimeInMs, value);
+                    _ = SetProperty(ref _thinkTimeInMs, value);
                 }
             }
         }
@@ -235,7 +235,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 ? new IOTransmitter("wsl", engineSelectorVM.EnginePath.ToWslPath(), "\n")
                 : new IOTransmitter(engineSelectorVM.EnginePath));
             engine.Initialize();
-            engine.SetOption(OptionHelper.PonderOptionName, false);
+            _ = engine.SetOption(OptionHelper.PonderOptionName, false);
             return engine;
         }
 
