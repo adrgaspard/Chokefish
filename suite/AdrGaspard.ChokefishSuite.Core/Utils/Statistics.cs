@@ -9,13 +9,9 @@
 
         private static double ComputeLogLikelihoodRatio(uint winsCount, uint drawsCount, uint lossesCount, double elo0, double elo1)
         {
-            if (winsCount == 0 || drawsCount == 0 || lossesCount == 0)
-            {
-                return 0;
-            }
-            double wins = winsCount;
-            double draws = drawsCount;
-            double losses = lossesCount;
+            double wins = Math.Max(winsCount, 1);
+            double draws = Math.Max(drawsCount, 1);
+            double losses = Math.Max(lossesCount, 1);
             double totalGames = wins + draws + losses;
             double winProbability = wins / totalGames;
             double drawProbability = draws / totalGames;

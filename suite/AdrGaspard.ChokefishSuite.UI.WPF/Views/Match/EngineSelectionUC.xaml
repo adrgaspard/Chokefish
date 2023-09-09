@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
              xmlns:mahapps="http://metro.mahapps.com/winfx/xaml/controls"
              mc:Ignorable="d">
-    <DockPanel VerticalAlignment="Top">
+    <DockPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0">
             <Button Style="{StaticResource ResourceKey=buttonStyle}" Content="Select executable" Click="OnExecutableSelectionRequested" />
             <CheckBox Style="{StaticResource ResourceKey=checkboxStyle}" IsChecked="{Binding Path=UseWsl, Mode=TwoWay}" Margin="10,0,5,0" />

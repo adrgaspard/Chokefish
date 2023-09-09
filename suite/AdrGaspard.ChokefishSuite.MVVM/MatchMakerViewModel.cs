@@ -198,7 +198,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             {
                 throw new InvalidOperationException($"The engine currently searching is not the right one!");
             }
-            _searchCompletionSource.SetResult(true);
+            _searchCompletionSource.TrySetResult(true);
         }
 
         private void OnSearchDebugInfoChanged(object? sender, EventArgs eventArgs)

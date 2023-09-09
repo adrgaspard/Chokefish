@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.WPF.Views.Match.MatchInfosUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
+             xmlns:commonconverter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Common"
+             xmlns:converter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Match"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <commonconverter:BoolToStringConverter x:Key="boolToStringConverter" />
+        <commonconverter:BoolOrIntToSuccessBrushConverter x:Key="boolToSuccessBrushConverter" />
+        <commonconverter:StringToSanitizedStringConverter x:Key="stringToSanitizedStringConverter" />
+        <commonconverter:BoolToVisibleHiddenVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <converter:EngineNameAndHypothesisResultToStringConverter x:Key="engineNameAndResultToStringConverter" />
+        <converter:HypothesisResultToBrushConverter x:Key="resultToBrushConverter" />
+        <converter:PositionToStringConverter x:Key="positionToStringConverter" />
+    </UserControl.Resources>
+
+    <UniformGrid Columns="2">
+        <StackPanel>
+            <Grid>
+                <StackPanel Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Running:" />
+                        <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToStringConverter}}"
+           Margin="5,0,0,0" Foreground="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Error encountered:" />
+                        <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToStringConverter}}"
+           Margin="5,0,0,0" Foreground="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}" />
+                    </StackPanel>
+                </StackPanel>
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Initializing..." 
+           Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}}" />
+            </Grid>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Result:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Margin="5,0,0,0" Foreground="{Binding Path=Result, Mode=OneWay, Converter={StaticResource ResourceKey=resultToBrushConverter}}">
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource ResourceKey=engineNameAndResultToStringConverter}">
+                            <Binding Path="FirstEngineSelectorVM.EngineName" />
+                            <Binding Path="Result" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Game:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=CurrentGameId}" Foreground="#4AD8FF" Margin="5,0,0,0" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="/" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=SchedulingRulesVM.MaximumGamesCount}" Foreground="#4AD8FF" />
+            </StackPanel>
+        </StackPanel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0">
+                <TextBlock DockPanel.Dock="Left" Style="{StaticResource ResourceKey=textblockStyle}" Text="Position:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=CurrentGamePosition, Converter={StaticResource ResourceKey=positionToStringConverter}}" 
+                           Margin="5,0,0,0" TextWrapping="Wrap" Foreground="#F0C851" />
+            </DockPanel>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="White:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=WhiteEngineName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}"
+                           Margin="5,0,0,0" Foreground="#4AD8FF" />
+            </StackPanel>
+            <StackPanel Grid.Row="2" Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Black:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=BlackEngineName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}"
+                           Margin="5,0,0,0" Foreground="#4AD8FF" />
+            </StackPanel>
+        </Grid>
+    </UniformGrid>
+</UserControl>

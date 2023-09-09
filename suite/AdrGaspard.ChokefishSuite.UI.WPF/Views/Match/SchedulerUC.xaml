@@ -4,53 +4,33 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:commonconverter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Common"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <sys:Boolean x:Key="boolTrue">True</sys:Boolean>
-        <commonconverter:BoolToSuccessBrushConverter x:Key="boolToSuccessBrushConverter" />
-        <commonconverter:StringToSanitizedStringConverter x:Key="stringToSanitizedStringConverter" />
-        <commonconverter:BoolToVisibleHiddenVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
     </UserControl.Resources>
     <StackPanel>
-        <StackPanel Orientation="Horizontal">
-            <Button Command="{Binding Path=StartMatchScheduleCommand}" Content="Start" Style="{StaticResource ResourceKey=buttonStyle}" Margin="0,0,5,0" Padding="20,1,20,1" />
-            <Button Command="{Binding Path=StopMatchScheduleCommand}" Content="Stop" Style="{StaticResource ResourceKey=buttonStyle}" Margin="5,0,5,0" Padding="20,1,20,1" />
-            <Button Command="{Binding Path=ResetCommand}" Content="Reset" Style="{StaticResource ResourceKey=buttonStyle}" Margin="5,0,0,0" Padding="20,1,20,1" />
-        </StackPanel>
-        <Grid>
-            <StackPanel Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Running:" />
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Running}"
-                       Margin="5,0,0,0" Foreground="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}}" />
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Error encountered:" />
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=ErrorEncountered}"
-                       Margin="5,0,0,0" Foreground="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}" />
-                </StackPanel>
-            </StackPanel>
-            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Initializing..." 
-                       Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}}" />
-        </Grid>
-
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="White:" />
-            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=WhiteEngineName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}" Margin="5,0,0,0" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Black:" />
-            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=BlackEngineName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}" Margin="5,0,0,0" />
-        </StackPanel>
-        <StackPanel Orientation="Vertical" Width="800">
+        <local:RatioBarFullUC DockPanel.Dock="Top" />
+        <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
+        <local:MatchInfosUC />
+        <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
+        <StackPanel IsEnabled="{Binding Path=DataContext.Running, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=UserControl}}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}">
             <Label Style="{StaticResource ResourceKey=labelStyle}" Content="First engine" />
-            <local:EngineSelectionUC DockPanel.Dock="Left" DataContext="{Binding Path=FirstEngineSelectorVM}" Margin="0,0,0,10" />
+            <local:EngineSelectionUC DockPanel.Dock="Left" VerticalAlignment="Top" DataContext="{Binding Path=FirstEngineSelectorVM}" Margin="0,0,0,10" />
             <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Second engine" />
-            <local:EngineSelectionUC DockPanel.Dock="Left" DataContext="{Binding Path=SecondEngineSelectorVM}"  Margin="0,0,0,10" />
-            <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Think time (ms)" />
-            <TextBox Style="{StaticResource ResourceKey=textboxStyle}" Text="{Binding Path=SchedulingRulesVM.ThinkTimeInMs, Mode=TwoWay}" HorizontalAlignment="Left" Width="200"  />
+            <local:EngineSelectionUC DockPanel.Dock="Left" VerticalAlignment="Top" DataContext="{Binding Path=SecondEngineSelectorVM}" Margin="0,0,0,10" />
         </StackPanel>
+        <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
+        <local:RuleSelectionUC DockPanel.Dock="Left" VerticalAlignment="Top" DataContext="{Binding Path=SchedulingRulesVM}"
+                               IsEnabled="{Binding Path=DataContext.Running, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=UserControl}}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}" />
+        <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
+        <UniformGrid Columns="3">
+            <Button Command="{Binding Path=StartMatchScheduleCommand}" Content="Start" Style="{StaticResource ResourceKey=buttonStyle}" 
+                    IsEnabled="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}" Margin="0,0,6,0" Padding="20,5,20,5" />
+            <Button Command="{Binding Path=StopMatchScheduleCommand}" Content="Stop" Style="{StaticResource ResourceKey=buttonStyle}"
+                    IsEnabled="{Binding Path=Running}" Margin="3,0,3,0" Padding="20,5,20,5" />
+            <Button Command="{Binding Path=ResetCommand}" Content="Reset" Style="{StaticResource ResourceKey=buttonStyle}"
+                    IsEnabled="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}" Margin="6,0,0,0" Padding="20,5,20,5" />
+        </UniformGrid>
     </StackPanel>
 </UserControl>

@@ -22,9 +22,16 @@
             <iconPacks:PackIconFontAwesome Kind="ChessSolid" Width="30" Height="30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}" />
         </DataTemplate>
     </mahapps:MetroWindow.IconTemplate>
-    <DockPanel>
-        <match:SchedulerUC DockPanel.Dock="Left" DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" />
-        <match:RatioBarFullUC DockPanel.Dock="Top" DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" />
-        <board:GameUC DataContext="{Binding Path=MatchSchedulerVM.BoardVM, Source={StaticResource ResourceKey=Locator}}" />
-    </DockPanel>
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="10*" />
+        </Grid.ColumnDefinitions>
+        <match:SchedulerUC Grid.Column="0" DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,-2,10,-2">
+            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+        </StackPanel>
+        <board:GameUC Grid.Column="2" DataContext="{Binding Path=MatchSchedulerVM.BoardVM, Source={StaticResource ResourceKey=Locator}}" />
+    </Grid>
 </mahapps:MetroWindow>

@@ -295,7 +295,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
         {
             CurrentState = UciChessGuiState.WaitingForReadyOk;
             Options = _options.ToImmutableList();
-            _waitUciokTaskSource.SetResult(true);
+            _waitUciokTaskSource.TrySetResult(true);
             _transmitter.SendInputData(UciCommands.Isready);
         }
 
@@ -304,7 +304,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             if (CurrentState == UciChessGuiState.WaitingForReadyOk)
             {
                 CurrentState = UciChessGuiState.Idling;
-                _waitReadyokTaskSource.SetResult(true);
+                _waitReadyokTaskSource.TrySetResult(true);
             }
         }
 
@@ -333,7 +333,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             {
                 Board = board;
                 CurrentState = _previousState;
-                _refreshBoardTaskSource?.SetResult(true);
+                _refreshBoardTaskSource?.TrySetResult(true);
                 BoardChanged?.Invoke(this, EventArgs.Empty);
             }
         }

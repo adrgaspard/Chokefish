@@ -3,6 +3,7 @@ using AdrGaspard.ChokefishSuite.Core.GameData;
 using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.UCI;
 using AdrGaspard.ChokefishSuite.Core.Utils;
+using AdrGaspard.ChokefishSuite.MVVM.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.ComponentModel;
@@ -18,6 +19,9 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         private bool _errorEncountered;
         private string? _whiteEngineName;
         private string? _blackEngineName;
+        private uint _currentGameId;
+        private Position? _currentGamePosition;
+        private HypothesisResult _result;
         private MatchMakerViewModel? _matchMakerVM;
         private CancellationTokenSource _cancellationTokenSource;
         private TaskCompletionSource<bool> _matchCompletionSource;
@@ -28,6 +32,9 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             _initializing = false;
             _running = false;
             _errorEncountered = false;
+            _currentGameId = 0;
+            _currentGamePosition = null;
+            _result = HypothesisResult.None;
             _matchMakerVM = null;
             _cancellationTokenSource = new();
             _matchCompletionSource = new();
@@ -98,6 +105,24 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             private set => SetProperty(ref _blackEngineName, value);
         }
 
+        public uint CurrentGameId
+        {
+            get => _currentGameId;
+            private set => SetProperty(ref _currentGameId, value);
+        }
+
+        public Position? CurrentGamePosition
+        {
+            get => _currentGamePosition;
+            private set => SetProperty(ref _currentGamePosition, value);
+        }
+
+        public HypothesisResult Result
+        {
+            get => _result;
+            private set => SetProperty(ref _result, value);
+        }
+
         public ICommand StartMatchScheduleCommand { get; private init; }
 
         public ICommand StopMatchScheduleCommand { get; private init; }
@@ -113,7 +138,9 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                     if (!Running)
                     {
                         Initializing = true;
-                        if (!FirstEngineSelectorVM.IsEnginePathValid || !SecondEngineSelectorVM.IsEnginePathValid)
+                        Reset();
+                        IReadOnlyList<Position> positions = SchedulingRulesVM.Positions;
+                        if (!FirstEngineSelectorVM.IsEnginePathValid || !SecondEngineSelectorVM.IsEnginePathValid || SchedulingRulesVM.Positions.Count == 0)
                         {
                             Initializing = false;
                             ErrorEncountered = true;
@@ -125,36 +152,44 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         }
                         _cancellationTokenSource = new();
                         CancellationToken token = _cancellationTokenSource.Token;
-                        RatioVM.ResetCommand.Execute(null);
                         TaskCompletionSource<bool> _startupCompletionSource = new();
                         Task.Run(() =>
                         {
-                            int i = 0;
                             try
                             {
+                                bool firstIsWhite = true;
                                 using IChessEngine firstEngine = CreateAndInitializeEngine(FirstEngineSelectorVM);
                                 using IChessEngine secondEngine = CreateAndInitializeEngine(SecondEngineSelectorVM);
-                                WhiteEngineName = FirstEngineSelectorVM.EngineName;
-                                BlackEngineName = SecondEngineSelectorVM.EngineName;
                                 Running = true;
                                 Initializing = false;
-                                _startupCompletionSource.SetResult(true);
+                                _startupCompletionSource.TrySetResult(true);
                                 while (!token.IsCancellationRequested)
                                 {
                                     MatchMakerVM?.StopMatchCommand.Execute(null);
-                                    MatchMakerVM = new(firstEngine, secondEngine, UciCommands.PositionArgumentStartpos, SchedulingRulesVM.ThinkTimeInMs);
+                                    CurrentGamePosition = positions[(SchedulingRulesVM.RandomizeStartPositionsOrder ? Random.Shared.Next() : (int)CurrentGameId / 2) % positions.Count];
+                                    MatchMakerVM = new(
+                                        firstIsWhite ? firstEngine : secondEngine,
+                                        firstIsWhite ? secondEngine : firstEngine,
+                                        CurrentGamePosition.Value,
+                                        SchedulingRulesVM.ThinkTimeInMs);
+                                    CurrentGameId++;
                                     MatchMakerVM.MatchCompleted += OnMatchCompletedOrCancelled;
                                     MatchMakerVM.MatchCanceled += OnMatchCompletedOrCancelled;
                                     _matchCompletionSource = new();
+                                    WhiteEngineName = (firstIsWhite ? FirstEngineSelectorVM : SecondEngineSelectorVM).EngineName;
+                                    BlackEngineName = (firstIsWhite ? SecondEngineSelectorVM : FirstEngineSelectorVM).EngineName;
                                     MatchMakerVM.StartMatchCommand.Execute(null);
                                     _matchCompletionSource.Task.Wait();
                                     UpdateRatio(MatchMakerVM.Result);
                                     MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
                                     MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
-                                    if (i++ > 1000)
+                                    Result = Statistics.SequentialProbabilityRatioTest((uint)RatioVM.VictoryCount, (uint)RatioVM.DrawCount, (uint)RatioVM.DefeatCount, 0,
+                                        SchedulingRulesVM.EloDifference, SchedulingRulesVM.FalsePositiveRisk, SchedulingRulesVM.FalseNegativeRisk);
+                                    if (((Result == HypothesisResult.H0 || Result == HypothesisResult.H1) && CurrentGameId >= SchedulingRulesVM.MinimumGamesCount && !SchedulingRulesVM.KeepGoingWhenConclusive) || CurrentGameId >= SchedulingRulesVM.MaximumGamesCount)
                                     {
                                         break;
                                     }
+                                    firstIsWhite = !firstIsWhite;
                                 }
                             }
                             catch
@@ -183,9 +218,12 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 if (Running)
                 {
                     Running = false;
-                    MatchMakerVM!.StopMatchCommand.Execute(null);
-                    MatchMakerVM!.MatchCanceled -= OnMatchCompletedOrCancelled;
-                    MatchMakerVM!.MatchCompleted -= OnMatchCompletedOrCancelled;
+                    if (MatchMakerVM is not null)
+                    {
+                        MatchMakerVM.StopMatchCommand.Execute(null);
+                        MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
+                        MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
+                    }
                     _cancellationTokenSource.Cancel();
                 }
             }
@@ -200,6 +238,9 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 ErrorEncountered = false;
                 WhiteEngineName = null;
                 BlackEngineName = null;
+                CurrentGameId = 0;
+                CurrentGamePosition = null;
+                Result = HypothesisResult.None;
             }
         }
 
@@ -248,7 +289,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         private void OnMatchCompletedOrCancelled(object? sender, EventArgs eventArgs)
         {
-            _matchCompletionSource.SetResult(true);
+            _matchCompletionSource.TrySetResult(true);
         }
 
         protected virtual void OnMatchMakerPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)

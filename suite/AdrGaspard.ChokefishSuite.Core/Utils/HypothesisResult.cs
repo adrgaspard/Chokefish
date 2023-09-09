@@ -2,6 +2,7 @@
 {
     public enum HypothesisResult
     {
+        None,
         H0,
         H1,
         Inconclusive
