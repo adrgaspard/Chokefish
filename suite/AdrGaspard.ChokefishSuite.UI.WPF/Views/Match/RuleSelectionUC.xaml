@@ -23,8 +23,8 @@
         <Grid Margin="0,0,0,10">
             <DockPanel Visibility="{Binding Path=Parsing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0">
-                    <CheckBox Style="{StaticResource ResourceKey=checkboxStyle}" IsChecked="{Binding Path=RandomizeStartPositionsOrder, Mode=TwoWay}" Margin="0,0,5,0" />
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Random order" />
+                    <CheckBox Style="{StaticResource ResourceKey=checkboxStyle}" IsChecked="{Binding Path=RandomizeStartPositionsOrder, Mode=TwoWay}" />
+                    <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Random order" />
                 </StackPanel>
                 <Button DockPanel.Dock="Right" Style="{StaticResource ResourceKey=buttonStyle}" Content="Select json file" Click="OnJsonSelectionRequested" Margin="10,0,0,0" />
                 <TextBox IsReadOnly="True" Style="{StaticResource ResourceKey=textboxStyle}" Text="{Binding Path=PositionsPath, Mode=OneWay}" FontSize="15" VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
@@ -60,8 +60,8 @@
             </StackPanel>
         </UniformGrid>
         <StackPanel Orientation="Horizontal" Margin="10,10,0,0">
-            <CheckBox Style="{StaticResource ResourceKey=checkboxStyle}" IsChecked="{Binding Path=KeepGoingWhenConclusive, Mode=TwoWay}" Margin="0,0,5,0" />
-            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Continue match even if the result is conclusive" />
+            <CheckBox Style="{StaticResource ResourceKey=checkboxStyle}" IsChecked="{Binding Path=KeepGoingWhenConclusive, Mode=TwoWay}" />
+            <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Continue match even if the result is conclusive" />
         </StackPanel>
     </StackPanel>
 </UserControl>

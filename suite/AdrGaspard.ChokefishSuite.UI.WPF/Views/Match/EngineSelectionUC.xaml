@@ -9,8 +9,8 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0">
             <Button Style="{StaticResource ResourceKey=buttonStyle}" Content="Select executable" Click="OnExecutableSelectionRequested" />
-            <CheckBox Style="{StaticResource ResourceKey=checkboxStyle}" IsChecked="{Binding Path=UseWsl, Mode=TwoWay}" Margin="10,0,5,0" />
-            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Use wsl" />
+            <CheckBox Style="{StaticResource ResourceKey=checkboxStyle}" IsChecked="{Binding Path=UseWsl, Mode=TwoWay}" Margin="10,0,0,0" />
+            <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Use wsl" />
         </StackPanel>
         <TextBox IsReadOnly="True" Style="{StaticResource ResourceKey=textboxStyle}" Text="{Binding Path=EnginePath, Mode=OneWay}" FontSize="15" VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
     </DockPanel>
