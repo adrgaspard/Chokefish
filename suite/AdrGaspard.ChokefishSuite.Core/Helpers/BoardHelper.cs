@@ -9,14 +9,20 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
 
         public static ChessBoard? ToChessBoard(this string str)
         {
-            string[] splitedArguments = str.Split($" {UciResponses.FenArgumentResult} ");
+            string[] splitedArguments = str.Split($" {UciResponses.FenArgumentResult} ", 2);
             ChessGameResult result;
+            IEnumerable<ChessMove> nextMoves = Enumerable.Empty<ChessMove>();
             if (splitedArguments.Length == 2)
             {
                 switch (splitedArguments[1])
                 {
                     case UciResponses.FenArgumentResultArgumentPlaying:
                         result = ChessGameResult.Playing;
+                        string[] resultAndMoves = splitedArguments[1].Split($" {UciResponses.FenArgumentMoves} ", 2);
+                        if (resultAndMoves.Length == 2)
+                        {
+                            nextMoves = resultAndMoves[1].Split(' ').Select(str => str.ToChessMove()).Where(potentialMove => potentialMove is not null).Cast<ChessMove>();
+                        }
                         break;
                     case UciResponses.FenArgumentResultArgumentWhiteMated:
                         result = ChessGameResult.WhiteMated;
@@ -38,17 +44,17 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
                         break;
                     default: return null;
                 }
-                return splitedArguments[0].ToChessBoard(result);
+                return splitedArguments[0].ToChessBoard(result, nextMoves);
             }
             return null;
         }
 
         public static bool IsValidFen(this string fenString)
         {
-            return fenString.ToChessBoard(ChessGameResult.None) is ChessBoard;
+            return fenString.ToChessBoard(ChessGameResult.None, Enumerable.Empty<ChessMove>()) is ChessBoard;
         }
 
-        private static ChessBoard? ToChessBoard(this string fenString, ChessGameResult result)
+        private static ChessBoard? ToChessBoard(this string fenString, ChessGameResult result, IEnumerable<ChessMove> nextMoves)
         {
             try
             {
@@ -63,7 +69,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
                 ChessSquare? enPassantTarget = GenerateEnPassantTarget(informations[3]);
                 byte fiftyMoveCounter = (byte)GenerateFiftyMoveCounter(informations[4]);
                 uint totalMoveCounter = GenerateTotalMoveCounter(informations[5]);
-                return new(squares, currentPlayer, castlingLegality.Item1, castlingLegality.Item2, enPassantTarget, fiftyMoveCounter, totalMoveCounter, result);
+                return new(squares, currentPlayer, castlingLegality.Item1, castlingLegality.Item2, enPassantTarget, fiftyMoveCounter, totalMoveCounter, result, nextMoves);
             }
             catch (Exception) { }
             return null;

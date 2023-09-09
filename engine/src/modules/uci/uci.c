@@ -85,7 +85,7 @@ void handle_commands()
             else if (strcmp(current_cmd, GE_CMD_POSITION) == 0)
             {
                 pthread_mutex_lock(&s_global_lock);
-                handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_board, &s_search_token, s_current_fen, s_current_moves);
+                handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_board, &s_search_token);
                 pthread_mutex_unlock(&s_global_lock);
                 break;
             }

@@ -1,4 +1,5 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Utils;
+using System.Collections.Immutable;
 
 namespace AdrGaspard.ChokefishSuite.Core.GameData
 {
@@ -8,7 +9,7 @@ namespace AdrGaspard.ChokefishSuite.Core.GameData
         private readonly ChessCastlingState _whiteCastling;
         private readonly ChessCastlingState _blackCastling;
 
-        public ChessBoard(ChessPiece[,] pieces, ChessColor colorToMove, ChessCastlingState whiteCastling, ChessCastlingState blackCastling, ChessSquare? enPassantSquare, uint silentMoveCount, uint moveCount, ChessGameResult result)
+        public ChessBoard(ChessPiece[,] pieces, ChessColor colorToMove, ChessCastlingState whiteCastling, ChessCastlingState blackCastling, ChessSquare? enPassantSquare, uint silentMoveCount, uint moveCount, ChessGameResult result, IEnumerable<ChessMove> nextMoves)
         {
             if (pieces == null || pieces.Rank != 2 || pieces.Length != ChessConsts.SquaresCount)
             {
@@ -29,6 +30,7 @@ namespace AdrGaspard.ChokefishSuite.Core.GameData
             SilentMoveCount = silentMoveCount;
             MoveCount = moveCount;
             Result = result;
+            NextMoves = nextMoves.ToImmutableArray();
         }
 
         public ChessPiece this[ChessSquare square] => this[square.File, square.Rank];
@@ -43,6 +45,8 @@ namespace AdrGaspard.ChokefishSuite.Core.GameData
         };
 
         public readonly ChessGameResult Result { get; private init; }
+
+        public readonly IReadOnlyList<ChessMove> NextMoves { get; private init; }
 
         public readonly ChessColor ColorToMove { get; private init; }
 

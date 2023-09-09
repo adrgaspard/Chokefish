@@ -8,7 +8,7 @@
     <Viewbox>
         <DockPanel>
             <local:BoardUC DockPanel.Dock="Top" Width="1000" Height="1000" />
-            <Grid DockPanel.Dock="Bottom" Margin="0,10,0,10">
+            <Grid DockPanel.Dock="Bottom">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />

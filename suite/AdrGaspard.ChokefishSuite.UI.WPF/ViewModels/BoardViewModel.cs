@@ -1,6 +1,7 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.GameData;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -16,17 +17,23 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
         private uint _moveCount;
         private IReadOnlyList<RankViewModel> _ranksFromPerspective;
 
-        public BoardViewModel()
+        public BoardViewModel(bool selectionEventsEnabled)
         {
             _perspective = ChessColor.White;
             _gameResult = ChessGameResult.None;
             _moveCount = 0;
+            SelectionEventsEnabled = selectionEventsEnabled;
             SquareViewModel[] squares = new SquareViewModel[ChessConsts.SquaresCount];
             for (int squareIndex = 0; squareIndex < squares.Length; squareIndex++)
             {
                 int fileIndex = squareIndex % ChessConsts.FilesCount;
                 int rankIndex = squareIndex / ChessConsts.FilesCount;
-                squares[squareIndex] = new SquareViewModel(fileIndex, rankIndex, (fileIndex + rankIndex) % 2 == 0);
+                SquareViewModel squareVM = new(fileIndex, rankIndex, (fileIndex + rankIndex) % 2 == 0);
+                squares[squareIndex] = squareVM;
+                if (SelectionEventsEnabled)
+                {
+                    squareVM.SelectionToggled += OnSquareViewModelSelectionToggled;
+                }
             }
             Squares = squares.ToImmutableArray();
             RankViewModel[] ranks = new RankViewModel[ChessConsts.RanksCount];
@@ -46,6 +53,8 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             RefreshAnnotations();
             RefreshRanksPerspective();
         }
+
+        public bool SelectionEventsEnabled { get; private init; }
 
         public ImmutableArray<SquareViewModel> Squares { get; private init; }
 
@@ -130,6 +139,14 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             foreach (RankViewModel rank in RanksFromPerspective)
             {
                 rank.RefreshPerspective(Perspective);
+            }
+        }
+
+        private void OnSquareViewModelSelectionToggled(object? sender, EventArgs eventArgs)
+        {
+            if (sender is SquareViewModel squareVM)
+            {
+
             }
         }
     }

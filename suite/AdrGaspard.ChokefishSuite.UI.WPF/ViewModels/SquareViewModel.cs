@@ -1,5 +1,8 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.GameData;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System;
+using System.Windows.Input;
 
 namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 {
@@ -17,14 +20,18 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             _piece = ChessPiece.NoPiece;
             FileIndex = fileIndex;
             RankIndex = rankIndex;
+            Square = new(RankIndex, FileIndex);
             IsBlackSquare = isBlackSquare;
             _hasFileAnnotation = false;
             _hasRankAnnotation = false;
+            ToggleSelectionCommand = new RelayCommand(ToggleSelection);
         }
 
         public int FileIndex { get; private init; }
 
         public int RankIndex { get; private init; }
+
+        public ChessSquare Square { get; private init; }
 
         public bool IsBlackSquare { get; private init; }
 
@@ -62,6 +69,15 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
         {
             get => _canBeNextMoveDestination;
             set => SetProperty(ref _canBeNextMoveDestination, value);
+        }
+
+        public ICommand ToggleSelectionCommand { get; private init; }
+
+        public event EventHandler? SelectionToggled;
+
+        private void ToggleSelection()
+        {
+            SelectionToggled?.Invoke(this, EventArgs.Empty);
         }
     }
 }

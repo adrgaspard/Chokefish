@@ -7,7 +7,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
     {
         public WpfMatchSchedulerViewModel() : base()
         {
-            BoardVM = new();
+            BoardVM = new(false);
         }
 
         public BoardViewModel BoardVM { get; private init; }

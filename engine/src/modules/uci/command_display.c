@@ -1,21 +1,28 @@
 #include <string.h>
 #include "../core/logging.h"
+#include "../core/move_generator.h"
 #include "../core/piece.h"
 #include "../core/position.h"
 #include "../game_tools/game_result.h"
 #include "../serialization/board_data_serializer.h"
 #include "../serialization/consts.h"
+#include "../serialization/move_data_serializer.h"
 #include "commands.h"
 #include "consts.h"
 #include "engine_state.h"
+
+static move_generation_options s_options = { .include_quiet_moves = true, .promotion_types_to_include = PROMOTION_ALL };
 
 static void print_piece(board *board, int8_t x, int8_t y);
 static void print_result(game_result result);
 
 void handle_display_command(char *edit_cmd, engine_state state, board *board)
 {
-    char fen[FEN_LENGTH_UPPER_BOUND + 1];
-    int8_t x, y;
+    char fen[FEN_LENGTH_UPPER_BOUND + 1], current_move_str[MOVE_DATA_STR_LEN + 1];
+    int8_t x, y, move_index;
+    game_result result;
+    move_generation_result next_moves;
+    move_data current_move_data;
     assert(edit_cmd != NULL);
     assert(board != NULL);
     if (is_waiting_for_setup(state) || is_waiting_for_ready(state))
@@ -51,20 +58,49 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
         }
         printf(" \n\n");
         board_to_fen_string(board, fen);
+        result = get_game_result(board);
         printf("Fen: %s\n", fen);
         printf("Key: " H64 "\n", board->current_game_state.zobrist_key);
         printf("Result: ");
-        print_result(get_game_result(board));
+        print_result(result);
         printf("\n");
+        if (result == GR_PLAYING)
+        {
+            generate_moves(board, &next_moves, s_options);
+            printf("Moves:");
+            for (move_index = 0; move_index < next_moves.moves_count; move_index++)
+            {
+                current_move_data = move_data_from_move(next_moves.moves[move_index]);
+                move_data_to_string(current_move_data, current_move_str);
+                printf(" %s", current_move_str);
+            }
+            printf("\n");
+        }
         fflush(stdout);
     }
     else if (strcmp(edit_cmd, GE_CMD_DISPLAY_OPT_FEN) == 0)
     {
         board_to_fen_string(board, fen);
+        result = get_game_result(board);
         printf(EG_CMD_FEN " %s " EG_CMD_FEN_OPT_RESULT " ", fen);
-        print_result(get_game_result(board));
+        print_result(result);
+        if (result == GR_PLAYING)
+        {
+            generate_moves(board, &next_moves, s_options);
+            printf(" " EG_CMD_FEN_OPT_MOVES);
+            for (move_index = 0; move_index < next_moves.moves_count; move_index++)
+            {
+                current_move_data = move_data_from_move(next_moves.moves[move_index]);
+                move_data_to_string(current_move_data, current_move_str);
+                printf(" %s", current_move_str);
+            }
+        }
         printf("\n");
         fflush(stdout);
+    }
+    else
+    {
+        return;
     }
 }
 

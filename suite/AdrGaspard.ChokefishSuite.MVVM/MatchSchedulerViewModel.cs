@@ -166,11 +166,14 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                                 while (!token.IsCancellationRequested)
                                 {
                                     MatchMakerVM?.StopMatchCommand.Execute(null);
-                                    CurrentGamePosition = positions[(SchedulingRulesVM.RandomizeStartPositionsOrder ? Random.Shared.Next() : (int)CurrentGameId / 2) % positions.Count];
+                                    if (firstIsWhite)
+                                    {
+                                        CurrentGamePosition = positions[(SchedulingRulesVM.RandomizeStartPositionsOrder ? Random.Shared.Next() : (int)CurrentGameId / 2) % positions.Count];
+                                    }
                                     MatchMakerVM = new(
                                         firstIsWhite ? firstEngine : secondEngine,
                                         firstIsWhite ? secondEngine : firstEngine,
-                                        CurrentGamePosition.Value,
+                                        CurrentGamePosition!.Value,
                                         SchedulingRulesVM.ThinkTimeInMs);
                                     CurrentGameId++;
                                     MatchMakerVM.MatchCompleted += OnMatchCompletedOrCancelled;

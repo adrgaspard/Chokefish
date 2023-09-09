@@ -93,5 +93,6 @@
 #define EG_CMD_FEN_OPT_RESULT_OPT_FIFTY_MOVE_RULE "fiftymoverule"
 #define EG_CMD_FEN_OPT_RESULT_OPT_INSUFFICIENT_MATERIAL "insufficientmaterial"
 #define EG_CMD_FEN_OPT_RESULT_OPT_UNKNOWN "unknown"
+#define EG_CMD_FEN_OPT_MOVES "moves"
 
 #endif // UCI_CONSTS_H

@@ -14,7 +14,7 @@
 
 move_generation_options s_all_moves = { .include_quiet_moves = true, .promotion_types_to_include = PROMOTION_ALL };
 
-void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, engine_state *state, board *board, search_token *token, char *current_fen, char *current_moves)
+void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, engine_state *state, board *board, search_token *token)
 {
     char fen[FEN_LENGTH_UPPER_BOUND + 1], *command_args, *moves_ptr, *fen_ptr, *current_move_ptr;
     uint64_t moves_opt_len, fen_part_len, fen_opt_static_len;
