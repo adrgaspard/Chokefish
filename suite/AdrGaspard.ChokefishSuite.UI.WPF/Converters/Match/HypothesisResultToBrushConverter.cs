@@ -1,10 +1,6 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Utils;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -18,18 +14,16 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.Converters.Match
 
         public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is HypothesisResult result)
-            {
-                return result switch
+            return value is HypothesisResult result
+                ? result switch
                 {
                     HypothesisResult.None => LightGray,
                     HypothesisResult.H0 => Red,
                     HypothesisResult.H1 => Green,
                     HypothesisResult.Inconclusive => LightGray,
                     _ => null
-                };
-            }
-            return null;
+                }
+                : (object?)null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace AdrGaspard.ChokefishSuite.MVVM.Models
+﻿namespace AdrGaspard.ChokefishSuite.MVVM.Models
 {
     public class Position
     {
