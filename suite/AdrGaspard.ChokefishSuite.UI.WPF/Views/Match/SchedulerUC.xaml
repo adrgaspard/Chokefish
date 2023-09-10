@@ -25,9 +25,9 @@
                                IsEnabled="{Binding Path=DataContext.Running, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=UserControl}}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}" />
         <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
         <UniformGrid Columns="3">
-            <Button Command="{Binding Path=StartMatchScheduleCommand}" Content="Start" Style="{StaticResource ResourceKey=buttonStyle}" 
-                    IsEnabled="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}" Margin="0,0,6,0" Padding="20,5,20,5" />
-            <Button Command="{Binding Path=StopMatchScheduleCommand}" Content="Stop" Style="{StaticResource ResourceKey=buttonStyle}"
+            <Button Command="{Binding Path=StartMatchCommand}" Content="Start" Style="{StaticResource ResourceKey=buttonStyle}" 
+                    IsEnabled="{Binding Path=MatchCanStart}" Margin="0,0,6,0" Padding="20,5,20,5" />
+            <Button Command="{Binding Path=StopMatchCommand}" Content="Stop" Style="{StaticResource ResourceKey=buttonStyle}"
                     IsEnabled="{Binding Path=Running}" Margin="3,0,3,0" Padding="20,5,20,5" />
             <Button Command="{Binding Path=ResetCommand}" Content="Reset" Style="{StaticResource ResourceKey=buttonStyle}"
                     IsEnabled="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}" Margin="6,0,0,0" Padding="20,5,20,5" />

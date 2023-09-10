@@ -7,12 +7,13 @@ using System.Windows.Input;
 
 namespace AdrGaspard.ChokefishSuite.MVVM
 {
-    public class SchedulingRulesViewModel : ObservableObject
+    public class SchedulingRulesViewModel : ObservableObject, IValidatable
     {
         private static readonly ImmutableList<Position> EmptyPositionsList = Enumerable.Empty<Position>().ToImmutableList();
         private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.General) { PropertyNameCaseInsensitive = true };
 
         private readonly object _lock;
+        private bool _isValid;
         private bool _parsing;
         private IReadOnlyList<Position> _positions;
         private string _positionsPath;
@@ -28,6 +29,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         public SchedulingRulesViewModel()
         {
             _lock = new();
+            _isValid = false;
             _parsing = false;
             _positions = EmptyPositionsList;
             _positionsPath = "";
@@ -40,16 +42,30 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             SetPositionsFromJsonCommand = new RelayCommand<string?>(SetPositionsFromJson);
         }
 
+        public bool IsValid
+        {
+            get => _isValid;
+            private set => SetProperty(ref _isValid, value);
+        }
+
         public bool Parsing
         {
             get => _parsing;
-            private set => SetProperty(ref _parsing, value);
+            private set
+            {
+                SetProperty(ref _parsing, value);
+                RefreshIsValid();
+            }
         }
 
         public IReadOnlyList<Position> Positions
         {
             get => _positions;
-            private set => SetProperty(ref _positions, value);
+            private set
+            {
+                SetProperty(ref _positions, value);
+                RefreshIsValid();
+            }
         }
 
         public string PositionsPath
@@ -75,41 +91,59 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             get => _thinkTimeInMs;
             set
             {
-                if (value > 0)
-                {
-                    SetProperty(ref _thinkTimeInMs, value);
-                }
+                SetProperty(ref _thinkTimeInMs, value);
+                RefreshIsValid();
             }
         }
 
         public uint MinimumGamesCount
         {
             get => _minimumGamesCount;
-            set => SetProperty(ref _minimumGamesCount, value);
+            set
+            {
+                SetProperty(ref _minimumGamesCount, value);
+                RefreshIsValid();
+            }
         }
 
         public uint MaximumGamesCount
         {
             get => _maximumGamesCount;
-            set => SetProperty(ref _maximumGamesCount, value);
+            set
+            {
+                SetProperty(ref _maximumGamesCount, value);
+                RefreshIsValid();
+            }
         }
 
         public double EloDifference
         {
             get => _eloDifference;
-            set => SetProperty(ref _eloDifference, value);
+            set
+            {
+                SetProperty(ref _eloDifference, value);
+                RefreshIsValid();
+            }
         }
 
         public double FalsePositiveRisk
         {
             get => _falsePositiveRisk;
-            set => SetProperty(ref _falsePositiveRisk, value);
+            set
+            {
+                SetProperty(ref _falsePositiveRisk, value);
+                RefreshIsValid();
+            }
         }
 
         public double FalseNegativeRisk
         {
             get => _falseNegativeRisk;
-            set => SetProperty(ref _falseNegativeRisk, value);
+            set
+            {
+                SetProperty(ref _falseNegativeRisk, value);
+                RefreshIsValid();
+            }
         }
 
         public ICommand SetPositionsFromJsonCommand { get; private init; }
@@ -145,6 +179,11 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                     Parsing = false;
                 }
             });
+        }
+
+        private void RefreshIsValid()
+        {
+            IsValid = !Parsing && Positions.Count > 0 && ThinkTimeInMs > 0 && MaximumGamesCount >= MinimumGamesCount && MaximumGamesCount > 0 && EloDifference > 0 && FalsePositiveRisk >= 0 && FalsePositiveRisk <= 1 && FalseNegativeRisk >= 0 && FalseNegativeRisk <= 1;
         }
     }
 }

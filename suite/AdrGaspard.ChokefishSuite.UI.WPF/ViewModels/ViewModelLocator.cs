@@ -2,14 +2,17 @@
 {
     public class ViewModelLocator
     {
-        public MainViewModel MainVM { get; init; }
+        public MainViewModel MainVM { get; private init; }
 
-        public WpfMatchSchedulerViewModel MatchSchedulerVM { get; init; }
+        public WpfMatchSchedulerViewModel MatchSchedulerVM { get; private init; }
+
+        public WpfBotVsHumanMatchViewModel BotVsHumanMatchVM { get; private init; }
 
         public ViewModelLocator()
         {
             MainVM = new();
             MatchSchedulerVM = new();
+            BotVsHumanMatchVM = new();
         }
     }
 }

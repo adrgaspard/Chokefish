@@ -16,22 +16,32 @@
                      WindowTitleBrush="{Binding Path=AppColor, Converter={StaticResource ResourceKey=colorToBrushConverter}}"
                      Style="{StaticResource ResourceKey=windowStyle}">
     <mahapps:MetroWindow.Resources>
+        <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
     </mahapps:MetroWindow.Resources>
     <mahapps:MetroWindow.IconTemplate>
         <DataTemplate>
             <iconPacks:PackIconFontAwesome Kind="ChessSolid" Width="30" Height="30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2" Foreground="{DynamicResource MahApps.Brushes.IdealForeground}" />
         </DataTemplate>
     </mahapps:MetroWindow.IconTemplate>
-    <Grid Margin="10">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10*" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="10*" />
-        </Grid.ColumnDefinitions>
-        <match:SchedulerUC Grid.Column="0" DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" />
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,-2,10,-2">
-            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-        </StackPanel>
-        <board:GameUC Grid.Column="2" DataContext="{Binding Path=MatchSchedulerVM.BoardVM, Source={StaticResource ResourceKey=Locator}}" />
-    </Grid>
+    <TabControl Background="Transparent" BorderThickness="0" Margin="5,0,5,0">
+        <TabItem Header="Sequential probability ratio test" Style="{StaticResource ResourceKey=tabitemStyle}"
+                 IsEnabled="{Binding Path=BotVsHumanMatchVM.Running, Source={StaticResource ResourceKey=Locator}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}">
+            <Grid DataContext="{Binding Path=MatchSchedulerVM, Source={StaticResource ResourceKey=Locator}}" Margin="5,10,5,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="10*" />
+                </Grid.ColumnDefinitions>
+                <match:SchedulerUC Grid.Column="0"  />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,-2,10,-2">
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                </StackPanel>
+                <board:GameUC Grid.Column="2" DataContext="{Binding Path=BoardVM}" />
+            </Grid>
+        </TabItem>
+        <TabItem Header="Match vs human" Style="{StaticResource ResourceKey=tabitemStyle}"
+                 IsEnabled="{Binding Path=MatchSchedulerVM.Running, Source={StaticResource ResourceKey=Locator}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}">
+            <TextBlock>oui</TextBlock>
+        </TabItem>
+    </TabControl>
 </mahapps:MetroWindow>

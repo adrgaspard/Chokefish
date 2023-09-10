@@ -11,40 +11,30 @@ using System.Windows.Input;
 
 namespace AdrGaspard.ChokefishSuite.MVVM
 {
-    public class MatchSchedulerViewModel : ObservableObject
+    public class MatchSchedulerViewModel : MatchViewModelBase
     {
-        private readonly object _lock;
-        private bool _initializing;
-        private bool _running;
-        private bool _errorEncountered;
         private string? _whiteEngineName;
         private string? _blackEngineName;
         private uint _currentGameId;
         private Position? _currentGamePosition;
         private HypothesisResult _result;
-        private MatchMakerViewModel? _matchMakerVM;
-        private CancellationTokenSource _cancellationTokenSource;
         private TaskCompletionSource<bool> _matchCompletionSource;
+        private MatchMakerViewModel? _matchMakerVM;
 
-        public MatchSchedulerViewModel()
+        public MatchSchedulerViewModel() : base()
         {
-            _lock = new();
-            _initializing = false;
-            _running = false;
-            _errorEncountered = false;
             _currentGameId = 0;
             _currentGamePosition = null;
             _result = HypothesisResult.None;
-            _matchMakerVM = null;
-            _cancellationTokenSource = new();
             _matchCompletionSource = new();
+            _matchMakerVM = null;
             SchedulingRulesVM = new();
             RatioVM = new();
             FirstEngineSelectorVM = new();
             SecondEngineSelectorVM = new();
-            StartMatchScheduleCommand = new RelayCommand(StartMatchSchedule);
-            StopMatchScheduleCommand = new RelayCommand(StopMatchSchedule);
-            ResetCommand = new RelayCommand(Reset);
+            SchedulingRulesVM.PropertyChanged += OnValidatablePropertyChanged;
+            FirstEngineSelectorVM.PropertyChanged += OnValidatablePropertyChanged;
+            SecondEngineSelectorVM.PropertyChanged += OnValidatablePropertyChanged;
         }
 
         public virtual MatchMakerViewModel? MatchMakerVM
@@ -74,24 +64,6 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         public EngineSelectorViewModel FirstEngineSelectorVM { get; private init; }
 
         public EngineSelectorViewModel SecondEngineSelectorVM { get; private init; }
-
-        public bool Initializing
-        {
-            get => _initializing;
-            private set => SetProperty(ref _initializing, value);
-        }
-
-        public bool Running
-        {
-            get => _running;
-            private set => SetProperty(ref _running, value);
-        }
-
-        public bool ErrorEncountered
-        {
-            get => _errorEncountered;
-            private set => SetProperty(ref _errorEncountered, value);
-        }
 
         public string? WhiteEngineName
         {
@@ -123,138 +95,67 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             private set => SetProperty(ref _result, value);
         }
 
-        public ICommand StartMatchScheduleCommand { get; private init; }
+        public override bool MatchCanStart => base.MatchCanStart && FirstEngineSelectorVM.IsValid && SecondEngineSelectorVM.IsValid && SchedulingRulesVM.IsValid;
 
-        public ICommand StopMatchScheduleCommand { get; private init; }
-
-        public ICommand ResetCommand { get; private init; }
-
-        private void StartMatchSchedule()
+        protected override void StartMatchProcedure(CancellationToken token)
         {
-            Task.Run(() =>
+            IReadOnlyList<Position> positions = SchedulingRulesVM.Positions;
+            bool firstIsWhite = true;
+            using IChessEngine firstEngine = CreateAndInitializeEngine(FirstEngineSelectorVM);
+            using IChessEngine secondEngine = CreateAndInitializeEngine(SecondEngineSelectorVM);
+            NotifyInitializationFinished();
+            while (!token.IsCancellationRequested)
             {
-                lock (_lock)
+                MatchMakerVM?.StopMatchCommand.Execute(null);
+                if (firstIsWhite)
                 {
-                    if (!Running)
-                    {
-                        Initializing = true;
-                        Reset();
-                        IReadOnlyList<Position> positions = SchedulingRulesVM.Positions;
-                        if (!FirstEngineSelectorVM.IsEnginePathValid || !SecondEngineSelectorVM.IsEnginePathValid || SchedulingRulesVM.Positions.Count == 0)
-                        {
-                            Initializing = false;
-                            ErrorEncountered = true;
-                            return;
-                        }
-                        if (!_cancellationTokenSource.IsCancellationRequested)
-                        {
-                            _cancellationTokenSource.Cancel();
-                        }
-                        _cancellationTokenSource = new();
-                        CancellationToken token = _cancellationTokenSource.Token;
-                        TaskCompletionSource<bool> _startupCompletionSource = new();
-                        Task.Run(() =>
-                        {
-                            try
-                            {
-                                bool firstIsWhite = true;
-                                using IChessEngine firstEngine = CreateAndInitializeEngine(FirstEngineSelectorVM);
-                                using IChessEngine secondEngine = CreateAndInitializeEngine(SecondEngineSelectorVM);
-                                Running = true;
-                                Initializing = false;
-                                _startupCompletionSource.TrySetResult(true);
-                                while (!token.IsCancellationRequested)
-                                {
-                                    MatchMakerVM?.StopMatchCommand.Execute(null);
-                                    if (firstIsWhite)
-                                    {
-                                        CurrentGamePosition = positions[(SchedulingRulesVM.RandomizeStartPositionsOrder ? Random.Shared.Next() : (int)CurrentGameId / 2) % positions.Count];
-                                    }
-                                    MatchMakerVM = new(
-                                        firstIsWhite ? firstEngine : secondEngine,
-                                        firstIsWhite ? secondEngine : firstEngine,
-                                        CurrentGamePosition!.Value,
-                                        SchedulingRulesVM.ThinkTimeInMs);
-                                    CurrentGameId++;
-                                    MatchMakerVM.MatchCompleted += OnMatchCompletedOrCancelled;
-                                    MatchMakerVM.MatchCanceled += OnMatchCompletedOrCancelled;
-                                    _matchCompletionSource = new();
-                                    WhiteEngineName = (firstIsWhite ? FirstEngineSelectorVM : SecondEngineSelectorVM).EngineName;
-                                    BlackEngineName = (firstIsWhite ? SecondEngineSelectorVM : FirstEngineSelectorVM).EngineName;
-                                    MatchMakerVM.StartMatchCommand.Execute(null);
-                                    _matchCompletionSource.Task.Wait();
-                                    UpdateRatio(MatchMakerVM.Result);
-                                    MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
-                                    MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
-                                    Result = Statistics.SequentialProbabilityRatioTest((uint)RatioVM.VictoryCount, (uint)RatioVM.DrawCount, (uint)RatioVM.DefeatCount, 0,
-                                        SchedulingRulesVM.EloDifference, SchedulingRulesVM.FalsePositiveRisk, SchedulingRulesVM.FalseNegativeRisk);
-                                    if (((Result == HypothesisResult.H0 || Result == HypothesisResult.H1) && CurrentGameId >= SchedulingRulesVM.MinimumGamesCount && !SchedulingRulesVM.KeepGoingWhenConclusive) || CurrentGameId >= SchedulingRulesVM.MaximumGamesCount)
-                                    {
-                                        break;
-                                    }
-                                    firstIsWhite = !firstIsWhite;
-                                }
-                            }
-                            catch
-                            {
-                                Initializing = false;
-                                ErrorEncountered = true;
-                            }
-                            lock (_lock)
-                            {
-                                if (!token.IsCancellationRequested)
-                                {
-                                    Running = false;
-                                }
-                            }
-                        });
-                        _startupCompletionSource.Task.Wait();
-                    }
+                    CurrentGamePosition = positions[(SchedulingRulesVM.RandomizeStartPositionsOrder ? Random.Shared.Next() : (int)CurrentGameId / 2) % positions.Count];
                 }
-            });
-        }
-
-        private void StopMatchSchedule()
-        {
-            lock (_lock)
-            {
-                if (Running)
+                MatchMakerVM = new(
+                    firstIsWhite ? firstEngine : secondEngine,
+                    firstIsWhite ? secondEngine : firstEngine,
+                    CurrentGamePosition!.Value,
+                    SchedulingRulesVM.ThinkTimeInMs);
+                CurrentGameId++;
+                MatchMakerVM.MatchCompleted += OnMatchCompletedOrCancelled;
+                MatchMakerVM.MatchCanceled += OnMatchCompletedOrCancelled;
+                _matchCompletionSource = new();
+                WhiteEngineName = (firstIsWhite ? FirstEngineSelectorVM : SecondEngineSelectorVM).EngineName;
+                BlackEngineName = (firstIsWhite ? SecondEngineSelectorVM : FirstEngineSelectorVM).EngineName;
+                MatchMakerVM.StartMatchCommand.Execute(null);
+                _matchCompletionSource.Task.Wait(token);
+                UpdateRatio(MatchMakerVM.Result);
+                MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
+                MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
+                Result = Statistics.SequentialProbabilityRatioTest((uint)RatioVM.VictoryCount, (uint)RatioVM.DrawCount, (uint)RatioVM.DefeatCount, 0,
+                    SchedulingRulesVM.EloDifference, SchedulingRulesVM.FalsePositiveRisk, SchedulingRulesVM.FalseNegativeRisk);
+                if (((Result == HypothesisResult.H0 || Result == HypothesisResult.H1) && CurrentGameId >= SchedulingRulesVM.MinimumGamesCount && !SchedulingRulesVM.KeepGoingWhenConclusive) || CurrentGameId >= SchedulingRulesVM.MaximumGamesCount)
                 {
-                    Running = false;
-                    if (MatchMakerVM is not null)
-                    {
-                        MatchMakerVM.StopMatchCommand.Execute(null);
-                        MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
-                        MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
-                    }
-                    _cancellationTokenSource.Cancel();
+                    break;
                 }
+                firstIsWhite = !firstIsWhite;
             }
         }
 
-        private void Reset()
+        protected override void OnMatchStopped()
         {
-            if (!Running)
+            if (MatchMakerVM is not null)
             {
-                MatchMakerVM = null;
-                RatioVM.ResetCommand.Execute(null);
-                ErrorEncountered = false;
-                WhiteEngineName = null;
-                BlackEngineName = null;
-                CurrentGameId = 0;
-                CurrentGamePosition = null;
-                Result = HypothesisResult.None;
+                MatchMakerVM.StopMatchCommand.Execute(null);
+                MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
+                MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
             }
         }
 
-        private static IChessEngine CreateAndInitializeEngine(EngineSelectorViewModel engineSelectorVM)
+        protected override void OnReset()
         {
-            IChessEngine engine = new UciChessEngine(engineSelectorVM.UseWsl
-                ? new IOTransmitter("wsl", engineSelectorVM.EnginePath.ToWslPath(), "\n")
-                : new IOTransmitter(engineSelectorVM.EnginePath));
-            engine.Initialize();
-            engine.SetOption(OptionHelper.PonderOptionName, false);
-            return engine;
+            MatchMakerVM = null;
+            RatioVM.ResetCommand.Execute(null);
+            WhiteEngineName = null;
+            BlackEngineName = null;
+            CurrentGameId = 0;
+            CurrentGamePosition = null;
+            Result = HypothesisResult.None;
         }
 
         private void UpdateRatio(ChessGameResult result)
@@ -297,6 +198,14 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         protected virtual void OnMatchMakerPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
         {
+        }
+
+        private void OnValidatablePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
+        {
+            if (eventArgs.PropertyName == nameof(IValidatable.IsValid))
+            {
+                OnPropertyChanged(nameof(MatchCanStart));
+            }
         }
     }
 }

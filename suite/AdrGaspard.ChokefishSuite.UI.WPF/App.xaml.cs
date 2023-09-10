@@ -12,7 +12,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF
         {
             base.OnExit(eventArgs);
             ViewModelLocator locator = (ViewModelLocator)Resources["Locator"];
-            locator.MatchSchedulerVM.StopMatchScheduleCommand.Execute(null);
+            locator.MatchSchedulerVM.StopMatchCommand.Execute(null);
         }
     }
 }

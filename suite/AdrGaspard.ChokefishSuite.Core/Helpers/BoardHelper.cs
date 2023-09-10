@@ -14,11 +14,12 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
             IEnumerable<ChessMove> nextMoves = Enumerable.Empty<ChessMove>();
             if (splitedArguments.Length == 2)
             {
-                switch (splitedArguments[1])
+                string[] resultAndMoves = splitedArguments[1].Split($" {UciResponses.FenArgumentNextmoves} ", 2);
+                switch (resultAndMoves[0])
                 {
                     case UciResponses.FenArgumentResultArgumentPlaying:
                         result = ChessGameResult.Playing;
-                        string[] resultAndMoves = splitedArguments[1].Split($" {UciResponses.FenArgumentMoves} ", 2);
+                        
                         if (resultAndMoves.Length == 2)
                         {
                             nextMoves = resultAndMoves[1].Split(' ').Select(str => str.ToChessMove()).Where(potentialMove => potentialMove is not null).Cast<ChessMove>();

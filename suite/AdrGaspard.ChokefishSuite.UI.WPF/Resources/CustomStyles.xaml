@@ -36,12 +36,12 @@
         <Setter Property="Padding" Value="10,2,10,2" />
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="LightBlue"/>
                 <Setter Property="Foreground" Value="DarkBlue"/>
+                <Setter Property="Background" Value="LightBlue"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Background" Value="Black"/>
                 <Setter Property="Foreground" Value="#606060"/>
+                <Setter Property="Background" Value="Black"/>
                 <Setter Property="Opacity" Value="0.5" />
             </Trigger>
         </Style.Triggers>
@@ -52,6 +52,38 @@
         <Setter Property="LayoutTransform">
             <Setter.Value>
                 <ScaleTransform ScaleX="1.7" ScaleY="1.7" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="TabItem" x:Key="tabitemStyle">
+        <Setter Property="Width" Value="Auto"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabItem">
+                    <Border Name="Border" Background="#404040" BorderThickness="1" BorderBrush="#D0D0D0" Margin="-2,3,7,5">
+                        <TextBlock Name="TextBlock" Foreground="#F0F0F0" FontWeight="Normal" FontFamily="Malgun Gothic">
+                            <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Left" ContentSource="Header" Margin="10,2,10,2" />
+                        </TextBlock>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True" SourceName="Border">
+                            <Setter TargetName="Border" Property="Background" Value="LightBlue" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="CornflowerBlue" />
+                            <Setter TargetName="TextBlock" Property="Foreground" Value="DarkBlue" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False" SourceName="Border">
+                            <Setter TargetName="Border" Property="Background" Value="Black" />
+                            <Setter TargetName="Border" Property="Opacity" Value="0.5" />
+                            <Setter TargetName="TextBlock" Property="Foreground" Value="#606060" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="#787878" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="#D0D0D0" />
+                            <Setter TargetName="TextBlock" Property="Foreground" Value="#F0F0F0" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>

@@ -2,8 +2,9 @@
 
 namespace AdrGaspard.ChokefishSuite.MVVM
 {
-    public class EngineSelectorViewModel : ObservableObject
+    public class EngineSelectorViewModel : ObservableObject, IValidatable
     {
+        private bool _isValid;
         private string _enginePath;
         private string _engineName;
         private bool _useWsl;
@@ -13,6 +14,13 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             _enginePath = "";
             _engineName = "";
             _useWsl = false;
+            _isValid = false;
+        }
+
+        public bool IsValid
+        {
+            get => _isValid;
+            private set => SetProperty(ref _isValid, value);
         }
 
         public string EnginePath
@@ -24,7 +32,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 {
                     SetProperty(ref _enginePath, value);
                     EngineName = Path.GetFileName(value);
-                    OnPropertyChanged(nameof(IsEnginePathValid));
+                    IsValid = true;
                 }
             }
         }
@@ -32,7 +40,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         public string EngineName
         {
             get => _engineName;
-            set => SetProperty(ref _engineName, value);
+            private set => SetProperty(ref _engineName, value);
         }
 
         public bool UseWsl
@@ -40,7 +48,5 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             get => _useWsl;
             set => SetProperty(ref _useWsl, value);
         }
-
-        public bool IsEnginePathValid => File.Exists(EnginePath);
     }
 }

@@ -67,7 +67,7 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
         if (result == GR_PLAYING)
         {
             generate_moves(board, &next_moves, s_options);
-            printf("Moves:");
+            printf("Next move(s):");
             for (move_index = 0; move_index < next_moves.moves_count; move_index++)
             {
                 current_move_data = move_data_from_move(next_moves.moves[move_index]);
@@ -87,7 +87,7 @@ void handle_display_command(char *edit_cmd, engine_state state, board *board)
         if (result == GR_PLAYING)
         {
             generate_moves(board, &next_moves, s_options);
-            printf(" " EG_CMD_FEN_OPT_MOVES);
+            printf(" " EG_CMD_FEN_OPT_NEXTMOVES);
             for (move_index = 0; move_index < next_moves.moves_count; move_index++)
             {
                 current_move_data = move_data_from_move(next_moves.moves[move_index]);
