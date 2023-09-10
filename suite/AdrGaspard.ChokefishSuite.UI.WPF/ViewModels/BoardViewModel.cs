@@ -144,7 +144,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 
         private void OnSquareViewModelSelectionToggled(object? sender, EventArgs eventArgs)
         {
-            if (sender is SquareViewModel squareVM)
+            if (sender is SquareViewModel)
             {
 
             }

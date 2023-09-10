@@ -1,13 +1,8 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Contracts;
 using AdrGaspard.ChokefishSuite.Core.GameData;
-using AdrGaspard.ChokefishSuite.Core.Helpers;
-using AdrGaspard.ChokefishSuite.Core.UCI;
 using AdrGaspard.ChokefishSuite.Core.Utils;
 using AdrGaspard.ChokefishSuite.MVVM.Models;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using System.ComponentModel;
-using System.Windows.Input;
 
 namespace AdrGaspard.ChokefishSuite.MVVM
 {

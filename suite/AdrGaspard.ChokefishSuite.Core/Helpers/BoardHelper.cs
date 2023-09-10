@@ -19,7 +19,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
                 {
                     case UciResponses.FenArgumentResultArgumentPlaying:
                         result = ChessGameResult.Playing;
-                        
+
                         if (resultAndMoves.Length == 2)
                         {
                             nextMoves = resultAndMoves[1].Split(' ').Select(str => str.ToChessMove()).Where(potentialMove => potentialMove is not null).Cast<ChessMove>();

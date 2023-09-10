@@ -2,16 +2,8 @@
 using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.UCI;
 using AdrGaspard.ChokefishSuite.Core.Utils;
-using AdrGaspard.ChokefishSuite.MVVM.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace AdrGaspard.ChokefishSuite.MVVM
