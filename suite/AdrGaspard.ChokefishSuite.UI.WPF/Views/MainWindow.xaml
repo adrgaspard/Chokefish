@@ -41,7 +41,18 @@
         </TabItem>
         <TabItem Header="Match vs human" Style="{StaticResource ResourceKey=tabitemStyle}"
                  IsEnabled="{Binding Path=MatchSchedulerVM.Running, Source={StaticResource ResourceKey=Locator}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}">
-            <TextBlock>oui</TextBlock>
+            <Grid DataContext="{Binding Path=BotVsHumanMatchVM, Source={StaticResource ResourceKey=Locator}}" Margin="5,10,5,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="10*" />
+                </Grid.ColumnDefinitions>
+                <match:BotVsHumanUC Grid.Column="0" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,-2,10,-2">
+                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+                </StackPanel>
+                <board:GameUC Grid.Column="2" DataContext="{Binding Path=BoardVM}" />
+            </Grid>
         </TabItem>
     </TabControl>
 </mahapps:MetroWindow>

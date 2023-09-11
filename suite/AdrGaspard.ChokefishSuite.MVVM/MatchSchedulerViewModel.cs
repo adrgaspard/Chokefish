@@ -194,13 +194,5 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         protected virtual void OnMatchMakerPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
         {
         }
-
-        private void OnValidatablePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
-        {
-            if (eventArgs.PropertyName == nameof(IValidatable.IsValid))
-            {
-                OnPropertyChanged(nameof(MatchCanStart));
-            }
-        }
     }
 }

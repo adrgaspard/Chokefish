@@ -4,6 +4,7 @@ using AdrGaspard.ChokefishSuite.Core.UCI;
 using AdrGaspard.ChokefishSuite.Core.Utils;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.ComponentModel;
 using System.Windows.Input;
 
 namespace AdrGaspard.ChokefishSuite.MVVM
@@ -161,6 +162,14 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             engine.Initialize();
             engine.SetOption(OptionHelper.PonderOptionName, false);
             return engine;
+        }
+
+        protected void OnValidatablePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
+        {
+            if (eventArgs.PropertyName == nameof(IValidatable.IsValid))
+            {
+                OnPropertyChanged(nameof(MatchCanStart));
+            }
         }
     }
 }

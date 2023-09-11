@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.WPF.Views.Match.BotVsHumanUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
+             xmlns:commonconverter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Common"
+         mc:Ignorable="d">
+    <UserControl.Resources>
+        <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
+    </UserControl.Resources>
+    <StackPanel>
+        <StackPanel IsEnabled="{Binding Path=DataContext.Running, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=UserControl}}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}">
+            <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Engine" />
+            <local:EngineSelectionUC DockPanel.Dock="Left" VerticalAlignment="Top" DataContext="{Binding Path=EngineSelectorVM}" Margin="0,0,0,10" />
+        </StackPanel>
+        <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
+        <UniformGrid Columns="3">
+            <Button Command="{Binding Path=StartMatchCommand}" Content="Start" Style="{StaticResource ResourceKey=buttonStyle}" 
+                IsEnabled="{Binding Path=MatchCanStart}" Margin="0,0,6,0" Padding="20,5,20,5" />
+            <Button Command="{Binding Path=StopMatchCommand}" Content="Stop" Style="{StaticResource ResourceKey=buttonStyle}"
+                IsEnabled="{Binding Path=Running}" Margin="3,0,3,0" Padding="20,5,20,5" />
+            <Button Command="{Binding Path=ResetCommand}" Content="Reset" Style="{StaticResource ResourceKey=buttonStyle}"
+                IsEnabled="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}" Margin="6,0,0,0" Padding="20,5,20,5" />
+        </UniformGrid>
+    </StackPanel>
+</UserControl>
