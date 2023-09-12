@@ -1,4 +1,5 @@
-﻿using AdrGaspard.ChokefishSuite.MVVM;
+﻿using AdrGaspard.ChokefishSuite.Core.GameData;
+using AdrGaspard.ChokefishSuite.MVVM;
 using System.ComponentModel;
 
 namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
@@ -19,6 +20,15 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             {
                 base.MatchMakerVM = value;
                 BoardVM.ResetBoardCommand.Execute(null);
+            }
+        }
+
+        protected override void OnMoveExecuted(ChessMove move)
+        {
+            base.OnMoveExecuted(move);
+            foreach (SquareViewModel squareVM in BoardVM.Squares)
+            {
+                squareVM.IsLastMove = squareVM.Square == move.OldSquare || squareVM.Square == move.NewSquare;
             }
         }
 

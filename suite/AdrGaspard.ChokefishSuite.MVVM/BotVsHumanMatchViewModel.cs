@@ -1,5 +1,6 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Contracts;
 using AdrGaspard.ChokefishSuite.Core.GameData;
+using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.SearchData;
 using AdrGaspard.ChokefishSuite.Core.UCI;
 using CommunityToolkit.Mvvm.Input;
@@ -72,6 +73,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                     }
                     _moveCompletionSource.Task.Wait(token);
                     ChessMove move = _moveCompletionSource.Task.Result;
+                    moves.Add(move.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
                     engine.SetPosition(UciCommands.PositionArgumentStartpos, moves);
                     ChessGameResult result = Board!.Value.Result;
                     if (result != ChessGameResult.Playing)
@@ -121,6 +123,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             if (Board is ChessBoard board && board.NextMoves.Contains(move))
             {
                 _moveCompletionSource.TrySetResult(move);
+                OnMoveExecuted(move);
                 return;
             }
             throw new InvalidOperationException("An illegal move was made.");

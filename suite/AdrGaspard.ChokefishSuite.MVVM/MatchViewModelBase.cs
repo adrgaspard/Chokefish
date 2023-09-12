@@ -1,4 +1,5 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Contracts;
+using AdrGaspard.ChokefishSuite.Core.GameData;
 using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.UCI;
 using AdrGaspard.ChokefishSuite.Core.Utils;
@@ -149,6 +150,10 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         }
 
         protected abstract void StartMatchProcedure(CancellationToken token);
+
+        protected virtual void OnMoveExecuted(ChessMove move)
+        {
+        }
 
         protected abstract void OnMatchStopped();
 

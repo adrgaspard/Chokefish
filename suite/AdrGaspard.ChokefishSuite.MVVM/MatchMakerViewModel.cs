@@ -70,6 +70,8 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         public ICommand StopMatchCommand { get; private init; }
 
+        public event EventHandler<ChessMove>? MoveExecuted;
+
         public event EventHandler? MatchCompleted;
 
         public event EventHandler? MatchCanceled;
@@ -117,6 +119,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         ChessMove bestMove = currentEngine.SearchResult?.BestMove ?? throw new NullReferenceException($"An engine search didn't returned a move!");
                         moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
                         opponentEngine.SetPosition(_fen, moves);
+                        MoveExecuted?.Invoke(this, bestMove);
                         ChessGameResult result = opponentEngine.Board?.Result ?? ChessGameResult.None;
                         if (result != ChessGameResult.Playing)
                         {

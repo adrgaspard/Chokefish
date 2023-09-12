@@ -92,7 +92,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         public override bool MatchCanStart => base.MatchCanStart && FirstEngineSelectorVM.IsValid && SecondEngineSelectorVM.IsValid && SchedulingRulesVM.IsValid;
 
-        protected override void StartMatchProcedure(CancellationToken token)
+        protected override void StartMatchProcedure(CancellationToken token) 
         {
             IReadOnlyList<Position> positions = SchedulingRulesVM.Positions;
             bool firstIsWhite = true;
@@ -114,12 +114,14 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 CurrentGameId++;
                 MatchMakerVM.MatchCompleted += OnMatchCompletedOrCancelled;
                 MatchMakerVM.MatchCanceled += OnMatchCompletedOrCancelled;
+                MatchMakerVM.MoveExecuted += OnMatchMakerMoveExecuted;
                 _matchCompletionSource = new();
                 WhiteEngineName = (firstIsWhite ? FirstEngineSelectorVM : SecondEngineSelectorVM).EngineName;
                 BlackEngineName = (firstIsWhite ? SecondEngineSelectorVM : FirstEngineSelectorVM).EngineName;
                 MatchMakerVM.StartMatchCommand.Execute(null);
                 _matchCompletionSource.Task.Wait(token);
                 UpdateRatio(MatchMakerVM.Result);
+                MatchMakerVM.MoveExecuted -= OnMatchMakerMoveExecuted;
                 MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
                 MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
                 Result = Statistics.SequentialProbabilityRatioTest((uint)RatioVM.VictoryCount, (uint)RatioVM.DrawCount, (uint)RatioVM.DefeatCount, 0,
@@ -130,6 +132,11 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 }
                 firstIsWhite = !firstIsWhite;
             }
+        }
+
+        private void OnMatchMakerMoveExecuted(object? sender, ChessMove eventArgs)
+        {
+            OnMoveExecuted(eventArgs);
         }
 
         protected override void OnMatchStopped()
