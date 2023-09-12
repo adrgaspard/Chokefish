@@ -63,7 +63,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 engine.ResetGame();
                 engine.SetPosition(UciCommands.PositionArgumentStartpos, moves);
                 UserCanPlay = true;
-                NotifyInitializationFinished(); 
+                NotifyInitializationFinished();
                 while (!token.IsCancellationRequested)
                 {
                     _moveCompletionSource = new();

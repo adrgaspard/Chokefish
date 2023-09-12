@@ -92,7 +92,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         public override bool MatchCanStart => base.MatchCanStart && FirstEngineSelectorVM.IsValid && SecondEngineSelectorVM.IsValid && SchedulingRulesVM.IsValid;
 
-        protected override void StartMatchProcedure(CancellationToken token) 
+        protected override void StartMatchProcedure(CancellationToken token)
         {
             IReadOnlyList<Position> positions = SchedulingRulesVM.Positions;
             bool firstIsWhite = true;

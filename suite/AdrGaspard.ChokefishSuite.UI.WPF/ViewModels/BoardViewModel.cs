@@ -1,5 +1,4 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.GameData;
-using AdrGaspard.ChokefishSuite.UI.WPF.Views.Board;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -7,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
