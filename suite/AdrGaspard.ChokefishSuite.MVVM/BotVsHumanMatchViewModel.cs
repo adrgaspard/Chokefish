@@ -11,6 +11,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
     public class BotVsHumanMatchViewModel : MatchViewModelBase
     {
         private ChessBoard? _board;
+        private ChessMove? _lastMove;
         private SearchDebugInfos? _searchInfos;
         private bool _userCanPlay;
         private TaskCompletionSource<ChessMove> _moveCompletionSource;
@@ -18,6 +19,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         public BotVsHumanMatchViewModel()
         {
             _board = null;
+            _lastMove = null;
             _searchInfos = null;
             _userCanPlay = false;
             _moveCompletionSource = new();
@@ -31,6 +33,13 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             get => _board;
             private set => SetProperty(ref _board, value);
         }
+
+        public ChessMove? LastMove
+        {
+            get => _lastMove;
+            private set => SetProperty(ref _lastMove, value);
+        }
+
 
         public SearchDebugInfos? SearchInfos
         {
@@ -74,6 +83,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                     _moveCompletionSource.Task.Wait(token);
                     ChessMove move = _moveCompletionSource.Task.Result;
                     moves.Add(move.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
+                    LastMove = move;
                     engine.SetPosition(UciCommands.PositionArgumentStartpos, moves);
                     ChessGameResult result = Board!.Value.Result;
                     if (result != ChessGameResult.Playing)
@@ -104,6 +114,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         protected override void OnReset()
         {
             Board = null;
+            LastMove = null;
             SearchInfos = null;
             UserCanPlay = false;
         }

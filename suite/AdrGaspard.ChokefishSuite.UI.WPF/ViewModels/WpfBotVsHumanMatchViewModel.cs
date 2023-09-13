@@ -15,15 +15,6 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 
         public BoardViewModel BoardVM { get; private init; }
 
-        protected override void OnMoveExecuted(ChessMove move)
-        {
-            base.OnMoveExecuted(move);
-            foreach (SquareViewModel squareVM in BoardVM.Squares)
-            {
-                squareVM.IsLastMove = squareVM.Square == move.OldSquare || squareVM.Square == move.NewSquare;
-            }
-        }
-
         private void OnBoardMoveChosen(object? sender, ChessMove eventArgs)
         {
             if (UserCanPlay)
@@ -42,7 +33,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
                 }
                 else
                 {
-                    BoardVM.SetBoardCommand.Execute(Board);
+                    BoardVM.SetBoardCommand.Execute(((ChessBoard)Board, LastMove));
                 }
             }
         }

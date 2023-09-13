@@ -14,18 +14,20 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
     {
         private static readonly ImmutableArray<ChessPieceType> AllowedPromotionTypes = ImmutableArray.Create(ChessPieceType.Queen, ChessPieceType.Rook, ChessPieceType.Bishop, ChessPieceType.Knight);
         private ChessBoard? _board;
+        private readonly List<(ChessBoard, ChessMove?)> _boardStack;
+        private int _selectedBoardIndex;
         private ChessColor _perspective;
         private ChessGameResult _gameResult;
-        private uint _moveCount;
         private ChessPieceType _selectedPromotionType;
         private IReadOnlyList<RankViewModel> _ranksFromPerspective;
         private SquareViewModel? _selectedSquareVM;
 
         public BoardViewModel(bool selectionEventsEnabled)
         {
+            _boardStack = new();
+            _selectedBoardIndex = -1;
             _perspective = ChessColor.White;
             _gameResult = ChessGameResult.None;
-            _moveCount = 0;
             _selectedPromotionType = PromotionTypes.First();
             SelectionEventsEnabled = selectionEventsEnabled;
             SquareViewModel[] squares = new SquareViewModel[ChessConsts.SquaresCount];
@@ -54,8 +56,14 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             ImmutableRanks = ranks.ToImmutableArray();
             _ranksFromPerspective = ImmutableRanks;
             _selectedSquareVM = null;
-            SetBoardCommand = new RelayCommand<ChessBoard>(SetBoard);
+
+            SetBoardCommand = new RelayCommand<(ChessBoard, ChessMove?)>(SetBoard);
             ResetBoardCommand = new RelayCommand(ResetBoard);
+            TogglePerspectiveCommand = new RelayCommand(TogglePerspective);
+            DisplayFirstPositionCommand = new RelayCommand(DisplayFirstPosition);
+            DisplayPreviousPositionCommand = new RelayCommand(DisplayPreviousPosition);
+            DisplayNextPositionCommand = new RelayCommand(DisplayNextPosition);
+            DisplayLastPositionCommand = new RelayCommand(DisplayLastPosition);
             RefreshAnnotations();
             RefreshRanksPerspective();
         }
@@ -69,7 +77,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
         public ChessColor Perspective
         {
             get => _perspective;
-            set
+            private set
             {
                 if (_perspective != value && value != ChessColor.None)
                 {
@@ -84,12 +92,6 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
         {
             get => _gameResult;
             private set => SetProperty(ref _gameResult, value);
-        }
-
-        public uint MoveCount
-        {
-            get => _moveCount;
-            private set => SetProperty(ref _moveCount, value);
         }
 
         public IReadOnlyList<ChessPieceType> PromotionTypes => AllowedPromotionTypes;
@@ -116,21 +118,24 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 
         public ICommand ResetBoardCommand { get; private init; }
 
+        public ICommand TogglePerspectiveCommand { get; private init; }
+
+        public ICommand DisplayFirstPositionCommand { get; private init; }
+
+        public ICommand DisplayPreviousPositionCommand { get; private init; }
+
+        public ICommand DisplayNextPositionCommand { get; private init; }
+
+        public ICommand DisplayLastPositionCommand { get; private init; }
+
         public event EventHandler<ChessMove>? MoveChosen;
 
-        private void SetBoard(ChessBoard board)
+        private void SetBoard((ChessBoard, ChessMove?) tuple)
         {
-            for (int rankIndex = 0; rankIndex < ChessConsts.RanksCount; rankIndex++)
-            {
-                for (int fileIndex = 0; fileIndex < ChessConsts.FilesCount; fileIndex++)
-                {
-                    Squares[(rankIndex * ChessConsts.FilesCount) + fileIndex].Piece = board[fileIndex, rankIndex];
-                    GameResult = board.Result;
-                    MoveCount = board.MoveCount;
-                }
-            }
-            _board = board;
-            ResetSquareSelectionAndDestinations();
+            _board = tuple.Item1;
+            _selectedBoardIndex = -1;
+            _boardStack.Add(tuple);
+            UpdateDisplayedBoard();
         }
 
         private void ResetBoard()
@@ -145,8 +150,9 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
                     squareVM.IsLastMove = false;
                 }
             }
+            _boardStack.Clear();
+            _selectedBoardIndex = -1;
             GameResult = ChessGameResult.None;
-            MoveCount = 0;
             _board = null;
             ResetSquareSelectionAndDestinations();
         }
@@ -173,7 +179,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 
         private void OnSquareViewModelSelectionToggled(object? sender, EventArgs eventArgs)
         {
-            if (sender is SquareViewModel squareVM && _board is ChessBoard board)
+            if (sender is SquareViewModel squareVM && _board is ChessBoard board && _selectedBoardIndex == -1)
             {
                 if (_selectedSquareVM is null)
                 {
@@ -222,6 +228,63 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
             {
                 Squares[(square.Rank * ChessConsts.FilesCount) + square.File].CanBeNextMoveDestination = true;
             }
+        }
+
+        private void TogglePerspective()
+        {
+            Perspective = Perspective == ChessColor.White ? ChessColor.Black : ChessColor.White;
+        }
+
+        private void DisplayFirstPosition()
+        {
+            if (_boardStack.Count > 1 && _selectedBoardIndex != 0)
+            {
+                _selectedBoardIndex = 0;
+                UpdateDisplayedBoard();
+            }
+        }
+
+        private void DisplayPreviousPosition()
+        {
+            if (_boardStack.Count > 1 && _selectedBoardIndex != 0)
+            {
+                _selectedBoardIndex = _selectedBoardIndex == -1 ? _boardStack.Count - 2 : _selectedBoardIndex - 1;
+                UpdateDisplayedBoard();
+            }
+        }
+
+        private void DisplayNextPosition()
+        {
+            if (_boardStack.Count > 1 && _selectedBoardIndex != -1)
+            {
+                _selectedBoardIndex = _selectedBoardIndex == _boardStack.Count - 2 ? -1 : _selectedBoardIndex + 1;
+                UpdateDisplayedBoard();
+            }
+        }
+
+        private void DisplayLastPosition()
+        {
+            if (_boardStack.Count > 1 && _selectedBoardIndex != -1)
+            {
+                _selectedBoardIndex = -1;
+                UpdateDisplayedBoard();
+            }
+        }
+
+        private void UpdateDisplayedBoard()
+        {
+            (ChessBoard board, ChessMove? move) = _boardStack[_selectedBoardIndex == -1 ? ^1 : _selectedBoardIndex];
+            for (int rankIndex = 0; rankIndex < ChessConsts.RanksCount; rankIndex++)
+            {
+                for (int fileIndex = 0; fileIndex < ChessConsts.FilesCount; fileIndex++)
+                {
+                    SquareViewModel squareVM = Squares[(rankIndex * ChessConsts.FilesCount) + fileIndex];
+                    squareVM.Piece = board[fileIndex, rankIndex];
+                    squareVM.IsLastMove = move is not null && (squareVM.Square == move.Value.OldSquare || squareVM.Square == move.Value.NewSquare);
+                }
+            }
+            GameResult = board.Result;
+            ResetSquareSelectionAndDestinations();
         }
     }
 }

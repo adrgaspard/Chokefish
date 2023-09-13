@@ -40,7 +40,7 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
                 case nameof(MatchMakerViewModel.Board):
                     if (MatchMakerVM!.Board is not null)
                     {
-                        BoardVM.SetBoardCommand.Execute(MatchMakerVM.Board);
+                        BoardVM.SetBoardCommand.Execute(((ChessBoard)MatchMakerVM.Board, MatchMakerVM.LastMove));
                     }
                     break;
                 default: break;

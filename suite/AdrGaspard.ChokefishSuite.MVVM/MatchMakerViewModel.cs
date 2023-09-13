@@ -16,6 +16,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         private readonly string _fen;
         private readonly ChessTimeSystem _timeSystem;
         private ChessBoard? _board;
+        private ChessMove? _lastMove;
         private ChessGameResult _result;
         private SearchDebugInfos? _whiteSearchDebugInfos;
         private SearchDebugInfos? _blackSearchDebugInfos;
@@ -46,6 +47,12 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         {
             get => _board;
             private set => SetProperty(ref _board, value);
+        }
+
+        public ChessMove? LastMove
+        {
+            get => _lastMove;
+            private set => SetProperty(ref _lastMove, value);
         }
 
         public ChessGameResult Result
@@ -118,6 +125,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         _searchCompletionSource.Task.Wait();
                         ChessMove bestMove = currentEngine.SearchResult?.BestMove ?? throw new NullReferenceException($"An engine search didn't returned a move!");
                         moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
+                        LastMove = bestMove;
                         opponentEngine.SetPosition(_fen, moves);
                         MoveExecuted?.Invoke(this, bestMove);
                         ChessGameResult result = opponentEngine.Board?.Result ?? ChessGameResult.None;

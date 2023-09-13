@@ -4,25 +4,43 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Board"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:converter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Board"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <converter:ChessResultToStringConverter x:Key="chessResultToStringConverter" />
+    </UserControl.Resources>
     <Viewbox>
         <DockPanel>
             <local:BoardUC DockPanel.Dock="Top" Width="1000" Height="1000" />
             <Grid DockPanel.Dock="Bottom">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Label Content="State:" Style="{StaticResource ResourceKey=labelStyle}" />
-                    <TextBlock Text="{Binding Path=GameResult}" Style="{StaticResource ResourceKey=textblockStyle}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,2,0,0">
+                    <Button Command="{Binding Path=DisplayFirstPositionCommand}" ToolTip="First move"
+                            Style="{StaticResource ResourceKey=buttonStyle}" Margin="0,0,5,0">
+                        <iconPacks:PackIconFontAwesome Kind="AngleDoubleLeftSolid" />
+                    </Button>
+                    <Button Command="{Binding Path=DisplayPreviousPositionCommand}" ToolTip="Previous move"
+                            Style="{StaticResource ResourceKey=buttonStyle}" Margin="0,0,5,0">
+                        <iconPacks:PackIconFontAwesome Kind="AngleLeftSolid" />
+                    </Button>
+                    <Button Command="{Binding Path=DisplayNextPositionCommand}" ToolTip="Next move"
+                            Style="{StaticResource ResourceKey=buttonStyle}" Margin="0,0,5,0">
+                        <iconPacks:PackIconFontAwesome Kind="AngleRightSolid" />
+                    </Button>
+                    <Button Command="{Binding Path=DisplayLastPositionCommand}" ToolTip="Last move"
+                            Style="{StaticResource ResourceKey=buttonStyle}">
+                        <iconPacks:PackIconFontAwesome Kind="AngleDoubleRightSolid" />
+                    </Button>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Label Content="Move count:" Style="{StaticResource ResourceKey=labelStyle}" />
-                    <TextBlock Text="{Binding Path=MoveCount}" Style="{StaticResource ResourceKey=textblockStyle}" />
-                </StackPanel>
+                <TextBlock Text="{Binding Path=GameResult, Converter={StaticResource ResourceKey=chessResultToStringConverter}}"
+                           Style="{StaticResource ResourceKey=textblockStyle}" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="0,5,0,0" />
+                    <Button Command="{Binding Path=TogglePerspectiveCommand}" ToolTip="Change perspective"
+                            Style="{StaticResource ResourceKey=buttonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,0,0">
+                    <iconPacks:PackIconFontAwesome Kind="ExchangeAltSolid" />
+                </Button>
             </Grid>
         </DockPanel>
     </Viewbox>
 
 </UserControl>
+eae
