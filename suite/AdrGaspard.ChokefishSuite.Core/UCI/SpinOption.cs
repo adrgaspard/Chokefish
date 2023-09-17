@@ -30,6 +30,7 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
 
         internal override bool TrySetValue(object value)
         {
+
             if (value is int i && i >= MinValue && i <= MaxValue)
             {
                 Value = i;

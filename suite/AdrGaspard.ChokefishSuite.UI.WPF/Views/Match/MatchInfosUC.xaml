@@ -16,7 +16,6 @@
         <converter:HypothesisResultToBrushConverter x:Key="resultToBrushConverter" />
         <converter:PositionToStringConverter x:Key="positionToStringConverter" />
     </UserControl.Resources>
-
     <UniformGrid Columns="2">
         <StackPanel>
             <Grid>

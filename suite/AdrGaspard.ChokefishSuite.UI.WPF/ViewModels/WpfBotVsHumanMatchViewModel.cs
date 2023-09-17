@@ -25,16 +25,27 @@ namespace AdrGaspard.ChokefishSuite.UI.WPF.ViewModels
 
         private void OnPropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
         {
-            if (eventArgs.PropertyName == nameof(Board))
+            switch (eventArgs.PropertyName)
             {
-                if (Board is null)
-                {
-                    BoardVM.ResetBoardCommand.Execute(null);
-                }
-                else
-                {
-                    BoardVM.SetBoardCommand.Execute(((ChessBoard)Board, LastMove));
-                }
+                case nameof(Board):
+                    if (Board is null)
+                    {
+                        BoardVM.ResetBoardCommand.Execute(null);
+                    }
+                    else
+                    {
+                        BoardVM.SetBoardCommand.Execute(((ChessBoard)Board, LastMove));
+                    }
+                    break;
+                case nameof(BlackName):
+                    if ((BlackName is null && BoardVM.Perspective == ChessColor.Black) || (BlackName == HumanPlayerName && BoardVM.Perspective == ChessColor.White))
+                    {
+                        BoardVM.TogglePerspectiveCommand.Execute(null);
+                    }
+                    break;
+                default:
+                    break;
+
             }
         }
     }

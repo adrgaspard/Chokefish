@@ -34,13 +34,11 @@
                 </StackPanel>
                 <TextBlock Text="{Binding Path=GameResult, Converter={StaticResource ResourceKey=chessResultToStringConverter}}"
                            Style="{StaticResource ResourceKey=textblockStyle}" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="0,5,0,0" />
-                    <Button Command="{Binding Path=TogglePerspectiveCommand}" ToolTip="Change perspective"
+                <Button Command="{Binding Path=TogglePerspectiveCommand}" ToolTip="Change perspective"
                             Style="{StaticResource ResourceKey=buttonStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,0,0">
                     <iconPacks:PackIconFontAwesome Kind="ExchangeAltSolid" />
                 </Button>
             </Grid>
         </DockPanel>
     </Viewbox>
-
 </UserControl>
-eae

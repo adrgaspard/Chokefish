@@ -10,10 +10,14 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 {
     public class BotVsHumanMatchViewModel : MatchViewModelBase
     {
+        protected const string HumanPlayerName = "Player";
+
         private ChessBoard? _board;
         private ChessMove? _lastMove;
         private SearchDebugInfos? _searchInfos;
         private bool _userCanPlay;
+        private string? _whiteName;
+        private string? _blackName;
         private TaskCompletionSource<ChessMove> _moveCompletionSource;
 
         public BotVsHumanMatchViewModel()
@@ -24,8 +28,10 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             _userCanPlay = false;
             _moveCompletionSource = new();
             EngineSelectorVM = new();
+            EngineParametersVM = new();
             ExecutePlayerMoveCommand = new RelayCommand<ChessMove>(ExecutePlayerMove);
             EngineSelectorVM.PropertyChanged += OnValidatablePropertyChanged;
+            EngineParametersVM.PropertyChanged += OnValidatablePropertyChanged;
         }
 
         public ChessBoard? Board
@@ -53,9 +59,23 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             private set => SetProperty(ref _userCanPlay, value);
         }
 
-        public override bool MatchCanStart => base.MatchCanStart && EngineSelectorVM.IsValid;
+        public string? WhiteName
+        {
+            get => _whiteName;
+            private set => SetProperty(ref _whiteName, value);
+        }
+
+        public string? BlackName
+        {
+            get => _blackName;
+            private set => SetProperty(ref _blackName, value);
+        }
+
+        public override bool MatchCanStart => base.MatchCanStart && EngineSelectorVM.IsValid && EngineParametersVM.IsValid;
 
         public EngineSelectorViewModel EngineSelectorVM { get; private init; }
+
+        public EngineParametersViewModel EngineParametersVM { get; private init; }
 
         public ICommand ExecutePlayerMoveCommand { get; private init; }
 
@@ -67,18 +87,30 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             engine.BoardChanged += OnEngineBoardChanged;
             engine.SearchStopped += OnEngineSearchStopped;
             engine.SearchDebugInfosChanged += OnEngineSearchDebugInfoChanged;
+            ChessTimeSystem timeSystem = ChessTimeSystem.CreateDefined(TimeSpan.FromMilliseconds(EngineParametersVM.ThinkTimeInMs));
+            bool isOk = true;
             try
             {
-                engine.ResetGame();
-                engine.SetPosition(UciCommands.PositionArgumentStartpos, moves);
-                UserCanPlay = true;
+                isOk &= engine.SetDebug(EngineParametersVM.Debug);
+                isOk &= engine.SetOption(OptionHelper.PonderOptionName, EngineParametersVM.Ponder);
+                isOk &= engine.SetOption(OptionHelper.OwnBookOptionName, EngineParametersVM.OwnBook);
+                isOk &= engine.SetOption(OptionHelper.ThreadsOptionName, EngineParametersVM.Threads);
+                isOk &= engine.ResetGame();
+                isOk &= engine.SetPosition(EngineParametersVM.Position, moves);
+                if (!isOk)
+                {
+                    throw new InvalidOperationException("Something went wrong when initializing the engine!");
+                }
+                UserCanPlay = EngineParametersVM.HumanPlaysWhite;
+                WhiteName = UserCanPlay ? HumanPlayerName : EngineSelectorVM.EngineName;
+                BlackName = UserCanPlay ? EngineSelectorVM.EngineName : HumanPlayerName;
                 NotifyInitializationFinished();
                 while (!token.IsCancellationRequested)
                 {
                     _moveCompletionSource = new();
                     if (!UserCanPlay)
                     {
-                        engine.StartSearch(ChessTimeSystem.CreateDefined(TimeSpan.FromSeconds(1)));
+                        engine.StartSearch(timeSystem);
                     }
                     _moveCompletionSource.Task.Wait(token);
                     ChessMove move = _moveCompletionSource.Task.Result;
@@ -117,6 +149,8 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             LastMove = null;
             SearchInfos = null;
             UserCanPlay = false;
+            WhiteName = null;
+            BlackName = null;
         }
 
         private void ExecutePlayerMove(ChessMove move)

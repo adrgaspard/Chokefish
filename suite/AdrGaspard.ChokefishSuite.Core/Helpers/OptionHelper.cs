@@ -11,6 +11,8 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
         public const string Spin = "spin";
 
         public const string PonderOptionName = "Ponder";
+        public const string OwnBookOptionName = "OwnBook";
+        public const string ThreadsOptionName = "Threads";
 
         public static UciOption? ConvertToOption(this string[] splitedArguments)
         {

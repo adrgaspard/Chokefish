@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.WPF.Views.Match.BotVsHumanMatchInfosUC"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
+             xmlns:commonconverter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Common"
+             xmlns:converter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Match"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <commonconverter:BoolToStringConverter x:Key="boolToStringConverter" />
+        <commonconverter:BoolOrIntToSuccessBrushConverter x:Key="boolToSuccessBrushConverter" />
+        <commonconverter:StringToSanitizedStringConverter x:Key="stringToSanitizedStringConverter" />
+        <commonconverter:BoolToVisibleHiddenVisibilityConverter x:Key="boolToVisibilityConverter" />
+    </UserControl.Resources>
+    <UniformGrid Columns="2">
+        <Grid>
+            <StackPanel Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Running:" />
+                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToStringConverter}}"
+                               Margin="5,0,0,0" Foreground="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Error encountered:" />
+                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToStringConverter}}"
+                               Margin="5,0,0,0" Foreground="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}" />
+                </StackPanel>
+            </StackPanel>
+            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Initializing..." 
+                       Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}}" />
+        </Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="White:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=WhiteName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}"
+                       Margin="5,0,0,0" Foreground="#4AD8FF" />
+            </StackPanel>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Black:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=BlackName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}"
+                       Margin="5,0,0,0" Foreground="#4AD8FF" />
+            </StackPanel>
+        </Grid>
+    </UniformGrid>
+</UserControl>

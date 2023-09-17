@@ -10,10 +10,15 @@
         <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
     </UserControl.Resources>
     <StackPanel>
+        <local:BotVsHumanMatchInfosUC />
+        <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
         <StackPanel IsEnabled="{Binding Path=DataContext.Running, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=UserControl}}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}">
             <Label Style="{StaticResource ResourceKey=labelStyle}" Content="Engine" />
             <local:EngineSelectionUC DockPanel.Dock="Left" VerticalAlignment="Top" DataContext="{Binding Path=EngineSelectorVM}" Margin="0,0,0,10" />
         </StackPanel>
+        <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
+        <local:EngineParametersUC DataContext="{Binding Path=EngineParametersVM}"
+                                  IsEnabled="{Binding Path=DataContext.Running, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type TypeName=UserControl}}, Converter={StaticResource ResourceKey=boolToInvertedBoolConverter}}" />
         <Separator DockPanel.Dock="Top" BorderThickness="1" BorderBrush="White" Margin="20"/>
         <UniformGrid Columns="3">
             <Button Command="{Binding Path=StartMatchCommand}" Content="Start" Style="{StaticResource ResourceKey=buttonStyle}" 
