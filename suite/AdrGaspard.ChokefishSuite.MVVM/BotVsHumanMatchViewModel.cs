@@ -1,7 +1,6 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.Contracts;
 using AdrGaspard.ChokefishSuite.Core.GameData;
 using AdrGaspard.ChokefishSuite.Core.Helpers;
-using AdrGaspard.ChokefishSuite.Core.SearchData;
 using AdrGaspard.ChokefishSuite.Core.UCI;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
@@ -14,7 +13,6 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         private ChessBoard? _board;
         private ChessMove? _lastMove;
-        private SearchDebugInfos? _searchInfos;
         private bool _userCanPlay;
         private string? _whiteName;
         private string? _blackName;
@@ -24,7 +22,6 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         {
             _board = null;
             _lastMove = null;
-            _searchInfos = null;
             _userCanPlay = false;
             _moveCompletionSource = new();
             EngineSelectorVM = new();
