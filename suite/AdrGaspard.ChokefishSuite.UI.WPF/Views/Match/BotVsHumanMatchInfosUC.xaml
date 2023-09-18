@@ -12,39 +12,46 @@
         <commonconverter:BoolOrIntToSuccessBrushConverter x:Key="boolToSuccessBrushConverter" />
         <commonconverter:StringToSanitizedStringConverter x:Key="stringToSanitizedStringConverter" />
         <commonconverter:BoolToVisibleHiddenVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToCollapsedVisibilityConverter" />
     </UserControl.Resources>
-    <UniformGrid Columns="2">
-        <Grid>
-            <StackPanel Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Running:" />
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToStringConverter}}"
-                               Margin="5,0,0,0" Foreground="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}}" />
+    <StackPanel>
+        <UniformGrid Columns="2">
+            <Grid>
+                <StackPanel Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Running:" />
+                        <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToStringConverter}}"
+                           Margin="5,0,0,0" Foreground="{Binding Path=Running, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Error encountered:" />
+                        <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToStringConverter}}"
+                           Margin="5,0,0,0" Foreground="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}" />
+                    </StackPanel>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Error encountered:" />
-                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToStringConverter}}"
-                               Margin="5,0,0,0" Foreground="{Binding Path=ErrorEncountered, Converter={StaticResource ResourceKey=boolToSuccessBrushConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Initializing..." 
+                   Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}}" />
+            </Grid>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="White:" />
+                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=WhiteName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}"
+                   Margin="5,0,0,0" Foreground="#4AD8FF" />
                 </StackPanel>
-            </StackPanel>
-            <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Initializing..." 
-                       Visibility="{Binding Path=Initializing, Converter={StaticResource ResourceKey=boolToVisibilityConverter}}" />
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Black:" />
+                    <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=BlackName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}"
+                   Margin="5,0,0,0" Foreground="#4AD8FF" />
+                </StackPanel>
+            </Grid>
+        </UniformGrid>
+        <Grid Visibility="{Binding Path=EngineParametersVM.Debug, Converter={StaticResource ResourceKey=boolToCollapsedVisibilityConverter}}">
+            <local:SearchInfosUC DataContext="{Binding Path=SearchInfosVM}" />
         </Grid>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="White:" />
-                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=WhiteName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}"
-                       Margin="5,0,0,0" Foreground="#4AD8FF" />
-            </StackPanel>
-            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Black:" />
-                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=BlackName, Converter={StaticResource ResourceKey=stringToSanitizedStringConverter}}"
-                       Margin="5,0,0,0" Foreground="#4AD8FF" />
-            </StackPanel>
-        </Grid>
-    </UniformGrid>
+    </StackPanel>
 </UserControl>
+

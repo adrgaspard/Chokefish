@@ -1,5 +1,6 @@
 ﻿using AdrGaspard.ChokefishSuite.Core.SearchData;
 using AdrGaspard.ChokefishSuite.Core.UCI;
+using System.Globalization;
 
 namespace AdrGaspard.ChokefishSuite.Core.Helpers
 {
@@ -105,7 +106,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
                             }
                             break;
                         case SearchDebugInfoValue.CentipawnScore:
-                            if (double.TryParse(splitedArguments[i], out double convertedCentipawnScore))
+                            if (double.TryParse(splitedArguments[i], NumberStyles.Number, CultureInfo.InvariantCulture, out double convertedCentipawnScore))
                             {
                                 centipawnScore = convertedCentipawnScore;
                             }
@@ -130,8 +131,8 @@ namespace AdrGaspard.ChokefishSuite.Core.Helpers
                 }
             }
             return expectingKeyword
-                ? null
-                : (isMate.HasValue && isMate.Value) ? new SearchDebugInfos(depth, time, nodes, mateScore) : new SearchDebugInfos(depth, time, nodes, centipawnScore);
+                ? (isMate.HasValue && isMate.Value) ? new SearchDebugInfos(depth, time, nodes, mateScore) : new SearchDebugInfos(depth, time, nodes, centipawnScore)
+                : null;
         }
     }
 }

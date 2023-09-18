@@ -29,6 +29,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             _moveCompletionSource = new();
             EngineSelectorVM = new();
             EngineParametersVM = new();
+            SearchInfosVM = new();
             ExecutePlayerMoveCommand = new RelayCommand<ChessMove>(ExecutePlayerMove);
             EngineSelectorVM.PropertyChanged += OnValidatablePropertyChanged;
             EngineParametersVM.PropertyChanged += OnValidatablePropertyChanged;
@@ -44,13 +45,6 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         {
             get => _lastMove;
             private set => SetProperty(ref _lastMove, value);
-        }
-
-
-        public SearchDebugInfos? SearchInfos
-        {
-            get => _searchInfos;
-            private set => SetProperty(ref _searchInfos, value);
         }
 
         public bool UserCanPlay
@@ -76,6 +70,8 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         public EngineSelectorViewModel EngineSelectorVM { get; private init; }
 
         public EngineParametersViewModel EngineParametersVM { get; private init; }
+
+        public SearchInfosViewModel SearchInfosVM { get; private init; }
 
         public ICommand ExecutePlayerMoveCommand { get; private init; }
 
@@ -147,10 +143,10 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         {
             Board = null;
             LastMove = null;
-            SearchInfos = null;
             UserCanPlay = false;
             WhiteName = null;
             BlackName = null;
+            SearchInfosVM.SetSearchInfosCommand.Execute(null);
         }
 
         private void ExecutePlayerMove(ChessMove move)
@@ -186,7 +182,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         {
             if (sender is IChessEngine engine)
             {
-                SearchInfos = engine.SearchDebugInfos;
+                SearchInfosVM.SetSearchInfosCommand.Execute(engine.SearchDebugInfos);
                 return;
             }
             throw new InvalidOperationException($"The engine currently searching is not the right one!");

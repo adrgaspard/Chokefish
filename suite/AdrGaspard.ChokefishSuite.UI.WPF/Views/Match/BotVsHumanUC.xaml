@@ -8,6 +8,7 @@
          mc:Ignorable="d">
     <UserControl.Resources>
         <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
+        <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToVisibilityConverter" />
     </UserControl.Resources>
     <StackPanel>
         <local:BotVsHumanMatchInfosUC />

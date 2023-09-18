@@ -6,13 +6,53 @@
              xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Board"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              xmlns:converter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Board"
+             xmlns:game="clr-namespace:AdrGaspard.ChokefishSuite.Core.GameData;assembly=AdrGaspard.ChokefishSuite.Core"
              mc:Ignorable="d">
     <UserControl.Resources>
         <converter:ChessResultToStringConverter x:Key="chessResultToStringConverter" />
+        <converter:ChessPiecePromotionToBoolConverter x:Key="promotionToBoolConverter" />
+        <game:ChessPieceType x:Key="queenPieceType">Queen</game:ChessPieceType>
+        <game:ChessPieceType x:Key="rookPieceType">Rook</game:ChessPieceType>
+        <game:ChessPieceType x:Key="bishopPieceType">Bishop</game:ChessPieceType>
+        <game:ChessPieceType x:Key="knightPieceType">Knight</game:ChessPieceType>
+        <iconPacks:PackIconFontAwesomeKind x:Key="queenKind">ChessQueenSolid</iconPacks:PackIconFontAwesomeKind>
+        <iconPacks:PackIconFontAwesomeKind x:Key="rookKind">ChessRookSolid</iconPacks:PackIconFontAwesomeKind>
+        <iconPacks:PackIconFontAwesomeKind x:Key="bishopKind">ChessBishopSolid</iconPacks:PackIconFontAwesomeKind>
+        <iconPacks:PackIconFontAwesomeKind x:Key="knightKind">ChessKnightSolid</iconPacks:PackIconFontAwesomeKind>
+        <Style x:Key="radiobuttonStyle" TargetType="RadioButton">
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
+
+            <Setter Property="BorderThickness" Value="2"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="#404040" BorderThickness="1" BorderBrush="#D0D0D0">
+                            <iconPacks:PackIconFontAwesome Kind="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                           Width="30" Height="30" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2" 
+                                                           Foreground="#F0F0F0" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Viewbox>
         <DockPanel>
-            <local:BoardUC DockPanel.Dock="Top" Width="1000" Height="1000" />
+            <StackPanel DockPanel.Dock="Right" Margin="5,0,0,0">
+                <RadioButton GroupName="PromotionType" Style="{StaticResource ResourceKey=radiobuttonStyle}" Content="{StaticResource ResourceKey=queenKind}" Margin="0,0,0,3"
+                             IsChecked="{Binding Path=SelectedPromotionType, Converter={StaticResource ResourceKey=promotionToBoolConverter}, ConverterParameter={StaticResource ResourceKey=queenPieceType}}" />
+                <RadioButton GroupName="PromotionType" Style="{StaticResource ResourceKey=radiobuttonStyle}" Content="{StaticResource ResourceKey=rookKind}" Margin="0,0,0,3"
+                             IsChecked="{Binding Path=SelectedPromotionType, Converter={StaticResource ResourceKey=promotionToBoolConverter}, ConverterParameter={StaticResource ResourceKey=rookPieceType}}" />
+                <RadioButton GroupName="PromotionType" Style="{StaticResource ResourceKey=radiobuttonStyle}" Content="{StaticResource ResourceKey=bishopKind}" Margin="0,0,0,3"
+                             IsChecked="{Binding Path=SelectedPromotionType, Converter={StaticResource ResourceKey=promotionToBoolConverter}, ConverterParameter={StaticResource ResourceKey=bishopPieceType}}" />
+                <RadioButton GroupName="PromotionType" Style="{StaticResource ResourceKey=radiobuttonStyle}" Content="{StaticResource ResourceKey=knightKind}"
+                             IsChecked="{Binding Path=SelectedPromotionType, Converter={StaticResource ResourceKey=promotionToBoolConverter}, ConverterParameter={StaticResource ResourceKey=knightPieceType}}" />
+            </StackPanel>
             <Grid DockPanel.Dock="Bottom">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,2,0,0">
                     <Button Command="{Binding Path=DisplayFirstPositionCommand}" ToolTip="First move"
@@ -39,6 +79,7 @@
                     <iconPacks:PackIconFontAwesome Kind="ExchangeAltSolid" />
                 </Button>
             </Grid>
+            <local:BoardUC DockPanel.Dock="Top" Width="1000" Height="1000" />
         </DockPanel>
     </Viewbox>
 </UserControl>

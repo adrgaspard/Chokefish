@@ -6,6 +6,6 @@
              xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
              mc:Ignorable="d">
     <Grid>
-            
+        <!--<TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Depth}" />-->
     </Grid>
 </UserControl>
