@@ -4,8 +4,38 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Views.Match"
+             xmlns:commonconverter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Common"
+             xmlns:converter="clr-namespace:AdrGaspard.ChokefishSuite.UI.WPF.Converters.Match"
              mc:Ignorable="d">
-    <Grid>
-        <!--<TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Depth}" />-->
-    </Grid>
+    <UserControl.Resources>
+        <commonconverter:BoolToVisibleHiddenVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToCollapsedVisibilityConverter" />
+        <converter:MateScoreIntToStringConverter x:Key="scoreToStringConverter" />
+        <converter:MateScoreIntToBrushConverter x:Key="scoreToBrushConverter" />
+    </UserControl.Resources>
+    <StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Search informations" Style="{StaticResource ResourceKey=textblockStyle}" />
+            <TextBlock Text="(no data available)" Style="{StaticResource ResourceKey=textblockStyle}" Margin="5,0,0,0" Foreground="#D0D0D0"
+                       Visibility="{Binding Path=IsValid, Converter={StaticResource ResourceKey=boolToCollapsedVisibilityConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}" />
+        </StackPanel>
+        <StackPanel Visibility="{Binding Path=IsValid, Converter={StaticResource ResourceKey=boolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Depth:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Depth}" Foreground="#F0C851" Margin="5,0,0,0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Positions searched:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=Depth}" Foreground="#F0C851" Margin="5,0,0,0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="Score:" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=CentipawnScore}" Foreground="#F0C851" Margin="5,0,0,0"
+                           Visibility="{Binding Path=IsMate, Converter={StaticResource ResourceKey=boolToCollapsedVisibilityConverter}, ConverterParameter={StaticResource ResourceKey=boolTrue}}" />
+                <TextBlock Style="{StaticResource ResourceKey=textblockStyle}" Text="{Binding Path=MateScore, Converter={StaticResource ResourceKey=scoreToStringConverter}}"
+                           Foreground="{Binding Path=MateScore, Converter={StaticResource ResourceKey=scoreToBrushConverter}}" Margin="5,0,0,0"
+                           Visibility="{Binding Path=IsMate, Converter={StaticResource ResourceKey=boolToCollapsedVisibilityConverter}}" />
+            </StackPanel>
+        </StackPanel>
+    </StackPanel>
 </UserControl>
