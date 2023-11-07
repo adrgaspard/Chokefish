@@ -53,9 +53,9 @@ static bool is_insufficient_material(board *board)
     }
     white_bishops_count = board->piece_groups[COLOR_WHITE][PIECE_BISHOP].count;
     white_knights_count = board->piece_groups[COLOR_WHITE][PIECE_KNIGHT].count;
-    white_minors_count = white_bishops_count + white_knights_count;
+    white_minors_count = (uint8_t)(white_bishops_count + white_knights_count);
     black_bishops_count = board->piece_groups[COLOR_BLACK][PIECE_BISHOP].count;
     black_knights_count = board->piece_groups[COLOR_BLACK][PIECE_KNIGHT].count;
-    black_minors_count = black_bishops_count + black_knights_count;
+    black_minors_count = (uint8_t)(black_bishops_count + black_knights_count);
     return white_minors_count <= 1 && black_minors_count <= 1;
 }
