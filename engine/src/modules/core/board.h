@@ -325,7 +325,7 @@ static inline void undo_move(board *board, move move, bool is_search)
     assert(board != NULL);
     assert(is_movement_valid(move));
     assert(!is_movement_empty(move));
-    assert(board->move_history.count > 0);
+    assert(is_search || board->move_history.count > 0);
     assert(board->game_state_history.count > 0);
     assert((board->ply_count % 2) == board->color_to_move);
 

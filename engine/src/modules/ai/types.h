@@ -11,7 +11,7 @@ typedef struct search_result
     bool finished;
     bool is_mate;
     double centipawns_score;
-    uint16_t mate_score;
+    int16_t mate_score;
     move best_move;
     move ponder_move;
     uint16_t depth;
