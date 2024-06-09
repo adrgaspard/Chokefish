@@ -1,4 +1,5 @@
 #include "../core/position.h"
+#include "../core/precomputed_board_data.h"
 #include "../core/shared_random.h"
 #include "magic_generator.h"
 

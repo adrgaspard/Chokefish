@@ -20,8 +20,8 @@ void reset_search_result(search_result *result, bool start_now)
     result->is_mate = false;
     result->centipawns_score = 0.0;
     result->mate_score = 0;
-    result->best_move = create_empty_movement();
-    result->ponder_move = create_empty_movement();
+    result->best_move = create_empty_move();
+    result->ponder_move = create_empty_move();
     result->depth = 0;
     result->nodes_explored = 0;
     result->start_time = start_now ? get_current_uptime() : 0;

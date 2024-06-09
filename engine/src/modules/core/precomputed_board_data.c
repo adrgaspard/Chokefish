@@ -1,4 +1,5 @@
 #include "bitboard.h"
+#include "position.h"
 #include "precomputed_board_data.h"
 #include "precomputed_magics.h"
 #include "static_collections.h"
@@ -78,7 +79,6 @@ static void initialize_directional_moves_masks_and_magics();
 static void initialize_positions_ranks_files_masks();
 static void initialize_attacks_moves_masks();
 static void initialize_magic_data(position position, bool ortho_instead_of_diag);
-static index_validation_result compute_index_if_valid(int32_t x, int32_t y);
 static position_array64 compute_blockers_indices(bitboard moves_mask, uint32_t *indices_count);
 static void compute_blockers_combinations(bitboard *combinations, uint32_t combinations_capacity, position_array64 indices, uint32_t indices_count);
 
@@ -173,6 +173,32 @@ bitboard compute_legal_moves_mask(position start_pos, bitboard blockers_bitboard
         }
     }
     return mask;
+}
+
+bitboard get_slider_moves_bitboard(position position, bitboard blockers, bool ortho_instead_of_diag)
+{
+    assert(is_position_valid(position) && position != NO_POSITION);
+    return ortho_instead_of_diag ? get_orthogonal_moves_bitboard(position, blockers) : get_diagonal_moves_bitboard(position, blockers);
+}
+
+bitboard get_orthogonal_moves_bitboard(position position, bitboard blockers)
+{
+    bitboard key;
+    magic_data *data;
+    assert(is_position_valid(position) && position != NO_POSITION);
+    data = &(g_orthogonal_magic_data[position]);
+    key = ((blockers & g_orthogonal_moves_mask[position]) * data->value) >> data->shift_quantity;
+    return data->legal_moves[key];
+}
+
+bitboard get_diagonal_moves_bitboard(position position, bitboard blockers)
+{
+    bitboard key;
+    magic_data *data;
+    assert(is_position_valid(position) && position != NO_POSITION);
+    data = &(g_diagonal_magic_data[position]);
+    key = ((blockers & g_diagonal_moves_mask[position]) * data->value) >> data->shift_quantity;
+    return data->legal_moves[key];
 }
 
 static void initialize_directional_offsets()

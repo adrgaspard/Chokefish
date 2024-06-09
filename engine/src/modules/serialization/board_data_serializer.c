@@ -1,6 +1,14 @@
 #include <ctype.h>
 #include <string.h>
+#include "../core/bitboard.h"
 #include "../core/board.h"
+#include "../core/castling.h"
+#include "../core/game_state.h"
+#include "../core/move.h"
+#include "../core/piece.h"
+#include "../core/piece_group.h"
+#include "../core/position.h"
+#include "../core/zobrist.h"
 #include "board_data_serializer.h"
 #include "consts.h"
 #include "position_serializer.h"
@@ -317,7 +325,7 @@ static bool is_valid_en_passant_capture(board *board, vector2 from_pos_vector, p
     from_pos_result = compute_index_if_valid(from_pos_vector.x, from_pos_vector.y);
     if (from_pos_result.valid && board->position[from_pos_result.index] == create_piece(board->color_to_move, PIECE_PAWN))
     {
-        move = create_movement(from_pos_result.index, en_passant_capture_pos, MOVE_EN_PASSANT_CAPTURE);
+        move = create_move(from_pos_result.index, en_passant_capture_pos, MOVE_EN_PASSANT_CAPTURE);
         do_move(board, move, false);
         do_null_move(board);
         is_legal = !compute_check_state(board);

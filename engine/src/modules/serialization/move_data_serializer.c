@@ -124,14 +124,14 @@ move move_data_to_existing_moves(move_data move_data, move *existing_moves, uint
             }
         }
     }
-    return create_empty_movement();
+    return create_empty_move();
 }
 
 move_data move_data_from_move(move move)
 {
     move_flags flags;
     promotion_type promotion_type;
-    if (is_movement_valid(move))
+    if (is_move_valid(move))
     {
         promotion_type = PROMOTION_NONE;
         flags = get_flags(move);
