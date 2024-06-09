@@ -68,7 +68,7 @@ typedef enum promotion_type
     PROMOTION_ALL = PROMOTION_QUEEN | PROMOTION_ROOK | PROMOTION_BISHOP | PROMOTION_KIGHT
 } promotion_type;
 
-DECLARE_DYNAMIC_ARRAY_CONTRACT(bitboard, bitboard_dynamic_array)
+DECLARE_DYNAMIC_ARRAY_TYPE(bitboard, bitboard_dynamic_array)
 
 typedef struct vector2
 {
@@ -105,8 +105,8 @@ typedef struct game_state
     zobrist_key zobrist_key;
 } game_state;
 
-DECLARE_STATIC_STACK_CONTRACT(game_state, 10000, game_state_stack)
-DECLARE_STATIC_STACK_CONTRACT(move, 10000, move_stack)
+DECLARE_STATIC_STACK_TYPE(game_state, 10000, game_state_stack)
+DECLARE_STATIC_STACK_TYPE(move, 10000, move_stack)
 
 typedef struct board
 {
