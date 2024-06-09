@@ -2,6 +2,7 @@
 #define UCI_TYPES_H
 
 #include <pthread.h>
+#include "../ai/types.h"
 
 typedef enum engine_state
 {

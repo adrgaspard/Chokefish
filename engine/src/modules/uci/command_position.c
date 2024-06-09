@@ -26,8 +26,6 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
     assert(state != NULL);
     assert(board != NULL);
     assert(token != NULL);
-    assert(current_fen != NULL);
-    assert(current_moves != NULL);
     if (is_waiting_for_setup(*state) || is_waiting_for_ready(*state))
     {
         return;
