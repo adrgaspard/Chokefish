@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "../core/board.h"
-#include "../core/move.h"
 #include "../core/move_generation_result.h"
 #include "../core/move_generator.h"
 #include "../game_tools/board_utils.h"
@@ -79,7 +78,7 @@ void handle_position_command(char *cmd, char *edit_cmd, uint64_t start_index, en
             generate_moves(board, &(generation_result), s_all_moves);
             move_data = move_data_from_string(current_move_ptr);
             current_move = move_data_to_existing_moves(move_data, generation_result.moves, generation_result.moves_count);
-            if (!is_move_valid(current_move) || is_move_empty(current_move))
+            if (!is_movement_valid(current_move) || is_movement_empty(current_move))
             {
                 fprintf(stderr, "Error: unknown move '%s' provided in input!", current_move_ptr);
                 return;

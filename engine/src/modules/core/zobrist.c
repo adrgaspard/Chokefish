@@ -62,22 +62,3 @@ zobrist_key compute_zobrist_key(board *board)
     key ^= get_castling_hash(board->current_game_state.castling_data);
     return key;
 }
-
-zobrist_key get_piece_hash(piece piece, position position)
-{
-    assert(is_piece_valid(piece));
-    assert(is_position_valid(position));
-    return g_piece_hashes[piece][position];
-}
-
-zobrist_key get_castling_hash(castling_data data)
-{
-    assert(is_castling_data_valid(data));
-    return g_castling_hashes[data];
-}
-
-zobrist_key get_en_passant_file_hash(int8_t en_passant_file)
-{
-    assert(en_passant_file == NO_FILE || (en_passant_file >= 0 && en_passant_file < FILES_COUNT));
-    return en_passant_file == NO_FILE ? g_en_passant_file_hashes[FILES_COUNT] : g_en_passant_file_hashes[en_passant_file - 1];
-}

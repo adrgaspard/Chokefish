@@ -1,6 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "../ai/types.h"
 #include "../game_tools/types.h"
 #include "types.h"
