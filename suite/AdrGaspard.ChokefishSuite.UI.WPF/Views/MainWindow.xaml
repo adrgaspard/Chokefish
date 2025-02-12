@@ -32,7 +32,9 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="10*" />
                 </Grid.ColumnDefinitions>
-                <match:SchedulerUC Grid.Column="0"  />
+                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
+                    <match:SchedulerUC />
+                </ScrollViewer>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,-2,10,-2">
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                 </StackPanel>
@@ -47,7 +49,9 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="10*" />
                 </Grid.ColumnDefinitions>
-                <match:BotVsHumanUC Grid.Column="0" />
+                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
+                    <match:BotVsHumanUC />
+                </ScrollViewer>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,-2,10,-2">
                     <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
                 </StackPanel>
