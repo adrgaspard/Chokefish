@@ -49,79 +49,57 @@ void handle_commands()
         {
             if (strcmp(current_cmd, GE_CMD_UCI) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_uci_command(&s_state, s_options);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_DEBUG) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_debug_command(current_cmd, &s_debug, s_state, &(s_search_token.result));
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_ISREADY) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_isready_command(&s_state);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_SETOPTION) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_setoption_command(current_cmd, &s_options);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_UCINEWGAME) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_ucinewgame_command(&s_state, &s_search_token, &s_board);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_POSITION) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_board, &s_search_token);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_GO) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_go_command(current_cmd, &s_state, &s_board, &s_search_token, s_debug);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_STOP) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_stop_command(&s_state, &s_search_token);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_PONDERHIT) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_ponderhit_command(&s_state, &s_search_token);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_QUIT) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_quit_command(s_state, &s_search_token);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_DISPLAY) == 0)
             {
-                pthread_mutex_lock(&s_global_lock);
                 handle_display_command(current_cmd, s_state, &s_board);
-                pthread_mutex_unlock(&s_global_lock);
                 break;
             }
             else
