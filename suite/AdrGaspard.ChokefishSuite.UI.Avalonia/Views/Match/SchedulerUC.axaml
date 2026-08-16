@@ -1,0 +1,37 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.SchedulerUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
+             xmlns:primitives="using:Avalonia.Controls.Primitives"
+             x:DataType="vm:AvaloniaMatchSchedulerViewModel"
+             x:Name="rootUC">
+    <UserControl.Resources>
+        <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
+    </UserControl.Resources>
+    <StackPanel>
+        <local:RatioBarFullUC />
+        <Border Height="1" Background="White" Margin="20" />
+        <local:MatchInfosUC />
+        <Border Height="1" Background="White" Margin="20" />
+        <StackPanel IsEnabled="{Binding #rootUC.DataContext.Running, Converter={StaticResource boolToInvertedBoolConverter}}">
+            <Label Classes="labelStyle" Content="First engine" />
+            <local:EngineSelectionUC VerticalAlignment="Top" DataContext="{Binding FirstEngineSelectorVM}" Margin="0,0,0,10" />
+            <Label Classes="labelStyle" Content="Second engine" />
+            <local:EngineSelectionUC VerticalAlignment="Top" DataContext="{Binding SecondEngineSelectorVM}" Margin="0,0,0,10" />
+        </StackPanel>
+        <Border Height="1" Background="White" Margin="20" />
+        <local:RuleSelectionUC VerticalAlignment="Top" DataContext="{Binding SchedulingRulesVM}"
+                               IsEnabled="{Binding #rootUC.DataContext.Running, Converter={StaticResource boolToInvertedBoolConverter}}" />
+        <Border Height="1" Background="White" Margin="20" />
+        <primitives:UniformGrid Columns="3">
+            <Button Command="{Binding StartMatchCommand}" Content="Start" Classes="buttonStyle actionButtonStyle"
+                    IsEnabled="{Binding MatchCanStart}" />
+            <Button Command="{Binding StopMatchCommand}" Content="Stop" Classes="buttonStyle actionButtonStyle"
+                    IsEnabled="{Binding Running}" />
+            <Button Command="{Binding ResetCommand}" Content="Reset" Classes="buttonStyle actionButtonStyle"
+                    IsEnabled="{Binding Running, Converter={StaticResource boolToInvertedBoolConverter}}" />
+        </primitives:UniformGrid>
+    </StackPanel>
+</UserControl>

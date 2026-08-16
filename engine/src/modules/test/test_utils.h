@@ -9,7 +9,7 @@ typedef struct node_exploration_case
     uint64_t expected_nodes_count;
 } node_exploration_case;
 
-void run_node_exploration_batch(char *position_name, char *fen_string, node_exploration_case *cases, uint32_t cases_count);
+bool run_node_exploration_batch(char *position_name, char *fen_string, node_exploration_case *cases, uint32_t cases_count);
 
 uint64_t run_performance_test(char *fen_string, int32_t depth);
 

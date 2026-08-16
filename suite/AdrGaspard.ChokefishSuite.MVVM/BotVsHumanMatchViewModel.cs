@@ -85,7 +85,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             try
             {
                 isOk &= engine.SetDebug(EngineParametersVM.Debug);
-                isOk &= engine.SetOption(OptionHelper.PonderOptionName, EngineParametersVM.Ponder);
+                isOk &= engine.SetOption(OptionHelper.PonderOptionName, false  /*EngineParametersVM.Ponder */); // Can't ponder because we can't fetch the ponder position in case of ponderhit
                 isOk &= engine.SetOption(OptionHelper.OwnBookOptionName, EngineParametersVM.OwnBook);
                 isOk &= engine.SetOption(OptionHelper.ThreadsOptionName, EngineParametersVM.Threads);
                 isOk &= engine.ResetGame();

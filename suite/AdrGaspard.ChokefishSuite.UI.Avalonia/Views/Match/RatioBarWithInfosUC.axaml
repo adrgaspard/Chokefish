@@ -1,0 +1,22 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.RatioBarWithInfosUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.MVVM"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             x:DataType="vm:RatioViewModel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="15" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="Wins:" Classes="textblockStyle" Foreground="{StaticResource winColorBrush}" />
+            <TextBlock Text="{Binding VictoryCount}" Classes="textblockStyle" Foreground="{StaticResource winColorBrush}" Margin="5,0,20,0" />
+            <TextBlock Text="Draws:" Classes="textblockStyle" Foreground="{StaticResource drawColorBrush}" />
+            <TextBlock Text="{Binding DrawCount}" Classes="textblockStyle" Foreground="{StaticResource drawColorBrush}" Margin="5,0,20,0" />
+            <TextBlock Text="Losses:" Classes="textblockStyle" Foreground="{StaticResource lossColorBrush}" />
+            <TextBlock Text="{Binding DefeatCount}" Classes="textblockStyle" Foreground="{StaticResource lossColorBrush}" Margin="5,0,0,0" />
+        </StackPanel>
+        <local:RatioBarUC Grid.Row="1" />
+    </Grid>
+</UserControl>

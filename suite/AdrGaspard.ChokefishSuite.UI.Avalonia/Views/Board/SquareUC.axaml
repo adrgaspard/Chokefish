@@ -1,0 +1,68 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Board.SquareUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Board"
+             xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
+             xmlns:converter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Board"
+             xmlns:sys="using:System"
+             x:DataType="vm:SquareViewModel">
+    <UserControl.Resources>
+        <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <converter:BoolsToBrushConverter x:Key="boolsToBrushConverter" />
+        <converter:PieceToImageSourceConverter x:Key="pieceToImageSourceConverter" />
+        <converter:FileIndexToStringConverter x:Key="fileToStringConverter" />
+        <converter:RankIndexToStringConverter x:Key="rankToStringConverter" />
+        <converter:BoolAndPieceToVisibilityConverter x:Key="boolAndPieceToVisibilityConverter" />
+        <sys:Boolean x:Key="boolTrue">True</sys:Boolean>
+        <sys:Boolean x:Key="inverted">true</sys:Boolean>
+    </UserControl.Resources>
+    <Grid PointerPressed="OnPointerPressed">
+        <Grid.Background>
+            <MultiBinding Converter="{StaticResource boolsToBrushConverter}">
+                <Binding Path="IsBlackSquare" />
+                <Binding Path="IsSelected" />
+                <Binding Path="IsLastMove" />
+            </MultiBinding>
+        </Grid.Background>
+        <Rectangle Width="30" Height="30" Fill="#606060" Opacity="0.4" RadiusX="15" RadiusY="15">
+            <Rectangle.IsVisible>
+                <MultiBinding Converter="{StaticResource boolAndPieceToVisibilityConverter}" ConverterParameter="{StaticResource boolTrue}">
+                    <Binding Path="CanBeNextMoveDestination" />
+                    <Binding Path="Piece" />
+                </MultiBinding>
+            </Rectangle.IsVisible>
+        </Rectangle>
+        <Ellipse Width="120" Height="120" Stroke="#606060" Opacity="0.4" StrokeThickness="10">
+            <Ellipse.IsVisible>
+                <MultiBinding Converter="{StaticResource boolAndPieceToVisibilityConverter}">
+                    <Binding Path="CanBeNextMoveDestination" />
+                    <Binding Path="Piece" />
+                </MultiBinding>
+            </Ellipse.IsVisible>
+        </Ellipse>
+        <Image Source="{Binding Piece, Converter={StaticResource pieceToImageSourceConverter}}" />
+        <TextBlock Text="{Binding FileIndex, Converter={StaticResource fileToStringConverter}}"
+                   IsVisible="{Binding HasFileAnnotation, Converter={StaticResource boolToVisibilityConverter}}"
+                   Classes="textblockStyle" FontWeight="Bold" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="2,0,0,1">
+            <TextBlock.Foreground>
+                <MultiBinding Converter="{StaticResource boolsToBrushConverter}" ConverterParameter="{StaticResource inverted}">
+                    <Binding Path="IsBlackSquare" />
+                    <Binding Path="IsSelected" />
+                    <Binding Path="IsLastMove" />
+                </MultiBinding>
+            </TextBlock.Foreground>
+        </TextBlock>
+        <TextBlock Text="{Binding RankIndex, Converter={StaticResource rankToStringConverter}}"
+                   IsVisible="{Binding HasRankAnnotation, Converter={StaticResource boolToVisibilityConverter}}"
+                   Classes="textblockStyle" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,2,0">
+            <TextBlock.Foreground>
+                <MultiBinding Converter="{StaticResource boolsToBrushConverter}" ConverterParameter="{StaticResource inverted}">
+                    <Binding Path="IsBlackSquare" />
+                    <Binding Path="IsSelected" />
+                    <Binding Path="IsLastMove" />
+                </MultiBinding>
+            </TextBlock.Foreground>
+        </TextBlock>
+    </Grid>
+</UserControl>

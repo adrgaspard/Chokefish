@@ -1,0 +1,21 @@
+using AdrGaspard.ChokefishSuite.Core.GameData;
+using System.Globalization;
+using Avalonia.Data.Converters;
+
+namespace AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Board
+{
+    public class ChessPiecePromotionToBoolConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            return parameter is ChessPieceType requiredPieceType && value is ChessPieceType actualPieceType && actualPieceType == requiredPieceType;
+        }
+
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            return parameter is ChessPieceType requiredPieceType && value is true
+                ? requiredPieceType
+                : null;
+        }
+    }
+}

@@ -1,0 +1,48 @@
+<Window x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+        xmlns:board="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Board"
+        xmlns:match="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+        xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
+        x:DataType="vm:MainViewModel"
+        x:Name="windowRoot"
+        Title="{Binding AppName}"
+        Background="#222222"
+        FontSize="14"
+        Width="1280"
+        Height="800"
+        WindowState="Maximized"
+        Icon="/Resources/icon.ico">
+    <Window.Resources>
+        <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
+    </Window.Resources>
+    <TabControl Background="Transparent" BorderThickness="0" Margin="5,0">
+        <TabItem Header="Sequential probability ratio test"
+                 IsEnabled="{Binding BotVsHumanMatchVM.Running, Source={StaticResource Locator}, DataType={x:Type vm:ViewModelLocator}, Converter={StaticResource boolToInvertedBoolConverter}}">
+            <Grid x:Name="schedulerGrid" Margin="5,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="10*" />
+                </Grid.ColumnDefinitions>
+                <ScrollViewer x:Name="schedulerScroll" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" ClipToBounds="True">
+                    <match:SchedulerUC MaxWidth="{Binding #schedulerScroll.Viewport.Width}" HorizontalAlignment="Stretch" Margin="4,0,18,0" />
+                </ScrollViewer>
+                <board:GameUC x:Name="schedulerGameUC" Grid.Column="1" Margin="24,0,0,0" />
+            </Grid>
+        </TabItem>
+        <TabItem Header="Match vs human"
+                 IsEnabled="{Binding MatchSchedulerVM.Running, Source={StaticResource Locator}, DataType={x:Type vm:ViewModelLocator}, Converter={StaticResource boolToInvertedBoolConverter}}">
+            <Grid x:Name="botVsHumanGrid" Margin="5,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="10*" />
+                    <ColumnDefinition Width="10*" />
+                </Grid.ColumnDefinitions>
+                <ScrollViewer x:Name="botVsHumanScroll" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" ClipToBounds="True">
+                    <match:BotVsHumanUC MaxWidth="{Binding #botVsHumanScroll.Viewport.Width}" HorizontalAlignment="Stretch" Margin="4,0,18,0" />
+                </ScrollViewer>
+                <board:GameUC x:Name="botVsHumanGameUC" Grid.Column="1" Margin="24,0,0,0" />
+            </Grid>
+        </TabItem>
+    </TabControl>
+</Window>

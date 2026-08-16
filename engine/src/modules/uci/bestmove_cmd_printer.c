@@ -1,4 +1,3 @@
-#include <pthread.h>
 #include <stdio.h>
 #include "../core/move.h"
 #include "../serialization/consts.h"
@@ -10,7 +9,6 @@ void print_bestmove_response(search_result *result, bool ponder)
 {
     char best_move_str[MOVE_DATA_STR_LEN], ponder_move_str[MOVE_DATA_STR_LEN];
     assert(result != NULL);
-    pthread_rwlock_rdlock(&(result->lock));
     if (result->valid && !is_movement_empty(result->best_move))
     {
         move_to_string(result->best_move, best_move_str);
@@ -23,5 +21,4 @@ void print_bestmove_response(search_result *result, bool ponder)
         printf("\n");
         fflush(stdout);
     }
-    pthread_rwlock_unlock(&(result->lock));
 }

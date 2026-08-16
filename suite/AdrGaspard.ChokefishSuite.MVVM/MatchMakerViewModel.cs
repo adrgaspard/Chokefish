@@ -69,7 +69,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         public SearchDebugInfos? BlackSearchDebugInfos
         {
-            get => _whiteSearchDebugInfos;
+            get => _blackSearchDebugInfos;
             private set => SetProperty(ref _blackSearchDebugInfos, value);
         }
 

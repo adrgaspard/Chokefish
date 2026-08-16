@@ -1,17 +1,19 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
+#include <inttypes.h>
+
 #define STRINGIFY_LITERAL(literal) # literal
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#define H64 "%016" PRIX64
+#define U64 "%" PRIu64
+#define I64 "%" PRId64
+#define U32 "%" PRIu32
+#define I32 "%" PRId32
+#define U16 "%u"
+#define U8 "%hhu"
 
-#define H64 STRINGIFY_LITERAL(%016llX)
-#define U64 STRINGIFY_LITERAL(%llu)
-#define I64 STRINGIFY_LITERAL(%lld)
-#define U32 STRINGIFY_LITERAL(%lu)
-#define I32 STRINGIFY_LITERAL(%d)
-#define U16 STRINGIFY_LITERAL(%u)
-#define U8 STRINGIFY_LITERAL(%hhu)
+#if defined(__MINGW32__) || defined(__MINGW64__) || defined(_MSC_VER)
 
 #define FG_BLACK ""
 #define FG_DARK_RED ""
@@ -50,14 +52,6 @@
 #define COLOR_RESET ""
 
 #else
-
-#define H64 STRINGIFY_LITERAL(%016lX)
-#define U64 STRINGIFY_LITERAL(%lu)
-#define I64 STRINGIFY_LITERAL(%ld)
-#define U32 STRINGIFY_LITERAL(%u)
-#define I32 STRINGIFY_LITERAL(%d)
-#define U16 STRINGIFY_LITERAL(%u)
-#define U8 STRINGIFY_LITERAL(%hhu)
 
 #define FG_BLACK "\x1b[0;30m"
 #define FG_DARK_RED "\x1b[0;31m"

@@ -7,13 +7,11 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         private bool _isValid;
         private string _enginePath;
         private string _engineName;
-        private bool _useWsl;
 
         public EngineSelectorViewModel()
         {
             _enginePath = "";
             _engineName = "";
-            _useWsl = false;
             _isValid = false;
         }
 
@@ -41,12 +39,6 @@ namespace AdrGaspard.ChokefishSuite.MVVM
         {
             get => _engineName;
             private set => SetProperty(ref _engineName, value);
-        }
-
-        public bool UseWsl
-        {
-            get => _useWsl;
-            set => SetProperty(ref _useWsl, value);
         }
     }
 }

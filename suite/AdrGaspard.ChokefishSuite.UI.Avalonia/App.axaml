@@ -1,0 +1,24 @@
+<Application x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.App"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+             RequestedThemeVariant="Dark">
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://AdrGaspard.ChokefishSuite.UI.Avalonia/Styles/AppStyles.axaml" />
+    </Application.Styles>
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://AdrGaspard.ChokefishSuite.UI.Avalonia/Styles/Icons.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <vm:ViewModelLocator x:Key="Locator" />
+            <Color x:Key="winColor">#32DB4F</Color>
+            <Color x:Key="drawColor">#C3C3C3</Color>
+            <Color x:Key="lossColor">#F72F2F</Color>
+            <SolidColorBrush x:Key="winColorBrush" Color="{StaticResource winColor}" />
+            <SolidColorBrush x:Key="drawColorBrush" Color="{StaticResource drawColor}" />
+            <SolidColorBrush x:Key="lossColorBrush" Color="{StaticResource lossColor}" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

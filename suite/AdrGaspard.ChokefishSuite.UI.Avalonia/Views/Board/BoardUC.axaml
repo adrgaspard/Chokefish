@@ -1,0 +1,18 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Board.BoardUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Board"
+             xmlns:primitives="using:Avalonia.Controls.Primitives"
+             x:DataType="vm:BoardViewModel">
+    <primitives:UniformGrid Rows="8">
+        <local:RankUC DataContext="{Binding RanksFromPerspective[0]}" />
+        <local:RankUC DataContext="{Binding RanksFromPerspective[1]}" />
+        <local:RankUC DataContext="{Binding RanksFromPerspective[2]}" />
+        <local:RankUC DataContext="{Binding RanksFromPerspective[3]}" />
+        <local:RankUC DataContext="{Binding RanksFromPerspective[4]}" />
+        <local:RankUC DataContext="{Binding RanksFromPerspective[5]}" />
+        <local:RankUC DataContext="{Binding RanksFromPerspective[6]}" />
+        <local:RankUC DataContext="{Binding RanksFromPerspective[7]}" />
+    </primitives:UniformGrid>
+</UserControl>

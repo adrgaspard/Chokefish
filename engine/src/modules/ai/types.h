@@ -1,12 +1,11 @@
 #ifndef AI_TYPES_H
 #define AI_TYPES_H
 
-#include <pthread.h>
+#include "../core/threading.h"
 #include "../core/types.h"
 
 typedef struct search_result
 {
-    pthread_rwlock_t lock;
     bool valid;
     bool finished;
     bool is_mate;

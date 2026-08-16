@@ -1,0 +1,42 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.SearchInfosUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="using:System"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.MVVM"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
+             xmlns:converter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Match"
+             x:DataType="vm:SearchInfosViewModel">
+    <UserControl.Resources>
+        <commonconverter:BoolToVisibleHiddenVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToCollapsedVisibilityConverter" />
+        <converter:MateScoreIntToStringConverter x:Key="scoreToStringConverter" />
+        <converter:MateScoreIntToBrushConverter x:Key="scoreToBrushConverter" />
+        <sys:Boolean x:Key="boolTrue">True</sys:Boolean>
+    </UserControl.Resources>
+    <StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Text="Search informations" Classes="textblockStyle" />
+            <TextBlock Text="(no data available)" Classes="textblockStyle" Margin="5,0,0,0" Foreground="#D0D0D0"
+                       IsVisible="{Binding IsValid, Converter={StaticResource boolToCollapsedVisibilityConverter}, ConverterParameter={StaticResource boolTrue}}" />
+        </StackPanel>
+        <StackPanel IsVisible="{Binding IsValid, Converter={StaticResource boolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Classes="textblockStyle" Text="Depth:" />
+                <TextBlock Classes="textblockStyle" Text="{Binding Depth}" Foreground="#F0C851" Margin="5,0,0,0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Classes="textblockStyle" Text="Positions searched:" />
+                <TextBlock Classes="textblockStyle" Text="{Binding Nodes}" Foreground="#F0C851" Margin="5,0,0,0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Classes="textblockStyle" Text="Score:" />
+                <TextBlock Classes="textblockStyle" Text="{Binding CentipawnScore}" Foreground="#F0C851" Margin="5,0,0,0"
+                           IsVisible="{Binding IsMate, Converter={StaticResource boolToCollapsedVisibilityConverter}, ConverterParameter={StaticResource boolTrue}}" />
+                <TextBlock Classes="textblockStyle" Text="{Binding MateScore, Converter={StaticResource scoreToStringConverter}}"
+                           Foreground="{Binding MateScore, Converter={StaticResource scoreToBrushConverter}}" Margin="5,0,0,0"
+                           IsVisible="{Binding IsMate, Converter={StaticResource boolToCollapsedVisibilityConverter}}" />
+            </StackPanel>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

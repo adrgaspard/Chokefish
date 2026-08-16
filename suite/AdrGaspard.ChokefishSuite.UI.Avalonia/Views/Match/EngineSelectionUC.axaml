@@ -1,0 +1,14 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.EngineSelectionUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.MVVM"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             x:DataType="vm:EngineSelectorViewModel"
+             x:Name="rootUC">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
+            <Button Classes="buttonStyle" Content="Select executable" Click="OnExecutableSelectionRequested" />
+        </StackPanel>
+        <TextBlock Classes="textblockStyle" Text="{Binding EnginePath}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" MaxWidth="{Binding #rootUC.Bounds.Width}" />
+    </DockPanel>
+</UserControl>

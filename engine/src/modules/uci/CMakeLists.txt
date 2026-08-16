@@ -1,12 +1,22 @@
 set(MODULE_NAME uci)
 
-file(GLOB_RECURSE SRC_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.c
+add_library(${MODULE_NAME} STATIC
+    bestmove_cmd_printer.c
+    command_debug.c
+    command_display.c
+    command_go.c
+    command_isready.c
+    command_ponderhit.c
+    command_position.c
+    command_quit.c
+    command_setoption.c
+    command_stop.c
+    command_uci.c
+    command_ucinewgame.c
+    debug_printer.c
+    engine_options.c
+    engine_state.c
+    search_manager.c
+    uci.c
 )
-
-if(SRC_FILES)
-    add_library(${MODULE_NAME} ${SRC_FILES})
-    target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-else()
-    message(STATUS "Aucun fichier source trouvé pour le module ${MODULE_NAME}")
-endif()
+target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

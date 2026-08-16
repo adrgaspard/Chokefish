@@ -43,8 +43,6 @@ namespace AdrGaspard.ChokefishSuite.Core.Contracts
 
         bool StartSearch(ChessTimeSystem searchTimeSystem);
 
-        bool StartSearch(ChessTimeSystem searchTimeSystem, bool ponder);
-
         bool SwitchFromPonderingToClassicalSearch();
 
         bool StopSearch();

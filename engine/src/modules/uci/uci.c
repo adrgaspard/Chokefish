@@ -1,14 +1,18 @@
 #include <string.h>
-#include <pthread.h>
 #include "../ai/search_result.h"
 #include "../ai/types.h"
+#include "../core/threading.h"
 #include "../game_tools/board_utils.h"
 #include "../serialization/consts.h"
 #include "commands.h"
 #include "uci.h"
+#include "debug_printer.h"
 #include "engine_options.h"
 #include "engine_state.h"
 #include "search_manager.h"
+
+// All state below is guarded by the engine mutex s_mutex:
+// engine_state, engine_options, search_token, search_result and all stdout writes
 
 static engine_options s_options;
 
@@ -25,7 +29,7 @@ static board s_board;
 
 static search_token s_search_token;
 
-static pthread_mutex_t s_global_lock;
+static engine_mutex s_mutex;
 
 static void reset_internal_data();
 
@@ -47,63 +51,76 @@ void handle_commands()
         current_cmd = strtok(s_edit_command_str, UCI_DELIMITER);
         while (current_cmd != NULL)
         {
+            engine_mutex_lock(&s_mutex);
             if (strcmp(current_cmd, GE_CMD_UCI) == 0)
             {
                 handle_uci_command(&s_state, s_options);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_DEBUG) == 0)
             {
                 handle_debug_command(current_cmd, &s_debug, s_state, &(s_search_token.result));
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_ISREADY) == 0)
             {
                 handle_isready_command(&s_state);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_SETOPTION) == 0)
             {
                 handle_setoption_command(current_cmd, &s_options);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_UCINEWGAME) == 0)
             {
                 handle_ucinewgame_command(&s_state, &s_search_token, &s_board);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_POSITION) == 0)
             {
                 handle_position_command(s_command_str, current_cmd, start_index, &s_state, &s_board, &s_search_token);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_GO) == 0)
             {
-                handle_go_command(current_cmd, &s_state, &s_board, &s_search_token, s_debug);
+                handle_go_command(&s_state, &s_board, &s_search_token, s_debug);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_STOP) == 0)
             {
                 handle_stop_command(&s_state, &s_search_token);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_PONDERHIT) == 0)
             {
                 handle_ponderhit_command(&s_state, &s_search_token);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_QUIT) == 0)
             {
                 handle_quit_command(s_state, &s_search_token);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else if (strcmp(current_cmd, GE_CMD_DISPLAY) == 0)
             {
                 handle_display_command(current_cmd, s_state, &s_board);
+                engine_mutex_unlock(&s_mutex);
                 break;
             }
             else
             {
+                engine_mutex_unlock(&s_mutex);
                 start_index += strlen(current_cmd) + 1;
                 current_cmd = strtok(NULL, UCI_DELIMITER);
             }
@@ -114,7 +131,7 @@ void handle_commands()
 static void reset_internal_data()
 {
     uint64_t i;
-    pthread_mutex_init(&s_global_lock, NULL);
+    engine_mutex_init(&s_mutex);
     s_options = get_default_options();
     s_debug = false;
     s_state = get_default_state();
@@ -129,5 +146,6 @@ static void reset_internal_data()
         s_current_fen[i] = '\0';
     }
     reset_board(&s_board, START_FEN_STR);
-    s_search_token = create_empty_token(&s_global_lock, &s_state, &s_options, &s_debug);
+    create_empty_token(&s_search_token, &s_mutex, &s_state);
+    initialize_debug_printer(&s_mutex);
 }

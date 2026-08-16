@@ -1,0 +1,34 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.BotVsHumanUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
+             xmlns:primitives="using:Avalonia.Controls.Primitives"
+             x:DataType="vm:AvaloniaBotVsHumanMatchViewModel"
+             x:Name="rootUC">
+    <UserControl.Resources>
+        <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
+        <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToVisibilityConverter" />
+    </UserControl.Resources>
+    <StackPanel>
+        <local:BotVsHumanMatchInfosUC />
+        <Border Height="1" Background="White" Margin="20" />
+        <StackPanel IsEnabled="{Binding #rootUC.DataContext.Running, Converter={StaticResource boolToInvertedBoolConverter}}">
+            <Label Classes="labelStyle" Content="Engine" />
+            <local:EngineSelectionUC VerticalAlignment="Top" DataContext="{Binding EngineSelectorVM}" Margin="0,0,0,10" />
+        </StackPanel>
+        <Border Height="1" Background="White" Margin="20" />
+        <local:EngineParametersUC DataContext="{Binding EngineParametersVM}"
+                                  IsEnabled="{Binding #rootUC.DataContext.Running, Converter={StaticResource boolToInvertedBoolConverter}}" />
+        <Border Height="1" Background="White" Margin="20" />
+        <primitives:UniformGrid Columns="3">
+            <Button Command="{Binding StartMatchCommand}" Content="Start" Classes="buttonStyle actionButtonStyle"
+                    IsEnabled="{Binding MatchCanStart}" />
+            <Button Command="{Binding StopMatchCommand}" Content="Stop" Classes="buttonStyle actionButtonStyle"
+                    IsEnabled="{Binding Running}" />
+            <Button Command="{Binding ResetCommand}" Content="Reset" Classes="buttonStyle actionButtonStyle"
+                    IsEnabled="{Binding Running, Converter={StaticResource boolToInvertedBoolConverter}}" />
+        </primitives:UniformGrid>
+    </StackPanel>
+</UserControl>

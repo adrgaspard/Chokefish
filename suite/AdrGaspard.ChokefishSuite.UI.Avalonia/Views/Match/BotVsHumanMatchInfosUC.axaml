@@ -1,0 +1,57 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.BotVsHumanMatchInfosUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="using:System"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
+             xmlns:primitives="using:Avalonia.Controls.Primitives"
+             x:DataType="vm:AvaloniaBotVsHumanMatchViewModel">
+    <UserControl.Resources>
+        <commonconverter:BoolToStringConverter x:Key="boolToStringConverter" />
+        <commonconverter:BoolOrIntToSuccessBrushConverter x:Key="boolToSuccessBrushConverter" />
+        <commonconverter:StringToSanitizedStringConverter x:Key="stringToSanitizedStringConverter" />
+        <commonconverter:BoolToVisibleHiddenVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToCollapsedVisibilityConverter" />
+        <sys:Boolean x:Key="boolTrue">True</sys:Boolean>
+    </UserControl.Resources>
+    <StackPanel>
+        <primitives:UniformGrid Columns="2">
+            <Grid>
+                <StackPanel IsVisible="{Binding Initializing, Converter={StaticResource boolToVisibilityConverter}, ConverterParameter={StaticResource boolTrue}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Classes="textblockStyle" Text="Running:" />
+                        <TextBlock Classes="textblockStyle" Text="{Binding Running, Converter={StaticResource boolToStringConverter}}"
+                                   Margin="5,0,0,0" Foreground="{Binding Running, Converter={StaticResource boolToSuccessBrushConverter}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Classes="textblockStyle" Text="Error encountered:" />
+                        <TextBlock Classes="textblockStyle" Text="{Binding ErrorEncountered, Converter={StaticResource boolToStringConverter}}"
+                                   Margin="5,0,0,0" Foreground="{Binding ErrorEncountered, Converter={StaticResource boolToSuccessBrushConverter}, ConverterParameter={StaticResource boolTrue}}" />
+                    </StackPanel>
+                </StackPanel>
+                <TextBlock Classes="textblockStyle" Text="Initializing..."
+                           IsVisible="{Binding Initializing, Converter={StaticResource boolToVisibilityConverter}}" />
+            </Grid>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <TextBlock Classes="textblockStyle" Text="White:" />
+                    <TextBlock Classes="textblockStyle" Text="{Binding WhiteName, Converter={StaticResource stringToSanitizedStringConverter}}"
+                               Margin="5,0,0,0" Foreground="#4AD8FF" />
+                </StackPanel>
+                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <TextBlock Classes="textblockStyle" Text="Black:" />
+                    <TextBlock Classes="textblockStyle" Text="{Binding BlackName, Converter={StaticResource stringToSanitizedStringConverter}}"
+                               Margin="5,0,0,0" Foreground="#4AD8FF" />
+                </StackPanel>
+            </Grid>
+        </primitives:UniformGrid>
+        <Grid IsVisible="{Binding EngineParametersVM.Debug, Converter={StaticResource boolToCollapsedVisibilityConverter}}">
+            <local:SearchInfosUC DataContext="{Binding SearchInfosVM}" />
+        </Grid>
+    </StackPanel>
+</UserControl>

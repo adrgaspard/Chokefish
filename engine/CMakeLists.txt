@@ -1,74 +1,63 @@
 cmake_minimum_required(VERSION 3.16)
-set(PROJECT_NAME Chokefish)
-project(${PROJECT_NAME})
+project(Chokefish C)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(APPLICATIONS_TO_INCLUDE
-    ${PROJECT_NAME} "src/host/app.c" "core,serialization,game_tools,ai,uci"
-    Generator "src/host/generator.c" "core,generation"
-    TestSuite "src/host/test.c" "core,serialization,game_tools,test"
-)
-set(MODULES_TO_INCLUDE
-    core NULL
-    generation "core"
-    serialization "core"
-    game_tools "core,serialization"
-    test "core,serialization,game_tools"
-    ai "core,game_tools"
-    uci "core,serialization,game_tools,ai"
-)
 
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -DDEBUG")
+# Linux (mono-config)  : build-linux/bin/
+# Windows (multi-config): build-windows/bin/Release/ et build-windows/bin/Debug/
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+
+option(CHOKEFISH_BUILD_TESTSUITE "Build the test suite" ON)
+option(CHOKEFISH_ENABLE_LTO "Enable link-time optimization in release builds" ON)
+
+find_package(Threads REQUIRED)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -static -pthread")
+    add_compile_options(-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion)
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0 -DDEBUG")
 elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W4")
+    add_compile_options(/W4)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
+
+include(CheckIPOSupported)
+if(CHOKEFISH_ENABLE_LTO)
+    check_ipo_supported(RESULT CHOKEFISH_IPO_SUPPORTED OUTPUT CHOKEFISH_IPO_ERROR)
+    if(CHOKEFISH_IPO_SUPPORTED)
+        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+    else()
+        message(STATUS "LTO not supported by the current toolchain (${CHOKEFISH_IPO_ERROR})")
+    endif()
 endif()
 
-set(MAP_COUNTER 0)
-foreach(MODULE ${MODULES_TO_INCLUDE})
-    if(MAP_COUNTER EQUAL 0)
-        add_subdirectory(src/modules/${MODULE})
-        set(MAP_COUNTER 1)
-    else()
-        set(MAP_COUNTER 0)
-    endif()
-endforeach()
+add_subdirectory(src/modules/core)
+add_subdirectory(src/modules/generation)
+add_subdirectory(src/modules/serialization)
+add_subdirectory(src/modules/game_tools)
+if(CHOKEFISH_BUILD_TESTSUITE)
+    add_subdirectory(src/modules/test)
+endif()
+add_subdirectory(src/modules/ai)
+add_subdirectory(src/modules/uci)
 
-set(MAP_COUNTER 0)
-foreach(ITEM ${MODULES_TO_INCLUDE})
-    if(MAP_COUNTER EQUAL 1)
-        string(REPLACE "," ";" MODULE_DEPENDENCIES ${ITEM})
-        if(NOT MODULE_DEPENDENCIES STREQUAL NULL)
-            foreach(DEPENDENCY ${MODULE_DEPENDENCIES})
-                target_link_libraries(${MODULE_NAME} ${DEPENDENCY})
-            endforeach()
-        endif()
-        set(MAP_COUNTER 0)
-    else()
-        set(MODULE_NAME ${ITEM})
-        set(MAP_COUNTER 1)
-    endif()
-endforeach()
+# Module dependencies
+target_link_libraries(generation PRIVATE core Threads::Threads)
+target_link_libraries(serialization PRIVATE core)
+target_link_libraries(game_tools PRIVATE core serialization)
+if(CHOKEFISH_BUILD_TESTSUITE)
+    target_link_libraries(test_module PRIVATE core serialization game_tools)
+endif()
+target_link_libraries(ai PRIVATE core game_tools)
+target_link_libraries(uci PRIVATE core serialization game_tools ai)
+target_link_libraries(core PUBLIC Threads::Threads)
 
-set(MAP_COUNTER 0)
-foreach(ITEM ${APPLICATIONS_TO_INCLUDE})
-    if(MAP_COUNTER EQUAL 2)
-        string(REPLACE "," ";" APPLICATION_DEPENDENCIES ${ITEM})
-        add_executable(${APPLICATION_NAME} ${APPLICATION_MAIN})
-        if(NOT APPLICATION_DEPENDENCIES STREQUAL NULL)
-            foreach(DEPENDENCY ${APPLICATION_DEPENDENCIES})
-                target_link_libraries(${APPLICATION_NAME} ${DEPENDENCY})
-            endforeach()
-        endif()
-        set(MAP_COUNTER 0)
-    elseif(MAP_COUNTER EQUAL 1)
-        set(APPLICATION_MAIN ${ITEM})
-        set(MAP_COUNTER 2)
-    else()
-        set(APPLICATION_NAME ${ITEM})
-        set(MAP_COUNTER 1)
-    endif()
-endforeach()
+# Applications
+add_subdirectory(src/host)
+
+if(CHOKEFISH_BUILD_TESTSUITE)
+    enable_testing()
+    add_test(NAME engine_test_suite COMMAND TestSuite)
+endif()

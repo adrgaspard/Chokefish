@@ -4,6 +4,7 @@ using AdrGaspard.ChokefishSuite.Core.Helpers;
 using AdrGaspard.ChokefishSuite.Core.SearchData;
 using AdrGaspard.ChokefishSuite.Core.Utils;
 using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace AdrGaspard.ChokefishSuite.Core.UCI
 {
@@ -77,132 +78,170 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
 
         public void Initialize()
         {
+            bool hasProcessedInitialization = false;
             lock (_lock)
             {
                 if (!_initialized)
                 {
+                    hasProcessedInitialization = true;
                     _initialized = true;
                     CurrentState = UciChessGuiState.WaitingForUciok;
                     _transmitter.Start();
                     _transmitter.OutputDataReceived += OnOutputReceived;
                     _transmitter.ErrorDataReceived += OnErrorReceived;
                     _transmitter.SendInputData(UciCommands.Uci);
-                    _waitReadyokTaskSource.Task.Wait();
+                    if (!_waitUciokTaskSource.Task.Wait(TimeSpan.FromSeconds(5)))
+                    {
+                        throw new InvalidOperationException($"The engine didn't respond to the '{UciCommands.Uci}' command.");
+                    }
                     _transmitter.SendInputData(UciCommands.Isready);
-                    _waitReadyokTaskSource.Task.Wait();
-                    Initialized?.Invoke(this, EventArgs.Empty);
+                    if (!_waitReadyokTaskSource.Task.Wait(TimeSpan.FromSeconds(5)))
+                    {
+                        throw new InvalidOperationException($"The engine didn't respond to the '{UciCommands.Isready}' command.");
+                    }
                 }
+            }
+            if (hasProcessedInitialization)
+            {
+                Initialized?.Invoke(this, EventArgs.Empty);
             }
         }
 
         public bool SetDebug(bool value)
         {
-            if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
+            lock (_lock)
             {
-                _transmitter.SendInputData($"{UciCommands.Debug} {(value ? UciCommands.DebugArgumentOn : UciCommands.DebugArgumentOff)}");
-                return true;
+                if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
+                {
+                    _transmitter.SendInputData($"{UciCommands.Debug} {(value ? UciCommands.DebugArgumentOn : UciCommands.DebugArgumentOff)}");
+                    return true;
+                }
+                return false;
             }
-            return false;
         }
 
         public bool SetOption(string optionName, object value)
         {
-            if (CurrentState != UciChessGuiState.None && CurrentState != UciChessGuiState.Disposed && Options.FirstOrDefault(option => option.Name == optionName) is UciOption option && option.TrySetValue(value))
+            lock (_lock)
             {
-                _transmitter.SendInputData($"{UciCommands.Setoption} {UciCommands.SetoptionArgumentName} {optionName} {UciCommands.SetoptionArgumentValue} {option.GetStringValue()}");
-                return true;
+                if (CurrentState != UciChessGuiState.None && CurrentState != UciChessGuiState.Disposed && Options.FirstOrDefault(option => option.Name == optionName) is UciOption option && option.TrySetValue(value))
+                {
+                    _transmitter.SendInputData($"{UciCommands.Setoption} {UciCommands.SetoptionArgumentName} {optionName} {UciCommands.SetoptionArgumentValue} {option.GetStringValue()}");
+                    return true;
+                }
+                return false;
             }
-            return false;
         }
 
         public bool ResetGame()
         {
-            if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
+            bool boardChanged = false;
+            lock (_lock)
             {
-                _transmitter.SendInputData(UciCommands.Ucinewgame);
-                Board = null;
-                BoardChanged?.Invoke(this, EventArgs.Empty);
-                return true;
+                if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
+                {
+                    _transmitter.SendInputData(UciCommands.Ucinewgame);
+                    Board = null;
+                    boardChanged = true;
+                }
             }
-            return false;
+            if (boardChanged)
+            {
+                BoardChanged?.Invoke(this, EventArgs.Empty);
+            }
+            return boardChanged;
         }
 
         public bool SetPosition(string initialPosition, IEnumerable<string> moves, bool refreshBoard = true)
         {
-            if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
+            lock (_lock)
             {
-                bool isStartpos = initialPosition == UciCommands.PositionArgumentStartpos;
-                if (isStartpos || initialPosition.IsValidFen())
+                if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
                 {
-                    moves ??= Enumerable.Empty<string>();
-                    CurrentState = UciChessGuiState.Idling;
-                    _transmitter.SendInputData($"{UciCommands.Position} {(isStartpos ? "" : $"{UciCommands.PositionArgumentFen} ")}{initialPosition}{(moves.Any() ? $" {UciCommands.PositionArgumentMoves} {string.Join(' ', moves)}" : "")}");
-                    if (refreshBoard)
+                    bool isStartpos = initialPosition == UciCommands.PositionArgumentStartpos;
+                    if (isStartpos || initialPosition.IsValidFen())
                     {
-                        if (!RefreshBoard())
+                        moves ??= Enumerable.Empty<string>();
+                        CurrentState = UciChessGuiState.Idling;
+                        _transmitter.SendInputData($"{UciCommands.Position} {(isStartpos ? "" : $"{UciCommands.PositionArgumentFen} ")}{initialPosition}{(moves.Any() ? $" {UciCommands.PositionArgumentMoves} {string.Join(' ', moves)}" : "")}");
+                        if (!refreshBoard)
                         {
-                            return false;
+                            return true;
                         }
                     }
+                }
+            }
+            return refreshBoard && RefreshBoard();
+        }
+
+        public bool StartSearch(ChessTimeSystem searchTimeSystem)
+        {
+            bool searchStarted = false;
+            lock (_lock)
+            {
+                if (CurrentState == UciChessGuiState.Idling && searchTimeSystem.IsValid && searchTimeSystem.ToUciString() is string uciString)
+                {
+                    CurrentState = UciChessGuiState.Searching;
+                    SearchResult = null;
+                    SearchDebugInfos = null;
+                    _transmitter.SendInputData($"{UciCommands.Go} {uciString}");
+                    searchStarted = true;
+                }
+            }
+            if (searchStarted)
+            {
+                SearchStarted?.Invoke(this, EventArgs.Empty);
+            }
+            return searchStarted;
+        }
+
+        public bool SwitchFromPonderingToClassicalSearch()
+        {
+            lock (_lock)
+            {
+                if (CurrentState == UciChessGuiState.Pondering)
+                {
+                    CurrentState = UciChessGuiState.Searching;
+                    _transmitter.SendInputData(UciCommands.Ponderhit);
                     return true;
                 }
             }
             return false;
         }
 
-        public bool StartSearch(ChessTimeSystem searchTimeSystem)
-        {
-            return StartSearch(searchTimeSystem, Options.FirstOrDefault(option => option.Name == OptionHelper.PonderOptionName) is CheckOption option && option.Value);
-        }
-
-        public bool StartSearch(ChessTimeSystem searchTimeSystem, bool ponder)
-        {
-            if (CurrentState == UciChessGuiState.Idling && searchTimeSystem.IsValid && searchTimeSystem.ToUciString() is string uciString)
-            {
-                CurrentState = ponder ? UciChessGuiState.Pondering : UciChessGuiState.Searching;
-                SearchResult = null;
-                SearchDebugInfos = null;
-                _transmitter.SendInputData($"{UciCommands.Go}{(ponder ? $" {UciCommands.GoArgumentPonder}" : "")} {uciString}");
-                SearchStarted?.Invoke(this, EventArgs.Empty);
-                return true;
-            }
-            return false;
-        }
-
-        public bool SwitchFromPonderingToClassicalSearch()
-        {
-            if (CurrentState == UciChessGuiState.Pondering)
-            {
-                CurrentState = UciChessGuiState.Searching;
-                _transmitter.SendInputData(UciCommands.Ponderhit);
-                return true;
-            }
-            return false;
-        }
-
         public bool StopSearch()
         {
-            if (CurrentState is UciChessGuiState.Pondering or UciChessGuiState.Searching)
+            bool searchStopped = false;
+            lock (_lock)
             {
-                CurrentState = UciChessGuiState.Idling;
-                _transmitter.SendInputData(UciCommands.Stop);
-                SearchStopped?.Invoke(this, EventArgs.Empty);
-                return true;
+                if (CurrentState is UciChessGuiState.Pondering or UciChessGuiState.Searching)
+                {
+                    CurrentState = UciChessGuiState.Idling;
+                    _transmitter.SendInputData(UciCommands.Stop);
+                    searchStopped = true;
+                }
             }
-            return false;
+            if (searchStopped)
+            {
+                SearchStopped?.Invoke(this, EventArgs.Empty);
+            }
+            return searchStopped;
         }
 
         public bool RefreshBoard()
         {
-            if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
+            lock (_lock)
             {
-                CurrentState = UciChessGuiState.WaitingForDisplay;
-                _transmitter.SendInputData($"{UciCommands.Display} {UciCommands.DisplayArgumentFen}");
-                _refreshBoardTaskSource = new();
-                _refreshBoardTaskSource.Task.Wait();
-                return true;
+                if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
+                {
+                    CurrentState = UciChessGuiState.WaitingForDisplay;
+                    _transmitter.SendInputData($"{UciCommands.Display} {UciCommands.DisplayArgumentFen}");
+                    _refreshBoardTaskSource = new();
+                    _refreshBoardTaskSource.Task.Wait();
+                    return true;
+                }
+                return false;
             }
-            return false;
         }
 
         public void Dispose()
@@ -262,7 +301,11 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
 
         private void OnErrorReceived(object? sender, string error)
         {
-            throw new ChessException($"The {nameof(UciChessEngine)} received the following error: {error}");
+            Debug.WriteLine($"[ENGINE ERROR] {error}");
+            ChessException exception = new($"The {nameof(UciChessEngine)} received the following error: {error}");
+            _waitUciokTaskSource.TrySetException(exception);
+            _waitReadyokTaskSource.TrySetException(exception);
+            _refreshBoardTaskSource?.TrySetException(exception);
         }
 
         private void ProcessIdResponse(string arguments)
@@ -296,7 +339,6 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             CurrentState = UciChessGuiState.WaitingForReadyOk;
             Options = _options.ToImmutableList();
             _waitUciokTaskSource.TrySetResult(true);
-            _transmitter.SendInputData(UciCommands.Isready);
         }
 
         private void ProcessReadyokResponse()

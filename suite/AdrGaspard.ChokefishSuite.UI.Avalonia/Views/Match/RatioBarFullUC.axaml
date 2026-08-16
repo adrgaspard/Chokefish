@@ -1,0 +1,21 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.RatioBarFullUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
+             x:DataType="vm:AvaloniaMatchSchedulerViewModel">
+    <UserControl.Resources>
+        <commonconverter:StringToSanitizedStringConverter x:Key="stringToSanitizedStringConverter" />
+    </UserControl.Resources>
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="5,0">
+            <TextBlock DockPanel.Dock="Left" Classes="textblockStyle" FontWeight="Bold"
+                       Text="{Binding FirstEngineSelectorVM.EngineName, Converter={StaticResource stringToSanitizedStringConverter}}" />
+            <TextBlock DockPanel.Dock="Right" Classes="textblockStyle" FontWeight="Bold"
+                       Text="{Binding SecondEngineSelectorVM.EngineName, Converter={StaticResource stringToSanitizedStringConverter}}" />
+            <TextBlock Classes="textblockStyle" FontWeight="Bold" Text="vs" HorizontalAlignment="Center" />
+        </DockPanel>
+        <local:RatioBarWithInfosUC DataContext="{Binding RatioVM}" />
+    </DockPanel>
+</UserControl>

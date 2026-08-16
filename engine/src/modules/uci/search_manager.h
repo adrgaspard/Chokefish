@@ -3,7 +3,9 @@
 
 #include "types.h"
 
-search_token create_empty_token(pthread_mutex_t *global_lock_ptr, engine_state *engine_state_ptr, engine_options *engine_options_ptr, bool *debug_ptr);
+// Every function below must be called while holding the engine mutex
+
+void create_empty_token(search_token *token, engine_mutex *mutex_ptr, engine_state *engine_state_ptr);
 void reset_token(search_token *token);
 void start_search_infinite(search_token *empty_token, board *board_to_be_copied, bool ponder);
 void start_search_timed(search_token *empty_token, board *board_to_be_copied, bool ponder, uint64_t initial_search_time);

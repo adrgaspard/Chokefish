@@ -12,18 +12,17 @@ typedef struct name                                                 \
     uint32_t capacity;                                              \
 } name;                                                             \
                                                                     \
-static inline struct name create_##name();                          \
+static inline void create_##name(name *stack_ptr);                  \
 static inline void push_on_##name(name *stack_ptr, type element);   \
 static inline type pop_from_##name(name *stack_ptr);                \
 static inline type peek_from_##name(name *stack_ptr);               \
 static inline void clear_##name(name *stack_ptr);                   \
                                                                     \
-static inline struct name create_##name()                           \
+static inline void create_##name(name *stack_ptr)                   \
 {                                                                   \
-    name stack;                                                     \
-    stack.count = 0;                                                \
-    stack.capacity = size;                                          \
-    return stack;                                                   \
+    assert(stack_ptr != NULL);                                      \
+    stack_ptr->count = 0;                                           \
+    stack_ptr->capacity = size;                                     \
 }                                                                   \
                                                                     \
 static inline void push_on_##name(name *stack_ptr, type element)    \
@@ -61,13 +60,12 @@ typedef struct name                                                 \
     uint32_t capacity;                                              \
 } name;                                                             \
                                                                     \
-static inline struct name create_##name();                          \
+static inline void create_##name(name *array_ptr);                  \
                                                                     \
-static inline struct name create_##name()                           \
+static inline void create_##name(name *array_ptr)                   \
 {                                                                   \
-    name array;                                                     \
-    array.capacity = size;                                          \
-    return array;                                                   \
+    assert(array_ptr != NULL);                                      \
+    array_ptr->capacity = size;                                     \
 }
 
 #endif // STATIC_COLLECTIONS_H

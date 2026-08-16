@@ -78,7 +78,6 @@ static void initialize_directional_moves_masks_and_magics();
 static void initialize_positions_ranks_files_masks();
 static void initialize_attacks_moves_masks();
 static void initialize_magic_data(position position, bool ortho_instead_of_diag);
-static index_validation_result compute_index_if_valid(int32_t x, int32_t y);
 static position_array64 compute_blockers_indices(bitboard moves_mask, uint32_t *indices_count);
 static void compute_blockers_combinations(bitboard *combinations, uint32_t combinations_capacity, position_array64 indices, uint32_t indices_count);
 
@@ -339,12 +338,12 @@ static void initialize_attacks_moves_masks()
                 index_result = compute_index_if_valid(x + s_orthogonal_vectors[direction_index].x, y + s_orthogonal_vectors[direction_index].y);
                 if (index_result.valid)
                 {
-                    g_king_moves[pos_index] |= 1UL << index_result.index;
+                    g_king_moves[pos_index] |= 1ULL << index_result.index;
                 }
                 index_result = compute_index_if_valid(x + s_diagonal_vectors[direction_index].x, y + s_diagonal_vectors[direction_index].y);
                 if (index_result.valid)
                 {
-                    g_king_moves[pos_index] |= 1UL << index_result.index;
+                    g_king_moves[pos_index] |= 1ULL << index_result.index;
                 }
             }
             // Compute knight attacks
@@ -353,29 +352,29 @@ static void initialize_attacks_moves_masks()
                 index_result = compute_index_if_valid(x + s_knight_vectors[direction_index].x, y + s_knight_vectors[direction_index].y);
                 if (index_result.valid)
                 {
-                    g_knight_attacks[pos_index] |= 1UL << index_result.index;
+                    g_knight_attacks[pos_index] |= 1ULL << index_result.index;
                 }
             }
             // Compute pawn attacks
             index_result = compute_index_if_valid(x - 1, _WHITE_PAWN_OFFSET(y));
             if (index_result.valid)
             {
-                g_pawn_attacks[COLOR_WHITE][pos_index] |= 1UL << index_result.index;
+                g_pawn_attacks[COLOR_WHITE][pos_index] |= 1ULL << index_result.index;
             }
             index_result = compute_index_if_valid(x + 1, _WHITE_PAWN_OFFSET(y));
             if (index_result.valid)
             {
-                g_pawn_attacks[COLOR_WHITE][pos_index] |= 1UL << index_result.index;
+                g_pawn_attacks[COLOR_WHITE][pos_index] |= 1ULL << index_result.index;
             }
             index_result = compute_index_if_valid(x - 1, _BLACK_PAWN_OFFSET(y));
             if (index_result.valid)
             {
-                g_pawn_attacks[COLOR_BLACK][pos_index] |= 1UL << index_result.index;
+                g_pawn_attacks[COLOR_BLACK][pos_index] |= 1ULL << index_result.index;
             }
             index_result = compute_index_if_valid(x + 1, _BLACK_PAWN_OFFSET(y));
             if (index_result.valid)
             {
-                g_pawn_attacks[COLOR_BLACK][pos_index] |= 1UL << index_result.index;
+                g_pawn_attacks[COLOR_BLACK][pos_index] |= 1ULL << index_result.index;
             }
         }
     }
@@ -405,7 +404,7 @@ static position_array64 compute_blockers_indices(bitboard moves_mask, uint32_t *
     position_array64 indices;
     position pos;
     uint32_t count;
-    indices = create_position_array64();
+    create_position_array64(&indices);
     count = 0;
     for (pos = 0; pos < POSITIONS_COUNT; pos++)
     {
@@ -436,4 +435,30 @@ static void compute_blockers_combinations(bitboard *combinations, uint32_t combi
             combinations[combination_index] |= ((bitboard)bit) << indices.items[bit_index];
         }
     }
+}
+
+bitboard get_slider_moves_bitboard(position position, bitboard blockers, bool ortho_instead_of_diag)
+{
+    assert(is_position_valid(position) && position != NO_POSITION);
+    return ortho_instead_of_diag ? get_orthogonal_moves_bitboard(position, blockers) : get_diagonal_moves_bitboard(position, blockers);
+}
+
+bitboard get_orthogonal_moves_bitboard(position position, bitboard blockers)
+{
+    bitboard key;
+    magic_data *data;
+    assert(is_position_valid(position) && position != NO_POSITION);
+    data = &(g_orthogonal_magic_data[position]);
+    key = ((blockers & g_orthogonal_moves_mask[position]) * data->value) >> data->shift_quantity;
+    return data->legal_moves[key];
+}
+
+bitboard get_diagonal_moves_bitboard(position position, bitboard blockers)
+{
+    bitboard key;
+    magic_data *data;
+    assert(is_position_valid(position) && position != NO_POSITION);
+    data = &(g_diagonal_magic_data[position]);
+    key = ((blockers & g_diagonal_moves_mask[position]) * data->value) >> data->shift_quantity;
+    return data->legal_moves[key];
 }

@@ -1,0 +1,71 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.RuleSelectionUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="using:System"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.MVVM"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
+             xmlns:primitives="using:Avalonia.Controls.Primitives"
+             x:DataType="vm:SchedulingRulesViewModel"
+             x:Name="rootUC">
+    <UserControl.Resources>
+        <commonconverter:BoolToVisibleHiddenVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <commonconverter:BoolOrIntToSuccessBrushConverter x:Key="intToSuccessBrushConverter" />
+        <sys:Boolean x:Key="boolTrue">True</sys:Boolean>
+    </UserControl.Resources>
+    <StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Label Classes="labelStyle" Content="Positions" />
+            <StackPanel Orientation="Horizontal" IsVisible="{Binding Parsing, Converter={StaticResource boolToVisibilityConverter}, ConverterParameter={StaticResource boolTrue}}">
+                <Label Classes="labelStyle" Content="(currently loaded:" />
+                <Label Classes="labelStyle" Content="{Binding Positions.Count}"
+                       Foreground="{Binding Positions.Count, Converter={StaticResource intToSuccessBrushConverter}, ConverterParameter={StaticResource boolTrue}}"
+					   Margin="-4,0,-6,0" />
+                <Label Classes="labelStyle" Content=")" />
+            </StackPanel>
+        </StackPanel>
+        <Grid Margin="0,0,0,10">
+            <DockPanel IsVisible="{Binding Parsing, Converter={StaticResource boolToVisibilityConverter}, ConverterParameter={StaticResource boolTrue}}">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <CheckBox Classes="checkboxStyle" IsChecked="{Binding RandomizeStartPositionsOrder}" />
+                    <Label Classes="labelStyle" Content="Random order" />
+                </StackPanel>
+                <Button DockPanel.Dock="Right" Classes="buttonStyle" Content="Select json file" Click="OnJsonSelectionRequested" Margin="10,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Classes="textblockStyle" Text="{Binding PositionsPath}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" MaxWidth="{Binding #rootUC.Bounds.Width}" />
+            </DockPanel>
+            <TextBlock Classes="textblockStyle" Text="Parsing..." IsVisible="{Binding Parsing, Converter={StaticResource boolToVisibilityConverter}}" />
+        </Grid>
+        <primitives:UniformGrid Columns="3" Margin="0,0,0,10">
+            <StackPanel Orientation="Vertical" Margin="0,0,6,0">
+                <Label Classes="labelStyle" Content="Think time (ms)" />
+                <TextBox Classes="textboxStyle" Text="{Binding ThinkTimeInMs}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="3,0,3,0">
+                <Label Classes="labelStyle" Content="Min. games" />
+                <TextBox Classes="textboxStyle" Text="{Binding MinimumGamesCount}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="6,0,0,0">
+                <Label Classes="labelStyle" Content="Max. games" />
+                <TextBox Classes="textboxStyle" Text="{Binding MaximumGamesCount}" />
+            </StackPanel>
+        </primitives:UniformGrid>
+        <primitives:UniformGrid Columns="3" Margin="0,0,0,10">
+            <StackPanel Orientation="Vertical" Margin="0,0,6,0">
+                <Label Classes="labelStyle" Content="Elo difference" />
+                <TextBox Classes="textboxStyle" Text="{Binding EloDifference}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="3,0,3,0">
+                <Label Classes="labelStyle" Content="False positive risk" />
+                <TextBox Classes="textboxStyle" Text="{Binding FalsePositiveRisk}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="6,0,0,0">
+                <Label Classes="labelStyle" Content="False negative risk" />
+                <TextBox Classes="textboxStyle" Text="{Binding FalseNegativeRisk}" />
+            </StackPanel>
+        </primitives:UniformGrid>
+        <StackPanel Orientation="Horizontal" Margin="10,10,0,0">
+            <CheckBox Classes="checkboxStyle" IsChecked="{Binding KeepGoingWhenConclusive}" />
+            <Label Classes="labelStyle" Content="Continue match even if the result is conclusive" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

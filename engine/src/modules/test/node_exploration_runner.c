@@ -12,7 +12,7 @@ static char *s_##id##_fen = fen;                                            \
 static uint32_t s_##id##_cases_count = cases_count;                         \
 static node_exploration_case s_##id##_cases[cases_count] = cases;
 
-#define RUN_NODE_EXPLORATION_BATCH(id) run_node_exploration_batch(s_##id##_name, s_##id##_fen, s_##id##_cases, s_##id##_cases_count);
+#define RUN_NODE_EXPLORATION_BATCH(id) success &= run_node_exploration_batch(s_##id##_name, s_##id##_fen, s_##id##_cases, s_##id##_cases_count);
 
 DEFINE_NODE_EXPLORATION_BATCH(init, "INIT_POS", START_FEN_STR, 7,
 {
@@ -442,8 +442,9 @@ DEFINE_NODE_EXPLORATION_BATCH(cust35, "CUSTOM_POS_35", "8/1p4p1/8/q1PK1P1r/3p1k2
     NODE_EXPLORATION_CASE(6, 119759388)
 })
 
-void run_node_exploration_test_suite()
+bool run_node_exploration_test_suite()
 {
+    bool success = true;
     RUN_NODE_EXPLORATION_BATCH(init)
     RUN_NODE_EXPLORATION_BATCH(cust00)
     RUN_NODE_EXPLORATION_BATCH(cust01)
@@ -481,4 +482,5 @@ void run_node_exploration_test_suite()
     RUN_NODE_EXPLORATION_BATCH(cust33)
     RUN_NODE_EXPLORATION_BATCH(cust34)
     RUN_NODE_EXPLORATION_BATCH(cust35)
+    return success;
 }

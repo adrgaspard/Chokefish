@@ -1,0 +1,40 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.RatioBarUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.MVVM"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             xmlns:converter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Match"
+             x:DataType="vm:RatioViewModel">
+    <UserControl.Resources>
+        <converter:RatioToWidthConverter x:Key="ratioToWidthConverter" />
+    </UserControl.Resources>
+    <Grid x:Name="ratioBarRoot">
+        <Rectangle Fill="Gray" />
+        <StackPanel Orientation="Horizontal">
+            <Rectangle Fill="{StaticResource winColorBrush}">
+                <Rectangle.Width>
+                    <MultiBinding Converter="{StaticResource ratioToWidthConverter}">
+                        <Binding Path="VictoryRatio" />
+                        <Binding Path="#ratioBarRoot.Bounds.Width" />
+                    </MultiBinding>
+                </Rectangle.Width>
+            </Rectangle>
+            <Rectangle Fill="{StaticResource drawColorBrush}">
+                <Rectangle.Width>
+                    <MultiBinding Converter="{StaticResource ratioToWidthConverter}">
+                        <Binding Path="DrawRatio" />
+                        <Binding Path="#ratioBarRoot.Bounds.Width" />
+                    </MultiBinding>
+                </Rectangle.Width>
+            </Rectangle>
+            <Rectangle Fill="{StaticResource lossColorBrush}">
+                <Rectangle.Width>
+                    <MultiBinding Converter="{StaticResource ratioToWidthConverter}">
+                        <Binding Path="DefeatRatio" />
+                        <Binding Path="#ratioBarRoot.Bounds.Width" />
+                    </MultiBinding>
+                </Rectangle.Width>
+            </Rectangle>
+        </StackPanel>
+    </Grid>
+</UserControl>

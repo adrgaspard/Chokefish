@@ -63,6 +63,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
                 {
                     _process.StandardInput.WriteLine(data);
                     _process.StandardInput.Flush();
+                    Debug.WriteLine($"[GUI > ENGINE] {data}");
                 }
             }
         }
@@ -81,6 +82,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
         {
             if (!string.IsNullOrEmpty(eventArgs.Data))
             {
+                Debug.WriteLine($"[ERROR] {eventArgs.Data}");
                 ErrorDataReceived?.Invoke(this, eventArgs.Data);
             }
         }
@@ -89,6 +91,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
         {
             if (!string.IsNullOrEmpty(eventArgs.Data))
             {
+                Debug.WriteLine($"[ENGINE > GUI] {eventArgs.Data}");
                 OutputDataReceived?.Invoke(this, eventArgs.Data);
             }
         }

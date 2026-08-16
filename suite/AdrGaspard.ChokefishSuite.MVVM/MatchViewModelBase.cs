@@ -161,9 +161,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         protected static IChessEngine CreateAndInitializeEngine(EngineSelectorViewModel engineSelectorVM)
         {
-            IChessEngine engine = new UciChessEngine(engineSelectorVM.UseWsl
-                ? new IOTransmitter("wsl", engineSelectorVM.EnginePath.ToWslPath(), "\n")
-                : new IOTransmitter(engineSelectorVM.EnginePath));
+            IChessEngine engine = new UciChessEngine(new IOTransmitter(engineSelectorVM.EnginePath));
             engine.Initialize();
             engine.SetOption(OptionHelper.PonderOptionName, false);
             return engine;

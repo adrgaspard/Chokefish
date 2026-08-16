@@ -1,0 +1,40 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.EngineParametersUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.MVVM"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
+             xmlns:primitives="using:Avalonia.Controls.Primitives"
+             x:DataType="vm:EngineParametersViewModel">
+    <StackPanel>
+        <StackPanel Margin="0,0,0,10">
+            <Label Classes="labelStyle" Content="Position (FEN)" />
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <CheckBox Classes="checkboxStyle" IsChecked="{Binding HumanPlaysWhite}" />
+                    <Label Classes="labelStyle" Content="Play with white" />
+                </StackPanel>
+                <TextBox Classes="textboxStyle" Text="{Binding Position}" />
+            </DockPanel>
+        </StackPanel>
+        <primitives:UniformGrid Columns="2" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" Margin="0,0,6,0">
+                <CheckBox Classes="checkboxStyle" IsChecked="{Binding Debug}" />
+                <Label Classes="labelStyle" Content="Display search informations" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="6,0,0,0">
+                <CheckBox Classes="checkboxStyle" IsChecked="{Binding OwnBook}" />
+                <Label Classes="labelStyle" Content="Use opening book" />
+            </StackPanel>
+        </primitives:UniformGrid>
+        <primitives:UniformGrid Columns="2">
+            <StackPanel Orientation="Vertical" Margin="0,0,5,0">
+                <Label Classes="labelStyle" Content="Search threads count" />
+                <TextBox Classes="textboxStyle" Text="{Binding Threads}" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Margin="5,0,0,0">
+                <Label Classes="labelStyle" Content="Think time (ms)" />
+                <TextBox Classes="textboxStyle" Text="{Binding ThinkTimeInMs}" />
+            </StackPanel>
+        </primitives:UniformGrid>
+    </StackPanel>
+</UserControl>

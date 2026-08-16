@@ -1,12 +1,8 @@
 set(MODULE_NAME test)
 
-file(GLOB_RECURSE SRC_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/*.c
+add_library(test_module STATIC
+    node_exploration_runner.c
+    performance_runner.c
+    test_utils.c
 )
-
-if(SRC_FILES)
-    add_library(${MODULE_NAME} ${SRC_FILES})
-    target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-else()
-    message(STATUS "Aucun fichier source trouvé pour le module ${MODULE_NAME}")
-endif()
+target_include_directories(test_module PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

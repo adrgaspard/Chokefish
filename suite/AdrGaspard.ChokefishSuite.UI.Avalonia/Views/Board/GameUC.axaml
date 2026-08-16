@@ -1,0 +1,67 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Board.GameUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Board"
+             xmlns:converter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Board"
+             xmlns:game="using:AdrGaspard.ChokefishSuite.Core.GameData"
+             
+             x:DataType="vm:BoardViewModel">
+    <UserControl.Resources>
+        <converter:ChessResultToStringConverter x:Key="chessResultToStringConverter" />
+        <converter:ChessPiecePromotionToBoolConverter x:Key="promotionToBoolConverter" />
+        <game:ChessPieceType x:Key="queenPieceType">Queen</game:ChessPieceType>
+        <game:ChessPieceType x:Key="rookPieceType">Rook</game:ChessPieceType>
+        <game:ChessPieceType x:Key="bishopPieceType">Bishop</game:ChessPieceType>
+        <game:ChessPieceType x:Key="knightPieceType">Knight</game:ChessPieceType>
+    </UserControl.Resources>
+    <Viewbox>
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Right" Margin="5,0,0,0">
+                <RadioButton GroupName="PromotionType" Classes="radiobuttonStyle" Margin="0,0,0,3"
+                             IsChecked="{Binding SelectedPromotionType, Converter={StaticResource promotionToBoolConverter}, ConverterParameter={StaticResource queenPieceType}}">
+                    <PathIcon Data="{StaticResource chessQueenIcon}" Width="30" Height="30" />
+                </RadioButton>
+                <RadioButton GroupName="PromotionType" Classes="radiobuttonStyle" Margin="0,0,0,3"
+                             IsChecked="{Binding SelectedPromotionType, Converter={StaticResource promotionToBoolConverter}, ConverterParameter={StaticResource rookPieceType}}">
+                    <PathIcon Data="{StaticResource chessRookIcon}" Width="30" Height="30" />
+                </RadioButton>
+                <RadioButton GroupName="PromotionType" Classes="radiobuttonStyle" Margin="0,0,0,3"
+                             IsChecked="{Binding SelectedPromotionType, Converter={StaticResource promotionToBoolConverter}, ConverterParameter={StaticResource bishopPieceType}}">
+                    <PathIcon Data="{StaticResource chessBishopIcon}" Width="30" Height="30" />
+                </RadioButton>
+                <RadioButton GroupName="PromotionType" Classes="radiobuttonStyle"
+                             IsChecked="{Binding SelectedPromotionType, Converter={StaticResource promotionToBoolConverter}, ConverterParameter={StaticResource knightPieceType}}">
+                    <PathIcon Data="{StaticResource chessKnightIcon}" Width="30" Height="30" />
+                </RadioButton>
+            </StackPanel>
+            <Grid DockPanel.Dock="Bottom">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,2,0,0">
+                    <Button Command="{Binding DisplayFirstPositionCommand}" ToolTip.Tip="First move"
+                            Classes="buttonStyle" Margin="0,0,5,0">
+                        <PathIcon Data="{StaticResource anglesLeftIcon}" Width="24" Height="24" />
+                    </Button>
+                    <Button Command="{Binding DisplayPreviousPositionCommand}" ToolTip.Tip="Previous move"
+                            Classes="buttonStyle" Margin="0,0,5,0">
+                        <PathIcon Data="{StaticResource angleLeftIcon}" Width="24" Height="24" />
+                    </Button>
+                    <Button Command="{Binding DisplayNextPositionCommand}" ToolTip.Tip="Next move"
+                            Classes="buttonStyle" Margin="0,0,5,0">
+                        <PathIcon Data="{StaticResource angleRightIcon}" Width="24" Height="24" />
+                    </Button>
+                    <Button Command="{Binding DisplayLastPositionCommand}" ToolTip.Tip="Last move"
+                            Classes="buttonStyle">
+                        <PathIcon Data="{StaticResource anglesRightIcon}" Width="24" Height="24" />
+                    </Button>
+                </StackPanel>
+                <TextBlock Text="{Binding GameResult, Converter={StaticResource chessResultToStringConverter}}"
+                           Classes="textblockStyle" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="0,5,0,0" />
+                <Button Command="{Binding TogglePerspectiveCommand}" ToolTip.Tip="Change perspective"
+                        Classes="buttonStyle" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,0,0">
+                    <PathIcon Data="{StaticResource rightLeftIcon}" Width="24" Height="24" />
+                </Button>
+            </Grid>
+            <local:BoardUC DockPanel.Dock="Top" Width="1000" Height="1000" />
+        </DockPanel>
+    </Viewbox>
+</UserControl>
