@@ -105,50 +105,66 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             {
                 Task.Run(() =>
                 {
-                    lock (_lock)
+                    try
                     {
-                        SubscribeToAllEngineEvents();
-                    }
-                    _whiteEngine.ResetGame();
-                    _blackEngine.ResetGame();
-                    _whiteEngine.SetPosition(_fen, Enumerable.Empty<string>());
-                    _blackEngine.SetPosition(_fen, Enumerable.Empty<string>());
-                    _searchingColor = _whiteEngine.Board?.ColorToMove ?? ChessColor.None;
-                    Result = _whiteEngine.Board?.Result ?? ChessGameResult.None;
-                    List<string> moves = new();
-                    IChessEngine currentEngine = GetCurrentEngine(false);
-                    IChessEngine opponentEngine = GetCurrentEngine(true);
-                    while (!token.IsCancellationRequested)
-                    {
-                        _searchCompletionSource = new();
-                        currentEngine.StartSearch(_timeSystem);
-                        _searchCompletionSource.Task.Wait();
-                        if (currentEngine.SearchResult?.BestMove is not ChessMove bestMove)
+                        lock (_lock)
                         {
-                            break;
+                            SubscribeToAllEngineEvents();
                         }
-                        moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
-                        LastMove = bestMove;
-                        opponentEngine.SetPosition(_fen, moves);
-                        MoveExecuted?.Invoke(this, bestMove);
-                        ChessGameResult result = opponentEngine.Board?.Result ?? ChessGameResult.None;
-                        if (result != ChessGameResult.Playing)
+                        _whiteEngine.ResetGame();
+                        _blackEngine.ResetGame();
+                        _whiteEngine.SetPosition(_fen, Enumerable.Empty<string>());
+                        _blackEngine.SetPosition(_fen, Enumerable.Empty<string>());
+                        _searchingColor = _whiteEngine.Board?.ColorToMove ?? ChessColor.None;
+                        Result = _whiteEngine.Board?.Result ?? ChessGameResult.None;
+                        List<string> moves = new();
+                        IChessEngine currentEngine = GetCurrentEngine(false);
+                        IChessEngine opponentEngine = GetCurrentEngine(true);
+                        while (!token.IsCancellationRequested)
                         {
-                            Result = result;
-                            break;
-                        }
-                        _searchingColor = _searchingColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
-                        currentEngine = GetCurrentEngine(false);
-                        opponentEngine = GetCurrentEngine(true);
+                            _searchCompletionSource = new();
+                            currentEngine.StartSearch(_timeSystem);
+                            _searchCompletionSource.Task.Wait(token);
+                            if (currentEngine.SearchResult?.BestMove is not ChessMove bestMove)
+                            {
+                                break;
+                            }
+                            moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
+                            LastMove = bestMove;
+                            opponentEngine.SetPosition(_fen, moves);
+                            MoveExecuted?.Invoke(this, bestMove);
+                            ChessGameResult result = opponentEngine.Board?.Result ?? ChessGameResult.None;
+                            if (result != ChessGameResult.Playing)
+                            {
+                                Result = result;
+                                break;
+                            }
+                            _searchingColor = _searchingColor == ChessColor.White ? ChessColor.Black : ChessColor.White;
+                            currentEngine = GetCurrentEngine(false);
+                            opponentEngine = GetCurrentEngine(true);
 
+                        }
+                        lock (_lock)
+                        {
+                            if (!token.IsCancellationRequested)
+                            {
+                                UnsubscribeFromAllEngineEvents();
+                                _running = false;
+                                MatchCompleted?.Invoke(this, EventArgs.Empty);
+                            }
+                        }
                     }
-                    lock (_lock)
+                    catch (OperationCanceledException)
                     {
-                        if (!token.IsCancellationRequested)
+                    }
+                    catch
+                    {
+                        lock (_lock)
                         {
                             UnsubscribeFromAllEngineEvents();
                             _running = false;
-                            MatchCompleted?.Invoke(this, EventArgs.Empty);
+                            Result = ChessGameResult.None;
+                            MatchCanceled?.Invoke(this, EventArgs.Empty);
                         }
                     }
                 });

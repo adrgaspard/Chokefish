@@ -234,10 +234,14 @@ namespace AdrGaspard.ChokefishSuite.Core.UCI
             {
                 if (CurrentState is not UciChessGuiState.None and not UciChessGuiState.Disposed)
                 {
+                    _refreshBoardTaskSource = new();
                     CurrentState = UciChessGuiState.WaitingForDisplay;
                     _transmitter.SendInputData($"{UciCommands.Display} {UciCommands.DisplayArgumentFen}");
-                    _refreshBoardTaskSource = new();
-                    _refreshBoardTaskSource.Task.Wait();
+                    if (!_refreshBoardTaskSource.Task.Wait(TimeSpan.FromSeconds(10)))
+                    {
+                        CurrentState = UciChessGuiState.Disposed;
+                        throw new ChessException("The engine didn't respond to the display command.");
+                    }
                     return true;
                 }
                 return false;

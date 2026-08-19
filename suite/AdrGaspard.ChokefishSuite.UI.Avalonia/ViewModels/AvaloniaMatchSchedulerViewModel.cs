@@ -15,7 +15,6 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
         }
 
         private BoardUpdate? _pendingBoardUpdate;
-        private bool _boardUpdateScheduled;
 
         public AvaloniaMatchSchedulerViewModel() : base()
         {
@@ -51,26 +50,22 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
 
         private void ScheduleBoardUpdate(ChessBoard board, ChessMove? move)
         {
-            Volatile.Write(ref _pendingBoardUpdate, new BoardUpdate { Board = board, Move = move });
-            if (_boardUpdateScheduled)
+            BoardUpdate? previous = Interlocked.Exchange(ref _pendingBoardUpdate, new BoardUpdate { Board = board, Move = move });
+            if (previous is null)
             {
-                return;
+                Dispatcher.UIThread.Post(ApplyPendingBoardUpdate);
             }
-            _boardUpdateScheduled = true;
-            Dispatcher.UIThread.Post(ApplyPendingBoardUpdate);
         }
 
         private void ScheduleBoardReset()
         {
-            Volatile.Write(ref _pendingBoardUpdate, null);
+            Interlocked.Exchange(ref _pendingBoardUpdate, null);
             Dispatcher.UIThread.Post(() => BoardVM.ResetBoardCommand.Execute(null));
         }
 
         private void ApplyPendingBoardUpdate()
         {
-            _boardUpdateScheduled = false;
-            BoardUpdate? update = Volatile.Read(ref _pendingBoardUpdate);
-            Volatile.Write(ref _pendingBoardUpdate, null);
+            BoardUpdate? update = Interlocked.Exchange(ref _pendingBoardUpdate, null);
             if (update is not null)
             {
                 BoardVM.SetBoardCommand.Execute((update.Board, update.Move));
