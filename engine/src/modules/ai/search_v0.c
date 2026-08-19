@@ -115,7 +115,7 @@ static evaluation search_v0_recursive(board *board, search_context *context, uin
         do_move(board, generation_result.moves[i], true);
         child_evaluation = search_v0_recursive(board, context, depth - 1);
         child_evaluation.score = -child_evaluation.score;
-        if (child_evaluation.score > result.score)
+        if (i == 0 || child_evaluation.score > result.score)
         {
             result.score = child_evaluation.score;
             result.best_move = generation_result.moves[i];

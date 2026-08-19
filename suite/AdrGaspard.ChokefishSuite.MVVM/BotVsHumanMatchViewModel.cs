@@ -187,9 +187,16 @@ namespace AdrGaspard.ChokefishSuite.MVVM
 
         private void OnEngineSearchStopped(object? sender, EventArgs eventArgs)
         {
-            if (sender is IChessEngine engine && engine.SearchResult?.BestMove is ChessMove bestMove)
+            if (sender is IChessEngine engine)
             {
-                ExecuteMove(bestMove);
+                if (engine.SearchResult?.BestMove is ChessMove bestMove)
+                {
+                    ExecuteMove(bestMove);
+                }
+                else
+                {
+                    StopMatchCommand.Execute(null);
+                }
             }
         }
 

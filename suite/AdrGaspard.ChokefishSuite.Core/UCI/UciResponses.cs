@@ -11,6 +11,7 @@
 
         public const string Bestmove = "bestmove";
         public const string BestmoveArgumentPonder = "ponder";
+        public const string BestmoveArgumentNullMove = "0000";
 
         public const string Info = "info";
         public const string InfoArgumentDepth = "depth";

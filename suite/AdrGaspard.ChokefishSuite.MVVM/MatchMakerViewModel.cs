@@ -123,7 +123,10 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                         _searchCompletionSource = new();
                         currentEngine.StartSearch(_timeSystem);
                         _searchCompletionSource.Task.Wait();
-                        ChessMove bestMove = currentEngine.SearchResult?.BestMove ?? throw new NullReferenceException($"An engine search didn't returned a move!");
+                        if (currentEngine.SearchResult?.BestMove is not ChessMove bestMove)
+                        {
+                            break;
+                        }
                         moves.Add(bestMove.ToUciString() ?? throw new NullReferenceException($"An engine search didn't returned a correct move!"));
                         LastMove = bestMove;
                         opponentEngine.SetPosition(_fen, moves);

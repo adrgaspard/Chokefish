@@ -4,14 +4,14 @@ namespace AdrGaspard.ChokefishSuite.Core.SearchData
 {
     public readonly struct SearchResult : IEquatable<SearchResult>
     {
-        public readonly ChessMove BestMove;
+        public readonly ChessMove? BestMove;
         public readonly ChessMove? PonderMove;
 
-        public SearchResult(ChessMove bestMove) : this(bestMove, null)
+        public SearchResult(ChessMove? bestMove) : this(bestMove, null)
         {
         }
 
-        public SearchResult(ChessMove bestMove, ChessMove? ponderMove)
+        public SearchResult(ChessMove? bestMove, ChessMove? ponderMove)
         {
             BestMove = bestMove;
             PonderMove = ponderMove;

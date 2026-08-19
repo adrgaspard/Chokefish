@@ -74,7 +74,7 @@ static void print_search_result_info(search_result *result)
         result->depth, time, engine_atomic_uint64_load(&(result->nodes_explored)));
     if (result->is_mate)
     {
-        printf(EG_CMD_INFO_OPT_SCORE_OPT_MATE " " U16 "\n", result->mate_score);
+        printf(EG_CMD_INFO_OPT_SCORE_OPT_MATE " " I32 "\n", (int32_t)result->mate_score);
     }
     else
     {

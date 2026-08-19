@@ -67,6 +67,7 @@
 
 #define EG_CMD_BESTMOVE "bestmove"
 #define EG_CMD_BESTMOVE_OPT_PONDER "ponder"
+#define EG_CMD_BESTMOVE_OPT_NULLMOVE "0000"
 
 #define EG_CMD_INFO "info"
 #define EG_CMD_INFO_OPT_DEPTH "depth"
