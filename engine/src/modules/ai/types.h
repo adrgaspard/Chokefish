@@ -14,7 +14,7 @@ typedef struct search_result
     move best_move;
     move ponder_move;
     uint16_t depth;
-    uint64_t nodes_explored;
+    engine_atomic_uint64 nodes_explored;
     uint64_t start_time;
 } search_result;
 

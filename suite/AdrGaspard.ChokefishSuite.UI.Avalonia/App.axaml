@@ -13,6 +13,20 @@
                 <ResourceInclude Source="avares://AdrGaspard.ChokefishSuite.UI.Avalonia/Styles/Icons.axaml" />
             </ResourceDictionary.MergedDictionaries>
             <vm:ViewModelLocator x:Key="Locator" />
+            <Color x:Key="AccentColor">#F5CF27</Color>
+            <Color x:Key="AccentColorDark1">#D5B422</Color>
+            <Color x:Key="AccentColorDark2">#B3981C</Color>
+            <Color x:Key="AccentColorDark3">#8A7516</Color>
+            <Color x:Key="AccentColorLight1">#F7D747</Color>
+            <Color x:Key="AccentColorLight2">#F9DE66</Color>
+            <Color x:Key="AccentColorLight3">#FBE9A0</Color>
+            <Color x:Key="SystemAccentColor">#F5CF27</Color>
+            <Color x:Key="SystemAccentColorDark1">#D5B422</Color>
+            <Color x:Key="SystemAccentColorDark2">#B3981C</Color>
+            <Color x:Key="SystemAccentColorDark3">#8A7516</Color>
+            <Color x:Key="SystemAccentColorLight1">#F7D747</Color>
+            <Color x:Key="SystemAccentColorLight2">#F9DE66</Color>
+            <Color x:Key="SystemAccentColorLight3">#FBE9A0</Color>
             <Color x:Key="winColor">#32DB4F</Color>
             <Color x:Key="drawColor">#C3C3C3</Color>
             <Color x:Key="lossColor">#F72F2F</Color>

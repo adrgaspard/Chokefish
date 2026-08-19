@@ -9,6 +9,6 @@
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
             <Button Classes="buttonStyle" Content="Select executable" Click="OnExecutableSelectionRequested" />
         </StackPanel>
-        <TextBlock Classes="textblockStyle" Text="{Binding EnginePath}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" MaxWidth="{Binding #rootUC.Bounds.Width}" />
+        <TextBox IsReadOnly="True" Classes="textboxStyle" Text="{Binding EnginePath}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
     </DockPanel>
 </UserControl>

@@ -34,7 +34,8 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Board
                     ChessPieceType.King => KingName,
                     _ => ""
                 };
-                return GetPieceImage(string.Concat(colorPart, typePart));
+                string fileName = char.ToLowerInvariant(typePart[0]) + typePart.Substring(1) + colorPart;
+                return GetPieceImage(fileName);
             }
             return null;
         }

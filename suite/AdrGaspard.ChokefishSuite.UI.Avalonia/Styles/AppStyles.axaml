@@ -25,6 +25,8 @@
         <Setter Property="BorderBrush" Value="#D0D0D0" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Padding" Value="10,2" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
     <Style Selector="Button.buttonStyle:pointerover">
         <Setter Property="Foreground" Value="DarkBlue" />

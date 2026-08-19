@@ -33,7 +33,7 @@
                 </MultiBinding>
             </Rectangle.IsVisible>
         </Rectangle>
-        <Ellipse Width="120" Height="120" Stroke="#606060" Opacity="0.4" StrokeThickness="10">
+        <Ellipse Margin="14" Stroke="#606060" Opacity="0.4" StrokeThickness="8">
             <Ellipse.IsVisible>
                 <MultiBinding Converter="{StaticResource boolAndPieceToVisibilityConverter}">
                     <Binding Path="CanBeNextMoveDestination" />

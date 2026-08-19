@@ -26,9 +26,9 @@
                     <ColumnDefinition Width="10*" />
                 </Grid.ColumnDefinitions>
                 <ScrollViewer x:Name="schedulerScroll" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" ClipToBounds="True">
-                    <match:SchedulerUC MaxWidth="{Binding #schedulerScroll.Viewport.Width}" HorizontalAlignment="Stretch" Margin="4,0,18,0" />
+                    <match:SchedulerUC HorizontalAlignment="Stretch" Margin="4,0,26,0" />
                 </ScrollViewer>
-                <board:GameUC x:Name="schedulerGameUC" Grid.Column="1" Margin="24,0,0,0" />
+                <board:GameUC x:Name="schedulerGameUC" Grid.Column="1" Margin="36,0,0,0" />
             </Grid>
         </TabItem>
         <TabItem Header="Match vs human"
@@ -39,9 +39,9 @@
                     <ColumnDefinition Width="10*" />
                 </Grid.ColumnDefinitions>
                 <ScrollViewer x:Name="botVsHumanScroll" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" ClipToBounds="True">
-                    <match:BotVsHumanUC MaxWidth="{Binding #botVsHumanScroll.Viewport.Width}" HorizontalAlignment="Stretch" Margin="4,0,18,0" />
+                    <match:BotVsHumanUC HorizontalAlignment="Stretch" Margin="4,0,26,0" />
                 </ScrollViewer>
-                <board:GameUC x:Name="botVsHumanGameUC" Grid.Column="1" Margin="24,0,0,0" />
+                <board:GameUC x:Name="botVsHumanGameUC" Grid.Column="1" Margin="36,0,0,0" />
             </Grid>
         </TabItem>
     </TabControl>

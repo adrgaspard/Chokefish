@@ -101,6 +101,9 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                             {
                                 StartMatchProcedure(token);
                             }
+                            catch (OperationCanceledException)
+                            {
+                            }
                             catch
                             {
                                 Initializing = false;

@@ -9,11 +9,20 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
         public AvaloniaBotVsHumanMatchViewModel()
         {
             BoardVM = new(true);
+            ConsoleVM = new();
             BoardVM.MoveChosen += OnBoardMoveChosen;
             PropertyChanged += OnPropertyChanged;
         }
 
         public BoardViewModel BoardVM { get; private init; }
+
+        public ConsoleViewModel ConsoleVM { get; private init; }
+
+        protected override void OnReset()
+        {
+            base.OnReset();
+            ConsoleVM.Clear();
+        }
 
         private void OnBoardMoveChosen(object? sender, ChessMove eventArgs)
         {

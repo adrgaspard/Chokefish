@@ -40,6 +40,8 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
 
         public event EventHandler? Exited;
 
+        public static event EventHandler<IOTransmitterLog>? LogEmitted;
+
         public void Start()
         {
             lock (_lock)
@@ -64,6 +66,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
                     _process.StandardInput.WriteLine(data);
                     _process.StandardInput.Flush();
                     Debug.WriteLine($"[GUI > ENGINE] {data}");
+                    LogEmitted?.Invoke(this, new IOTransmitterLog(data, IOTransmitterLogKind.Sent));
                 }
             }
         }
@@ -83,6 +86,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
             if (!string.IsNullOrEmpty(eventArgs.Data))
             {
                 Debug.WriteLine($"[ERROR] {eventArgs.Data}");
+                LogEmitted?.Invoke(this, new IOTransmitterLog(eventArgs.Data, IOTransmitterLogKind.Error));
                 ErrorDataReceived?.Invoke(this, eventArgs.Data);
             }
         }
@@ -92,6 +96,7 @@ namespace AdrGaspard.ChokefishSuite.Core.Utils
             if (!string.IsNullOrEmpty(eventArgs.Data))
             {
                 Debug.WriteLine($"[ENGINE > GUI] {eventArgs.Data}");
+                LogEmitted?.Invoke(this, new IOTransmitterLog(eventArgs.Data, eventArgs.Data.StartsWith("info ") ? IOTransmitterLogKind.ReceivedInfo : IOTransmitterLogKind.Received));
                 OutputDataReceived?.Invoke(this, eventArgs.Data);
             }
         }

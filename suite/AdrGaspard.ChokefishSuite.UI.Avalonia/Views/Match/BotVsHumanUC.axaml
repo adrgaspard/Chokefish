@@ -5,11 +5,13 @@
              xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match"
              xmlns:commonconverter="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Converters.Common"
              xmlns:primitives="using:Avalonia.Controls.Primitives"
+             xmlns:sys="using:System"
              x:DataType="vm:AvaloniaBotVsHumanMatchViewModel"
              x:Name="rootUC">
     <UserControl.Resources>
         <commonconverter:BoolToInvertedBoolConverter x:Key="boolToInvertedBoolConverter" />
         <commonconverter:BoolToVisibleCollapsedVisibilityConverter x:Key="boolToVisibilityConverter" />
+        <sys:Boolean x:Key="boolTrue">True</sys:Boolean>
     </UserControl.Resources>
     <StackPanel>
         <local:BotVsHumanMatchInfosUC />
@@ -20,7 +22,10 @@
         </StackPanel>
         <Border Height="1" Background="White" Margin="20" />
         <local:EngineParametersUC DataContext="{Binding EngineParametersVM}"
-                                  IsEnabled="{Binding #rootUC.DataContext.Running, Converter={StaticResource boolToInvertedBoolConverter}}" />
+                                  IsEnabled="{Binding #rootUC.DataContext.Running, Converter={StaticResource boolToInvertedBoolConverter}}"
+                                  IsVisible="{Binding #rootUC.DataContext.Running, Converter={StaticResource boolToVisibilityConverter}, ConverterParameter={StaticResource boolTrue}}" />
+        <local:ConsoleUC DataContext="{Binding ConsoleVM}"
+                         IsVisible="{Binding #rootUC.DataContext.Running, Converter={StaticResource boolToVisibilityConverter}}" />
         <Border Height="1" Background="White" Margin="20" />
         <primitives:UniformGrid Columns="3">
             <Button Command="{Binding StartMatchCommand}" Content="Start" Classes="buttonStyle actionButtonStyle"

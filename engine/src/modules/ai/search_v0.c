@@ -30,7 +30,7 @@ static void publish_search_result(search_context *context, uint16_t depth, evalu
     result = context->result;
     engine_mutex_lock(context->mutex);
     result->depth = depth;
-    result->nodes_explored = context->nodes_explored;
+    engine_atomic_uint64_store(&(result->nodes_explored), context->nodes_explored);
     result->best_move = evaluation->best_move;
     result->ponder_move = evaluation->ponder_move;
     if (IS_END_SCORE(evaluation->score))
@@ -88,6 +88,10 @@ static evaluation search_v0_recursive(board *board, search_context *context, uin
     if (depth == 0)
     {
         context->nodes_explored++;
+        if ((context->nodes_explored & 1023U) == 0)
+        {
+            engine_atomic_uint64_store(&(context->result->nodes_explored), context->nodes_explored);
+        }
         result.score = evaluation_v0(board);
         return result;
     }

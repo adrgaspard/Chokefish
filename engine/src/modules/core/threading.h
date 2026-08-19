@@ -13,6 +13,11 @@ typedef struct engine_atomic_bool
     uint32_t value;
 } engine_atomic_bool;
 
+typedef struct engine_atomic_uint64
+{
+    uint64_t value;
+} engine_atomic_uint64;
+
 #if defined(_WIN32)
 
 #define WIN32_LEAN_AND_MEAN
@@ -68,6 +73,21 @@ static inline void engine_atomic_bool_store(engine_atomic_bool *flag, bool value
 static inline bool engine_atomic_bool_load(engine_atomic_bool *flag)
 {
     return InterlockedCompareExchange((volatile LONG *)&(flag->value), 0, 0) != 0;
+}
+
+static inline void engine_atomic_uint64_init(engine_atomic_uint64 *counter)
+{
+    counter->value = 0;
+}
+
+static inline void engine_atomic_uint64_store(engine_atomic_uint64 *counter, uint64_t value)
+{
+    InterlockedExchange64((volatile LONG64 *)&(counter->value), (LONG64)value);
+}
+
+static inline uint64_t engine_atomic_uint64_load(engine_atomic_uint64 *counter)
+{
+    return (uint64_t)InterlockedCompareExchange64((volatile LONG64 *)&(counter->value), 0, 0);
 }
 
 static DWORD WINAPI engine_thread_wrapper(LPVOID raw_argument)
@@ -148,6 +168,21 @@ static inline void engine_atomic_bool_store(engine_atomic_bool *flag, bool value
 static inline bool engine_atomic_bool_load(engine_atomic_bool *flag)
 {
     return __atomic_load_n(&(flag->value), __ATOMIC_ACQUIRE) != 0;
+}
+
+static inline void engine_atomic_uint64_init(engine_atomic_uint64 *counter)
+{
+    counter->value = 0;
+}
+
+static inline void engine_atomic_uint64_store(engine_atomic_uint64 *counter, uint64_t value)
+{
+    __atomic_store_n(&(counter->value), value, __ATOMIC_RELAXED);
+}
+
+static inline uint64_t engine_atomic_uint64_load(engine_atomic_uint64 *counter)
+{
+    return __atomic_load_n(&(counter->value), __ATOMIC_RELAXED);
 }
 
 static inline void engine_thread_create_detached(engine_thread *thread, engine_thread_function function, void *argument)

@@ -71,7 +71,7 @@ static void print_search_result_info(search_result *result)
     assert(result != NULL);
     time = get_current_uptime() - result->start_time;
     printf(EG_CMD_INFO UCI_DELIMITER EG_CMD_INFO_OPT_DEPTH  " " U16 " " EG_CMD_INFO_OPT_TIME " " U64 " " EG_CMD_INFO_OPT_NODES " " U64 " " EG_CMD_INFO_OPT_SCORE UCI_DELIMITER,
-        result->depth, time, result->nodes_explored);
+        result->depth, time, engine_atomic_uint64_load(&(result->nodes_explored)));
     if (result->is_mate)
     {
         printf(EG_CMD_INFO_OPT_SCORE_OPT_MATE " " U16 "\n", result->mate_score);

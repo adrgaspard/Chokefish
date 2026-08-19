@@ -120,7 +120,7 @@ namespace AdrGaspard.ChokefishSuite.MVVM
                 BlackEngineName = (firstIsWhite ? SecondEngineSelectorVM : FirstEngineSelectorVM).EngineName;
                 MatchMakerVM.StartMatchCommand.Execute(null);
                 _matchCompletionSource.Task.Wait(token);
-                UpdateRatio(MatchMakerVM.Result);
+                UpdateRatio(MatchMakerVM.Result, firstIsWhite);
                 MatchMakerVM.MoveExecuted -= OnMatchMakerMoveExecuted;
                 MatchMakerVM.MatchCanceled -= OnMatchCompletedOrCancelled;
                 MatchMakerVM.MatchCompleted -= OnMatchCompletedOrCancelled;
@@ -160,15 +160,29 @@ namespace AdrGaspard.ChokefishSuite.MVVM
             Result = HypothesisResult.None;
         }
 
-        private void UpdateRatio(ChessGameResult result)
+        private void UpdateRatio(ChessGameResult result, bool firstIsWhite)
         {
             switch (result)
             {
                 case ChessGameResult.WhiteMated:
-                    RatioVM.DefeatCount++;
+                    if (firstIsWhite)
+                    {
+                        RatioVM.DefeatCount++;
+                    }
+                    else
+                    {
+                        RatioVM.VictoryCount++;
+                    }
                     break;
                 case ChessGameResult.BlackMated:
-                    RatioVM.VictoryCount++;
+                    if (firstIsWhite)
+                    {
+                        RatioVM.VictoryCount++;
+                    }
+                    else
+                    {
+                        RatioVM.DefeatCount++;
+                    }
                     break;
                 case ChessGameResult.Stalemate:
                 case ChessGameResult.Repetition:

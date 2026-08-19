@@ -24,42 +24,44 @@
                 <Label Classes="labelStyle" Content=")" />
             </StackPanel>
         </StackPanel>
-        <Grid Margin="0,0,0,10">
+        <Grid Margin="0,0,0,6">
             <DockPanel IsVisible="{Binding Parsing, Converter={StaticResource boolToVisibilityConverter}, ConverterParameter={StaticResource boolTrue}}">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0,0,0" VerticalAlignment="Center">
                     <CheckBox Classes="checkboxStyle" IsChecked="{Binding RandomizeStartPositionsOrder}" />
                     <Label Classes="labelStyle" Content="Random order" />
                 </StackPanel>
                 <Button DockPanel.Dock="Right" Classes="buttonStyle" Content="Select json file" Click="OnJsonSelectionRequested" Margin="10,0,0,0" VerticalAlignment="Center" />
-                <TextBlock Classes="textblockStyle" Text="{Binding PositionsPath}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" MaxWidth="{Binding #rootUC.Bounds.Width}" />
+                <TextBox IsReadOnly="True" Classes="textboxStyle" Text="{Binding PositionsPath}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" />
             </DockPanel>
             <TextBlock Classes="textblockStyle" Text="Parsing..." IsVisible="{Binding Parsing, Converter={StaticResource boolToVisibilityConverter}}" />
         </Grid>
-        <primitives:UniformGrid Columns="3" Margin="0,0,0,10">
+        <primitives:UniformGrid Columns="2" Margin="0,0,0,6">
             <StackPanel Orientation="Vertical" Margin="0,0,6,0">
-                <Label Classes="labelStyle" Content="Think time (ms)" />
+                <Label Classes="labelStyle" Content="Think time (ms)" Padding="2,2" />
                 <TextBox Classes="textboxStyle" Text="{Binding ThinkTimeInMs}" />
             </StackPanel>
-            <StackPanel Orientation="Vertical" Margin="3,0,3,0">
-                <Label Classes="labelStyle" Content="Min. games" />
+            <StackPanel Orientation="Vertical" Margin="6,0,0,0">
+                <Label Classes="labelStyle" Content="Min. games" Padding="2,2" />
                 <TextBox Classes="textboxStyle" Text="{Binding MinimumGamesCount}" />
             </StackPanel>
-            <StackPanel Orientation="Vertical" Margin="6,0,0,0">
-                <Label Classes="labelStyle" Content="Max. games" />
+        </primitives:UniformGrid>
+        <primitives:UniformGrid Columns="2" Margin="0,0,0,6">
+            <StackPanel Orientation="Vertical" Margin="0,0,6,0">
+                <Label Classes="labelStyle" Content="Max. games" Padding="2,2" />
                 <TextBox Classes="textboxStyle" Text="{Binding MaximumGamesCount}" />
             </StackPanel>
-        </primitives:UniformGrid>
-        <primitives:UniformGrid Columns="3" Margin="0,0,0,10">
-            <StackPanel Orientation="Vertical" Margin="0,0,6,0">
-                <Label Classes="labelStyle" Content="Elo difference" />
+            <StackPanel Orientation="Vertical" Margin="6,0,0,0">
+                <Label Classes="labelStyle" Content="Elo difference" Padding="2,2" />
                 <TextBox Classes="textboxStyle" Text="{Binding EloDifference}" />
             </StackPanel>
-            <StackPanel Orientation="Vertical" Margin="3,0,3,0">
-                <Label Classes="labelStyle" Content="False positive risk" />
+        </primitives:UniformGrid>
+        <primitives:UniformGrid Columns="2" Margin="0,0,0,6">
+            <StackPanel Orientation="Vertical" Margin="0,0,6,0">
+                <Label Classes="labelStyle" Content="False positive risk" Padding="2,2" />
                 <TextBox Classes="textboxStyle" Text="{Binding FalsePositiveRisk}" />
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="6,0,0,0">
-                <Label Classes="labelStyle" Content="False negative risk" />
+                <Label Classes="labelStyle" Content="False negative risk" Padding="2,2" />
                 <TextBox Classes="textboxStyle" Text="{Binding FalseNegativeRisk}" />
             </StackPanel>
         </primitives:UniformGrid>

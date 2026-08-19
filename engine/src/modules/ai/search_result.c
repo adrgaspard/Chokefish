@@ -22,6 +22,6 @@ void reset_search_result(search_result *result, bool start_now)
     result->best_move = create_empty_movement();
     result->ponder_move = create_empty_movement();
     result->depth = 0;
-    result->nodes_explored = 0;
+    engine_atomic_uint64_store(&(result->nodes_explored), 0);
     result->start_time = start_now ? get_current_uptime() : 0;
 }

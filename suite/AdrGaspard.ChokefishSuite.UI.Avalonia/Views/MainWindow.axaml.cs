@@ -1,6 +1,7 @@
 using AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.VisualTree;
 
 namespace AdrGaspard.ChokefishSuite.UI.Avalonia.Views
 {

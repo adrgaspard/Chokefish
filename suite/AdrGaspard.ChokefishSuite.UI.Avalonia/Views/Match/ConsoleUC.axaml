@@ -1,0 +1,10 @@
+<UserControl x:Class="AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match.ConsoleUC"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match">
+    <ScrollViewer x:Name="consoleScroll" Height="300" Background="#111111" Padding="0,0,15,15"
+                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <local:ConsoleSelectableTextBlock x:Name="consoleText" FontFamily="Consolas" FontSize="12" TextWrapping="NoWrap"
+                                          SelectionBrush="#666666" SelectionForegroundBrush="White" />
+    </ScrollViewer>
+</UserControl>
