@@ -14,8 +14,9 @@
         <game:ChessPieceType x:Key="bishopPieceType">Bishop</game:ChessPieceType>
         <game:ChessPieceType x:Key="knightPieceType">Knight</game:ChessPieceType>
     </UserControl.Resources>
-    <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Margin="5,0,0,0" VerticalAlignment="Center">
+    <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="1" Margin="5,0,0,0" VerticalAlignment="Center"
+                    IsVisible="{Binding SelectionEventsEnabled}">
             <RadioButton GroupName="PromotionType" Classes="radiobuttonStyle" Margin="0,0,0,3"
                          IsChecked="{Binding SelectedPromotionType, Converter={StaticResource promotionToBoolConverter}, ConverterParameter={StaticResource queenPieceType}}">
                 <PathIcon Data="{StaticResource chessQueenIcon}" Width="28" Height="28" />
@@ -33,8 +34,12 @@
                 <PathIcon Data="{StaticResource chessKnightIcon}" Width="28" Height="28" />
             </RadioButton>
         </StackPanel>
-        <Grid DockPanel.Dock="Bottom">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,2,0,0">
+        <Grid x:Name="boardContainer" Grid.Column="0">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <local:BoardUC x:Name="board" HorizontalAlignment="Center" />
+                <Grid x:Name="bottomBar" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,2,0,0"
+                        IsVisible="{Binding SelectionEventsEnabled}">
                 <Button Command="{Binding DisplayFirstPositionCommand}" ToolTip.Tip="First move"
                         Classes="buttonStyle" Margin="0,0,5,0">
                     <PathIcon Data="{StaticResource anglesLeftIcon}" Width="20" Height="20" />
@@ -58,9 +63,8 @@
                     Classes="buttonStyle" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,0,0">
                 <PathIcon Data="{StaticResource rightLeftIcon}" Width="20" Height="20" />
             </Button>
+                </Grid>
+            </StackPanel>
         </Grid>
-        <Grid x:Name="boardContainer">
-            <local:BoardUC x:Name="board" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        </Grid>
-    </DockPanel>
+    </Grid>
 </UserControl>

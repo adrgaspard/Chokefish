@@ -54,7 +54,6 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
                     break;
                 default:
                     break;
-
             }
         }
     }
