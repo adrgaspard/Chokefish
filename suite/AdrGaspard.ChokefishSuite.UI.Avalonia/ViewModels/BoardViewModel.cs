@@ -11,6 +11,7 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
     {
         private static readonly ImmutableArray<ChessPieceType> AllowedPromotionTypes = ImmutableArray.Create(ChessPieceType.Queen, ChessPieceType.Rook, ChessPieceType.Bishop, ChessPieceType.Knight);
         private ChessBoard? _board;
+        private ChessMove? _lastMove;
         private readonly List<(ChessBoard, ChessMove?)> _boardStack;
         private int _selectedBoardIndex;
         private ChessColor _perspective;
@@ -130,8 +131,12 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
         private void SetBoard((ChessBoard, ChessMove?) tuple)
         {
             _board = tuple.Item1;
+            _lastMove = tuple.Item2;
             _selectedBoardIndex = -1;
-            _boardStack.Add(tuple);
+            if (SelectionEventsEnabled)
+            {
+                _boardStack.Add(tuple);
+            }
             UpdateDisplayedBoard();
         }
 
@@ -270,7 +275,7 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
 
         private void UpdateDisplayedBoard()
         {
-            (ChessBoard board, ChessMove? move) = _boardStack[_selectedBoardIndex == -1 ? ^1 : _selectedBoardIndex];
+            (ChessBoard board, ChessMove? move) = _selectedBoardIndex == -1 ? (_board!.Value, _lastMove) : _boardStack[_selectedBoardIndex];
             for (int rankIndex = 0; rankIndex < ChessConsts.RanksCount; rankIndex++)
             {
                 for (int fileIndex = 0; fileIndex < ChessConsts.FilesCount; fileIndex++)

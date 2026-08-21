@@ -53,6 +53,14 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match
                         AddLogLine(log);
                     }
                 }
+                else if (eventArgs.Action == NotifyCollectionChangedAction.Remove)
+                {
+                    int removed = eventArgs.OldItems?.Count ?? 0;
+                    for (int i = 0; i < removed; i++)
+                    {
+                        RemoveFirstLogLine();
+                    }
+                }
                 else
                 {
                     consoleText.Inlines?.Clear();
@@ -89,6 +97,15 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.Views.Match
                 }
             });
             consoleText.Inlines?.Add(new LineBreak());
+        }
+
+        private void RemoveFirstLogLine()
+        {
+            if (consoleText.Inlines is { } inlines && inlines.Count >= 2)
+            {
+                inlines.RemoveAt(0);
+                inlines.RemoveAt(0);
+            }
         }
 
         private void ScrollToEnd()

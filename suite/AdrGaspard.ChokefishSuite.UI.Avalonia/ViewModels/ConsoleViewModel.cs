@@ -6,6 +6,8 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
 {
     public class ConsoleViewModel : ObservableObject
     {
+        private const int MaxEntries = 10000;
+        private const int TrimChunk = 1000;
         public ConsoleViewModel()
         {
             Entries = new();
@@ -22,6 +24,14 @@ namespace AdrGaspard.ChokefishSuite.UI.Avalonia.ViewModels
         private void OnLogEmitted(object? sender, IOTransmitterLog log)
         {
             Entries.Add(log);
+            if (Entries.Count > MaxEntries)
+            {
+                int excess = Entries.Count - MaxEntries + TrimChunk;
+                for (int i = 0; i < excess; i++)
+                {
+                    Entries.RemoveAt(0);
+                }
+            }
         }
     }
 }
