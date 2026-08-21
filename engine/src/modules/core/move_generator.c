@@ -12,39 +12,48 @@ static bool _is_check_after_en_passant(board *board, move_generation_data *data,
 
 void generate_moves(board *board, move_generation_result *result, move_generation_options options)
 {
-	move_generation_data data;
+	generate_moves_with_data(board, result, options, NULL);
+}
+
+void generate_moves_with_data(board *board, move_generation_result *result, move_generation_options options, move_generation_data *data)
+{
+	move_generation_data generation_data;
 	assert(board != NULL);
 	assert(result != NULL);
+	if (data == NULL)
+	{
+		data = &generation_data;
+	}
 
 	// Initialization
 	reset_move_generation_result(result);
-	data.is_currently_check = false;
-	data.is_currently_double_check = false;
-	data.check_ray_mask = 0;
-	data.pin_ray_mask = 0;
-	data.current_color = board->color_to_move;
-	data.opponent_color = get_opponent(data.current_color);
-	data.current_king_pos = board->king_position[data.current_color];
-	data.friendly_pieces_mask = board->color_mask[data.current_color];
-	data.enemy_pieces_mask = board->color_mask[data.opponent_color];
-	data.all_pieces_mask = board->all_pieces_mask;
-	data.empty_pos_mask = ~data.all_pieces_mask;
-	data.empty_pos_or_enemy_pieces_mask = data.empty_pos_mask | data.enemy_pieces_mask;
-	data.allowed_destinations_mask = options.include_quiet_moves ? UINT64_MAX : data.enemy_pieces_mask;
-	data.opponent_sliding_attacks_mask = 0;
-	_compute_attack_data(board, &data);
+	data->is_currently_check = false;
+	data->is_currently_double_check = false;
+	data->check_ray_mask = 0;
+	data->pin_ray_mask = 0;
+	data->current_color = board->color_to_move;
+	data->opponent_color = get_opponent(data->current_color);
+	data->current_king_pos = board->king_position[data->current_color];
+	data->friendly_pieces_mask = board->color_mask[data->current_color];
+	data->enemy_pieces_mask = board->color_mask[data->opponent_color];
+	data->all_pieces_mask = board->all_pieces_mask;
+	data->empty_pos_mask = ~data->all_pieces_mask;
+	data->empty_pos_or_enemy_pieces_mask = data->empty_pos_mask | data->enemy_pieces_mask;
+	data->allowed_destinations_mask = options.include_quiet_moves ? UINT64_MAX : data->enemy_pieces_mask;
+	data->opponent_sliding_attacks_mask = 0;
+	_compute_attack_data(board, data);
 
 	// Generate moves
-	_generate_king_moves(board, &data, result, options);
-	if (!data.is_currently_double_check)
+	_generate_king_moves(board, data, result, options);
+	if (!data->is_currently_double_check)
 	{
-		_generate_sliding_moves(board, &data, result);
-		_generate_knight_moves(board, &data, result);
-		_generate_pawn_moves(board, &data, result, options);
+		_generate_sliding_moves(board, data, result);
+		_generate_knight_moves(board, data, result);
+		_generate_pawn_moves(board, data, result, options);
 	}
 
 	// Update result secondary content
-	result->is_currently_check = data.is_currently_check;
+	result->is_currently_check = data->is_currently_check;
 }
 
 static void _compute_attack_data(board *board, move_generation_data *data)

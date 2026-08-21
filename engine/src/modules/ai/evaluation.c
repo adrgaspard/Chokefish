@@ -1,4 +1,5 @@
 #include "evaluation.h"
+#include "piece_values.h"
 
 int32_t evaluation_v0(board *board)
 {

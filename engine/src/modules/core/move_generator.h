@@ -32,5 +32,6 @@ typedef struct move_generation_data
 } move_generation_data;
 
 void generate_moves(board *board, move_generation_result *result, move_generation_options options);
+void generate_moves_with_data(board *board, move_generation_result *result, move_generation_options options, move_generation_data *data);
 
 #endif // MOVE_GENERATOR_H

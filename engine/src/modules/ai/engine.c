@@ -3,7 +3,7 @@
 #include "../core/move_generator.h"
 #include "../core/move_generation_result.h"
 #include "engine.h"
-#include "search.h"
+#include "search_v2.h"
 #include "search_result.h"
 
 void search(board *board, search_result *search_result, engine_mutex *mutex, engine_atomic_bool *cancellation_requested)
@@ -16,7 +16,7 @@ void search(board *board, search_result *search_result, engine_mutex *mutex, eng
     engine_mutex_lock(mutex);
     reset_search_result(search_result, true);
     engine_mutex_unlock(mutex);
-    search_v0(board, search_result, mutex, cancellation_requested);
+    search_v2(board, search_result, mutex, cancellation_requested);
 }
 
 void reset_engine_cache()
